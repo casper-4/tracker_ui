@@ -754,30 +754,752 @@ export type RecoveryFactor = {
   color: string;
 };
 
+// ─── TRAINING ────────────────────────────────────────────────────────────────
+
+export type ExerciseSet = {
+  setNumber: number;
+  reps: number;
+  weight: number; // kg, 0 = bodyweight only
+};
+
+export type MuscleGroup = "back" | "chest" | "shoulders" | "arms" | "legs" | "core";
+
+export type TrainingExercise = {
+  id: string;
+  name: string;
+  muscleGroup: MuscleGroup;
+  sets: ExerciseSet[];
+  pr?: boolean;
+  notes?: string;
+};
+
+export type TrainingCategory = "push" | "pull" | "legs" | "full";
+
+export type TrainingSession = {
+  id: string;
+  name: string;
+  category: TrainingCategory;
+  date: string; // YYYY-MM-DD
+  durationMin: number;
+  exercises: TrainingExercise[];
+  notes?: string;
+  status: "planned" | "completed";
+};
+
+export const MOCK_TRAINING_HISTORY: TrainingSession[] = [
+  // ── 2026-03-04  Pull B (today — planned) ─────────────────────────────────
+  {
+    id: "tr/1",
+    name: "Pull B",
+    category: "pull",
+    date: "2026-03-04",
+    durationMin: 70,
+    status: "planned",
+    exercises: [
+      {
+        id: "ex/1/1",
+        name: "Pull-ups",
+        muscleGroup: "back",
+        sets: [
+          { setNumber: 1, reps: 8, weight: 5 },
+          { setNumber: 2, reps: 8, weight: 5 },
+          { setNumber: 3, reps: 7, weight: 5 },
+          { setNumber: 4, reps: 6, weight: 5 },
+        ],
+        pr: true,
+      },
+      {
+        id: "ex/1/2",
+        name: "T-Bar Row",
+        muscleGroup: "back",
+        sets: [
+          { setNumber: 1, reps: 10, weight: 82.5 },
+          { setNumber: 2, reps: 10, weight: 82.5 },
+          { setNumber: 3, reps: 9, weight: 82.5 },
+          { setNumber: 4, reps: 8, weight: 82.5 },
+        ],
+      },
+      {
+        id: "ex/1/3",
+        name: "Hammer Curl",
+        muscleGroup: "arms",
+        sets: [
+          { setNumber: 1, reps: 12, weight: 22 },
+          { setNumber: 2, reps: 12, weight: 22 },
+          { setNumber: 3, reps: 10, weight: 22 },
+        ],
+        pr: true,
+      },
+      {
+        id: "ex/1/4",
+        name: "Shrugs",
+        muscleGroup: "back",
+        sets: [
+          { setNumber: 1, reps: 15, weight: 105 },
+          { setNumber: 2, reps: 15, weight: 105 },
+          { setNumber: 3, reps: 12, weight: 105 },
+        ],
+      },
+    ],
+    notes: "Zaplanowany — dzisiaj Pull B. Zwiększam obciążenie na Hammer Curl.",
+  },
+  // ── 2026-03-03  Push B ────────────────────────────────────────────────────
+  {
+    id: "tr/2",
+    name: "Push B",
+    category: "push",
+    date: "2026-03-03",
+    durationMin: 65,
+    status: "completed",
+    exercises: [
+      {
+        id: "ex/2/1",
+        name: "Incline Bench Press",
+        muscleGroup: "chest",
+        sets: [
+          { setNumber: 1, reps: 10, weight: 75 },
+          { setNumber: 2, reps: 9, weight: 75 },
+          { setNumber: 3, reps: 8, weight: 75 },
+          { setNumber: 4, reps: 8, weight: 75 },
+        ],
+      },
+      {
+        id: "ex/2/2",
+        name: "DB Overhead Press",
+        muscleGroup: "shoulders",
+        sets: [
+          { setNumber: 1, reps: 12, weight: 28 },
+          { setNumber: 2, reps: 12, weight: 28 },
+          { setNumber: 3, reps: 10, weight: 28 },
+        ],
+        pr: true,
+      },
+      {
+        id: "ex/2/3",
+        name: "Cable Fly",
+        muscleGroup: "chest",
+        sets: [
+          { setNumber: 1, reps: 15, weight: 20 },
+          { setNumber: 2, reps: 15, weight: 20 },
+          { setNumber: 3, reps: 12, weight: 20 },
+        ],
+      },
+      {
+        id: "ex/2/4",
+        name: "Rope Pushdowns",
+        muscleGroup: "arms",
+        sets: [
+          { setNumber: 1, reps: 15, weight: 30 },
+          { setNumber: 2, reps: 15, weight: 30 },
+          { setNumber: 3, reps: 12, weight: 30 },
+        ],
+      },
+    ],
+  },
+  // ── 2026-03-01  Legs B ────────────────────────────────────────────────────
+  {
+    id: "tr/3",
+    name: "Legs B",
+    category: "legs",
+    date: "2026-03-01",
+    durationMin: 75,
+    status: "completed",
+    exercises: [
+      {
+        id: "ex/3/1",
+        name: "Bulgarian Split Squat",
+        muscleGroup: "legs",
+        sets: [
+          { setNumber: 1, reps: 10, weight: 40 },
+          { setNumber: 2, reps: 10, weight: 40 },
+          { setNumber: 3, reps: 9, weight: 40 },
+          { setNumber: 4, reps: 8, weight: 40 },
+        ],
+        pr: true,
+      },
+      {
+        id: "ex/3/2",
+        name: "Hack Squat",
+        muscleGroup: "legs",
+        sets: [
+          { setNumber: 1, reps: 12, weight: 120 },
+          { setNumber: 2, reps: 12, weight: 120 },
+          { setNumber: 3, reps: 10, weight: 120 },
+        ],
+      },
+      {
+        id: "ex/3/3",
+        name: "Leg Extension",
+        muscleGroup: "legs",
+        sets: [
+          { setNumber: 1, reps: 15, weight: 65 },
+          { setNumber: 2, reps: 15, weight: 65 },
+          { setNumber: 3, reps: 12, weight: 65 },
+        ],
+      },
+      {
+        id: "ex/3/4",
+        name: "Nordic Curl",
+        muscleGroup: "legs",
+        sets: [
+          { setNumber: 1, reps: 8, weight: 0 },
+          { setNumber: 2, reps: 7, weight: 0 },
+          { setNumber: 3, reps: 6, weight: 0 },
+        ],
+      },
+      {
+        id: "ex/3/5",
+        name: "Calf Press",
+        muscleGroup: "legs",
+        sets: [
+          { setNumber: 1, reps: 20, weight: 180 },
+          { setNumber: 2, reps: 20, weight: 180 },
+          { setNumber: 3, reps: 18, weight: 180 },
+        ],
+      },
+    ],
+  },
+  // ── 2026-02-28  Pull A ────────────────────────────────────────────────────
+  {
+    id: "tr/4",
+    name: "Pull A",
+    category: "pull",
+    date: "2026-02-28",
+    durationMin: 60,
+    status: "completed",
+    exercises: [
+      {
+        id: "ex/4/1",
+        name: "Pull-ups",
+        muscleGroup: "back",
+        sets: [
+          { setNumber: 1, reps: 8, weight: 0 },
+          { setNumber: 2, reps: 8, weight: 0 },
+          { setNumber: 3, reps: 7, weight: 0 },
+          { setNumber: 4, reps: 6, weight: 0 },
+        ],
+      },
+      {
+        id: "ex/4/2",
+        name: "Barbell Row",
+        muscleGroup: "back",
+        sets: [
+          { setNumber: 1, reps: 8, weight: 90 },
+          { setNumber: 2, reps: 8, weight: 90 },
+          { setNumber: 3, reps: 7, weight: 90 },
+          { setNumber: 4, reps: 7, weight: 90 },
+        ],
+        pr: true,
+      },
+      {
+        id: "ex/4/3",
+        name: "Straight Bar Curl",
+        muscleGroup: "arms",
+        sets: [
+          { setNumber: 1, reps: 10, weight: 42.5 },
+          { setNumber: 2, reps: 10, weight: 42.5 },
+          { setNumber: 3, reps: 8, weight: 42.5 },
+        ],
+      },
+      {
+        id: "ex/4/4",
+        name: "Face Pulls",
+        muscleGroup: "shoulders",
+        sets: [
+          { setNumber: 1, reps: 20, weight: 22.5 },
+          { setNumber: 2, reps: 20, weight: 22.5 },
+          { setNumber: 3, reps: 18, weight: 22.5 },
+        ],
+      },
+    ],
+  },
+  // ── 2026-02-26  Push A ────────────────────────────────────────────────────
+  {
+    id: "tr/5",
+    name: "Push A",
+    category: "push",
+    date: "2026-02-26",
+    durationMin: 70,
+    status: "completed",
+    exercises: [
+      {
+        id: "ex/5/1",
+        name: "Bench Press",
+        muscleGroup: "chest",
+        sets: [
+          { setNumber: 1, reps: 5, weight: 92.5 },
+          { setNumber: 2, reps: 5, weight: 92.5 },
+          { setNumber: 3, reps: 4, weight: 92.5 },
+          { setNumber: 4, reps: 4, weight: 92.5 },
+        ],
+        pr: true,
+      },
+      {
+        id: "ex/5/2",
+        name: "OHP",
+        muscleGroup: "shoulders",
+        sets: [
+          { setNumber: 1, reps: 6, weight: 62.5 },
+          { setNumber: 2, reps: 6, weight: 62.5 },
+          { setNumber: 3, reps: 5, weight: 62.5 },
+        ],
+      },
+      {
+        id: "ex/5/3",
+        name: "Incline DB Press",
+        muscleGroup: "chest",
+        sets: [
+          { setNumber: 1, reps: 12, weight: 34 },
+          { setNumber: 2, reps: 11, weight: 34 },
+          { setNumber: 3, reps: 10, weight: 34 },
+        ],
+      },
+      {
+        id: "ex/5/4",
+        name: "Lateral Raises",
+        muscleGroup: "shoulders",
+        sets: [
+          { setNumber: 1, reps: 15, weight: 16 },
+          { setNumber: 2, reps: 15, weight: 16 },
+          { setNumber: 3, reps: 12, weight: 16 },
+        ],
+      },
+      {
+        id: "ex/5/5",
+        name: "Tricep Pushdowns",
+        muscleGroup: "arms",
+        sets: [
+          { setNumber: 1, reps: 15, weight: 40 },
+          { setNumber: 2, reps: 15, weight: 40 },
+          { setNumber: 3, reps: 12, weight: 40 },
+        ],
+      },
+    ],
+  },
+  // ── 2026-02-24  Legs A ────────────────────────────────────────────────────
+  {
+    id: "tr/6",
+    name: "Legs A",
+    category: "legs",
+    date: "2026-02-24",
+    durationMin: 80,
+    status: "completed",
+    exercises: [
+      {
+        id: "ex/6/1",
+        name: "Squat",
+        muscleGroup: "legs",
+        sets: [
+          { setNumber: 1, reps: 5, weight: 112.5 },
+          { setNumber: 2, reps: 5, weight: 112.5 },
+          { setNumber: 3, reps: 5, weight: 112.5 },
+          { setNumber: 4, reps: 4, weight: 112.5 },
+        ],
+        pr: true,
+      },
+      {
+        id: "ex/6/2",
+        name: "Romanian Deadlift",
+        muscleGroup: "legs",
+        sets: [
+          { setNumber: 1, reps: 10, weight: 100 },
+          { setNumber: 2, reps: 10, weight: 100 },
+          { setNumber: 3, reps: 9, weight: 100 },
+        ],
+      },
+      {
+        id: "ex/6/3",
+        name: "Leg Press",
+        muscleGroup: "legs",
+        sets: [
+          { setNumber: 1, reps: 15, weight: 220 },
+          { setNumber: 2, reps: 15, weight: 220 },
+          { setNumber: 3, reps: 12, weight: 220 },
+        ],
+      },
+      {
+        id: "ex/6/4",
+        name: "Leg Curl",
+        muscleGroup: "legs",
+        sets: [
+          { setNumber: 1, reps: 12, weight: 50 },
+          { setNumber: 2, reps: 12, weight: 50 },
+          { setNumber: 3, reps: 10, weight: 50 },
+        ],
+      },
+      {
+        id: "ex/6/5",
+        name: "Calf Raises",
+        muscleGroup: "legs",
+        sets: [
+          { setNumber: 1, reps: 20, weight: 90 },
+          { setNumber: 2, reps: 20, weight: 90 },
+          { setNumber: 3, reps: 18, weight: 90 },
+        ],
+      },
+    ],
+  },
+  // ── 2026-02-22  Pull B ────────────────────────────────────────────────────
+  {
+    id: "tr/7",
+    name: "Pull B",
+    category: "pull",
+    date: "2026-02-22",
+    durationMin: 65,
+    status: "completed",
+    exercises: [
+      {
+        id: "ex/7/1",
+        name: "Pull-ups",
+        muscleGroup: "back",
+        sets: [
+          { setNumber: 1, reps: 8, weight: 2.5 },
+          { setNumber: 2, reps: 7, weight: 2.5 },
+          { setNumber: 3, reps: 7, weight: 2.5 },
+          { setNumber: 4, reps: 6, weight: 2.5 },
+        ],
+      },
+      {
+        id: "ex/7/2",
+        name: "T-Bar Row",
+        muscleGroup: "back",
+        sets: [
+          { setNumber: 1, reps: 10, weight: 80 },
+          { setNumber: 2, reps: 10, weight: 80 },
+          { setNumber: 3, reps: 9, weight: 80 },
+          { setNumber: 4, reps: 8, weight: 80 },
+        ],
+      },
+      {
+        id: "ex/7/3",
+        name: "Hammer Curl",
+        muscleGroup: "arms",
+        sets: [
+          { setNumber: 1, reps: 12, weight: 20 },
+          { setNumber: 2, reps: 12, weight: 20 },
+          { setNumber: 3, reps: 10, weight: 20 },
+        ],
+      },
+      {
+        id: "ex/7/4",
+        name: "Shrugs",
+        muscleGroup: "back",
+        sets: [
+          { setNumber: 1, reps: 15, weight: 100 },
+          { setNumber: 2, reps: 15, weight: 100 },
+          { setNumber: 3, reps: 12, weight: 100 },
+        ],
+      },
+    ],
+  },
+  // ── 2026-02-20  Push B ────────────────────────────────────────────────────
+  {
+    id: "tr/8",
+    name: "Push B",
+    category: "push",
+    date: "2026-02-20",
+    durationMin: 60,
+    status: "completed",
+    exercises: [
+      {
+        id: "ex/8/1",
+        name: "Incline Bench Press",
+        muscleGroup: "chest",
+        sets: [
+          { setNumber: 1, reps: 10, weight: 72.5 },
+          { setNumber: 2, reps: 9, weight: 72.5 },
+          { setNumber: 3, reps: 9, weight: 72.5 },
+          { setNumber: 4, reps: 8, weight: 72.5 },
+        ],
+      },
+      {
+        id: "ex/8/2",
+        name: "DB Overhead Press",
+        muscleGroup: "shoulders",
+        sets: [
+          { setNumber: 1, reps: 12, weight: 26 },
+          { setNumber: 2, reps: 11, weight: 26 },
+          { setNumber: 3, reps: 10, weight: 26 },
+        ],
+      },
+      {
+        id: "ex/8/3",
+        name: "Cable Fly",
+        muscleGroup: "chest",
+        sets: [
+          { setNumber: 1, reps: 15, weight: 17.5 },
+          { setNumber: 2, reps: 15, weight: 17.5 },
+          { setNumber: 3, reps: 12, weight: 17.5 },
+        ],
+      },
+      {
+        id: "ex/8/4",
+        name: "Rope Pushdowns",
+        muscleGroup: "arms",
+        sets: [
+          { setNumber: 1, reps: 15, weight: 27.5 },
+          { setNumber: 2, reps: 15, weight: 27.5 },
+          { setNumber: 3, reps: 12, weight: 27.5 },
+        ],
+      },
+    ],
+  },
+];
+
 export const MOCK_RECOVERY_TODAY: RecoveryFactor[] = [
-  {
-    label: "Sen",
-    labelKey: "health_factor_sleep",
-    value: 84,
-    color: "#a855f7",
-  },
+  { label: "Sen", labelKey: "health_factor_sleep", value: 84, color: "#a855f7" },
   { label: "HRV", labelKey: "health_factor_hrv", value: 72, color: "#38bdf8" },
+  { label: "Aktywność", labelKey: "health_factor_activity", value: 61, color: "#22c55e" },
+  { label: "Odpoczynek", labelKey: "health_factor_rest", value: 78, color: "#f59e0b" },
+  { label: "Stres", labelKey: "health_factor_stress", value: 55, color: "#ec4899" },
+];
+
+// ─── DIET ─────────────────────────────────────────────────────────────────────
+
+export type FoodCategory = "protein" | "carbs" | "veggies" | "dairy" | "fats" | "other";
+
+export type FoodItem = {
+  id: string;
+  name: string;
+  kcalPer100g: number;
+  proteinPer100g: number;
+  carbsPer100g: number;
+  fatPer100g: number;
+  category: FoodCategory;
+};
+
+export type MealIngredient = {
+  foodId: string;
+  grams: number;
+};
+
+export type MealSlotId = "breakfast" | "lunch" | "snack" | "dinner";
+
+export type MealSlot = {
+  slot: MealSlotId;
+  time: string; // "HH:MM"
+  ingredients: MealIngredient[];
+};
+
+export type DietDay = {
+  date: string; // "YYYY-MM-DD"
+  meals: MealSlot[];
+};
+
+export type DietGoals = {
+  kcal: number;
+  protein: number; // g
+  carbs: number;   // g
+  fat: number;     // g
+};
+
+export type ShoppingItem = {
+  id: string;
+  name: string;
+  amount: number;
+  unit: string;
+  category: FoodCategory;
+  checked: boolean;
+};
+
+export const MOCK_DIET_GOALS: DietGoals = {
+  kcal: 2600,
+  protein: 200,
+  carbs: 280,
+  fat: 70,
+};
+
+export const MOCK_FOOD_DB: FoodItem[] = [
+  { id: "food/oats",           name: "Oatmeal",        kcalPer100g: 370, proteinPer100g: 13.0, carbsPer100g: 62.0, fatPer100g:  7.0, category: "carbs" },
+  { id: "food/greek_yogurt",   name: "Greek Yogurt",   kcalPer100g:  97, proteinPer100g: 10.0, carbsPer100g:  4.0, fatPer100g:  5.0, category: "dairy" },
+  { id: "food/blueberries",    name: "Blueberries",    kcalPer100g:  57, proteinPer100g:  0.7, carbsPer100g: 14.0, fatPer100g:  0.3, category: "veggies" },
+  { id: "food/banana",         name: "Banana",         kcalPer100g:  89, proteinPer100g:  1.1, carbsPer100g: 23.0, fatPer100g:  0.3, category: "carbs" },
+  { id: "food/whey",           name: "Whey Protein",   kcalPer100g: 380, proteinPer100g: 80.0, carbsPer100g:  6.0, fatPer100g:  5.0, category: "protein" },
+  { id: "food/chicken_breast", name: "Chicken Breast", kcalPer100g: 165, proteinPer100g: 31.0, carbsPer100g:  0.0, fatPer100g:  3.6, category: "protein" },
+  { id: "food/brown_rice",     name: "Brown Rice",     kcalPer100g: 112, proteinPer100g:  2.6, carbsPer100g: 24.0, fatPer100g:  0.9, category: "carbs" },
+  { id: "food/broccoli",       name: "Broccoli",       kcalPer100g:  34, proteinPer100g:  2.8, carbsPer100g:  7.0, fatPer100g:  0.4, category: "veggies" },
+  { id: "food/olive_oil",      name: "Olive Oil",      kcalPer100g: 884, proteinPer100g:  0.0, carbsPer100g:  0.0, fatPer100g:100.0, category: "fats" },
+  { id: "food/salmon",         name: "Salmon",         kcalPer100g: 208, proteinPer100g: 20.0, carbsPer100g:  0.0, fatPer100g: 13.0, category: "protein" },
+  { id: "food/sweet_potato",   name: "Sweet Potato",   kcalPer100g:  86, proteinPer100g:  1.6, carbsPer100g: 20.0, fatPer100g:  0.1, category: "carbs" },
+  { id: "food/spinach",        name: "Spinach",        kcalPer100g:  23, proteinPer100g:  2.9, carbsPer100g:  3.6, fatPer100g:  0.4, category: "veggies" },
+  { id: "food/almonds",        name: "Almonds",        kcalPer100g: 579, proteinPer100g: 21.0, carbsPer100g: 22.0, fatPer100g: 50.0, category: "fats" },
+  { id: "food/apple",          name: "Apple",          kcalPer100g:  52, proteinPer100g:  0.3, carbsPer100g: 14.0, fatPer100g:  0.2, category: "veggies" },
+  { id: "food/eggs",           name: "Eggs",           kcalPer100g: 155, proteinPer100g: 13.0, carbsPer100g:  1.1, fatPer100g: 11.0, category: "protein" },
+  { id: "food/whole_milk",     name: "Whole Milk",     kcalPer100g:  61, proteinPer100g:  3.2, carbsPer100g:  4.8, fatPer100g:  3.3, category: "dairy" },
+  { id: "food/pasta",          name: "Pasta",          kcalPer100g: 371, proteinPer100g: 13.0, carbsPer100g: 74.0, fatPer100g:  1.5, category: "carbs" },
+  { id: "food/tuna",           name: "Tuna",           kcalPer100g: 144, proteinPer100g: 30.0, carbsPer100g:  0.0, fatPer100g:  3.0, category: "protein" },
+  { id: "food/avocado",        name: "Avocado",        kcalPer100g: 160, proteinPer100g:  2.0, carbsPer100g:  9.0, fatPer100g: 15.0, category: "fats" },
+  { id: "food/cottage_cheese", name: "Cottage Cheese", kcalPer100g:  98, proteinPer100g: 11.0, carbsPer100g:  3.4, fatPer100g:  4.3, category: "dairy" },
+];
+
+export const MOCK_DIET_WEEK: DietDay[] = [
   {
-    label: "Aktywność",
-    labelKey: "health_factor_activity",
-    value: 61,
-    color: "#22c55e",
+    date: "2026-03-02",
+    meals: [
+      { slot: "breakfast", time: "07:30", ingredients: [
+        { foodId: "food/oats", grams: 80 }, { foodId: "food/greek_yogurt", grams: 150 },
+        { foodId: "food/blueberries", grams: 60 }, { foodId: "food/banana", grams: 100 },
+      ]},
+      { slot: "lunch", time: "13:00", ingredients: [
+        { foodId: "food/chicken_breast", grams: 180 }, { foodId: "food/brown_rice", grams: 150 },
+        { foodId: "food/broccoli", grams: 120 }, { foodId: "food/olive_oil", grams: 10 },
+      ]},
+      { slot: "snack", time: "16:00", ingredients: [
+        { foodId: "food/almonds", grams: 30 }, { foodId: "food/apple", grams: 150 },
+      ]},
+      { slot: "dinner", time: "19:30", ingredients: [
+        { foodId: "food/salmon", grams: 200 }, { foodId: "food/sweet_potato", grams: 200 },
+        { foodId: "food/spinach", grams: 100 },
+      ]},
+    ],
   },
   {
-    label: "Odpoczynek",
-    labelKey: "health_factor_rest",
-    value: 78,
-    color: "#f59e0b",
+    date: "2026-03-03",
+    meals: [
+      { slot: "breakfast", time: "08:00", ingredients: [
+        { foodId: "food/oats", grams: 80 }, { foodId: "food/whey", grams: 30 },
+        { foodId: "food/blueberries", grams: 80 },
+      ]},
+      { slot: "lunch", time: "12:30", ingredients: [
+        { foodId: "food/chicken_breast", grams: 200 }, { foodId: "food/pasta", grams: 120 },
+        { foodId: "food/broccoli", grams: 100 }, { foodId: "food/olive_oil", grams: 15 },
+      ]},
+      { slot: "snack", time: "15:30", ingredients: [
+        { foodId: "food/greek_yogurt", grams: 200 }, { foodId: "food/banana", grams: 120 },
+      ]},
+      { slot: "dinner", time: "19:00", ingredients: [
+        { foodId: "food/tuna", grams: 180 }, { foodId: "food/sweet_potato", grams: 180 },
+        { foodId: "food/spinach", grams: 80 }, { foodId: "food/avocado", grams: 60 },
+      ]},
+    ],
   },
   {
-    label: "Stres",
-    labelKey: "health_factor_stress",
-    value: 55,
-    color: "#ec4899",
+    date: "2026-03-04",
+    meals: [
+      { slot: "breakfast", time: "07:30", ingredients: [
+        { foodId: "food/oats", grams: 100 }, { foodId: "food/greek_yogurt", grams: 180 },
+        { foodId: "food/blueberries", grams: 50 },
+      ]},
+      { slot: "lunch", time: "13:00", ingredients: [
+        { foodId: "food/chicken_breast", grams: 200 }, { foodId: "food/brown_rice", grams: 180 },
+        { foodId: "food/broccoli", grams: 100 }, { foodId: "food/olive_oil", grams: 10 },
+      ]},
+      { slot: "snack", time: "16:00", ingredients: [
+        { foodId: "food/almonds", grams: 35 }, { foodId: "food/apple", grams: 130 },
+      ]},
+      { slot: "dinner", time: "19:30", ingredients: [
+        { foodId: "food/salmon", grams: 220 }, { foodId: "food/sweet_potato", grams: 200 },
+        { foodId: "food/spinach", grams: 80 },
+      ]},
+    ],
   },
+  {
+    date: "2026-03-05",
+    meals: [
+      { slot: "breakfast", time: "07:30", ingredients: [
+        { foodId: "food/eggs", grams: 150 }, { foodId: "food/whole_milk", grams: 200 },
+        { foodId: "food/banana", grams: 100 },
+      ]},
+      { slot: "lunch", time: "12:30", ingredients: [
+        { foodId: "food/chicken_breast", grams: 180 }, { foodId: "food/brown_rice", grams: 160 },
+        { foodId: "food/broccoli", grams: 120 }, { foodId: "food/olive_oil", grams: 10 },
+      ]},
+      { slot: "snack", time: "16:00", ingredients: [
+        { foodId: "food/cottage_cheese", grams: 200 }, { foodId: "food/blueberries", grams: 80 },
+      ]},
+      { slot: "dinner", time: "19:00", ingredients: [
+        { foodId: "food/salmon", grams: 190 }, { foodId: "food/pasta", grams: 100 },
+        { foodId: "food/spinach", grams: 100 }, { foodId: "food/olive_oil", grams: 10 },
+      ]},
+    ],
+  },
+  {
+    date: "2026-03-06",
+    meals: [
+      { slot: "breakfast", time: "08:00", ingredients: [
+        { foodId: "food/oats", grams: 80 }, { foodId: "food/whey", grams: 30 },
+        { foodId: "food/banana", grams: 100 },
+      ]},
+      { slot: "lunch", time: "13:00", ingredients: [
+        { foodId: "food/tuna", grams: 200 }, { foodId: "food/brown_rice", grams: 180 },
+        { foodId: "food/broccoli", grams: 100 }, { foodId: "food/avocado", grams: 80 },
+      ]},
+      { slot: "snack", time: "15:30", ingredients: [
+        { foodId: "food/almonds", grams: 30 }, { foodId: "food/apple", grams: 150 },
+      ]},
+      { slot: "dinner", time: "19:30", ingredients: [
+        { foodId: "food/chicken_breast", grams: 200 }, { foodId: "food/sweet_potato", grams: 220 },
+        { foodId: "food/spinach", grams: 80 },
+      ]},
+    ],
+  },
+  {
+    date: "2026-03-07",
+    meals: [
+      { slot: "breakfast", time: "09:00", ingredients: [
+        { foodId: "food/eggs", grams: 200 }, { foodId: "food/whole_milk", grams: 200 },
+        { foodId: "food/blueberries", grams: 80 }, { foodId: "food/avocado", grams: 80 },
+      ]},
+      { slot: "lunch", time: "13:30", ingredients: [
+        { foodId: "food/pasta", grams: 150 }, { foodId: "food/tuna", grams: 180 },
+        { foodId: "food/spinach", grams: 100 }, { foodId: "food/olive_oil", grams: 15 },
+      ]},
+      { slot: "snack", time: "17:00", ingredients: [
+        { foodId: "food/cottage_cheese", grams: 200 }, { foodId: "food/banana", grams: 120 },
+      ]},
+      { slot: "dinner", time: "20:00", ingredients: [
+        { foodId: "food/salmon", grams: 220 }, { foodId: "food/brown_rice", grams: 150 },
+        { foodId: "food/broccoli", grams: 120 },
+      ]},
+    ],
+  },
+  {
+    date: "2026-03-08",
+    meals: [
+      { slot: "breakfast", time: "09:00", ingredients: [
+        { foodId: "food/oats", grams: 100 }, { foodId: "food/greek_yogurt", grams: 200 },
+        { foodId: "food/blueberries", grams: 80 }, { foodId: "food/banana", grams: 100 },
+      ]},
+      { slot: "lunch", time: "14:00", ingredients: [
+        { foodId: "food/chicken_breast", grams: 200 }, { foodId: "food/pasta", grams: 120 },
+        { foodId: "food/broccoli", grams: 100 }, { foodId: "food/olive_oil", grams: 10 },
+      ]},
+      { slot: "snack", time: "17:00", ingredients: [
+        { foodId: "food/almonds", grams: 30 }, { foodId: "food/apple", grams: 150 },
+        { foodId: "food/cottage_cheese", grams: 150 },
+      ]},
+      { slot: "dinner", time: "20:00", ingredients: [
+        { foodId: "food/salmon", grams: 200 }, { foodId: "food/sweet_potato", grams: 200 },
+        { foodId: "food/spinach", grams: 80 },
+      ]},
+    ],
+  },
+];
+
+export const MOCK_SHOPPING_LIST: ShoppingItem[] = [
+  // protein
+  { id: "shop/chicken", name: "Chicken Breast",  amount: 980,  unit: "g",  category: "protein", checked: false },
+  { id: "shop/salmon",  name: "Salmon",          amount: 830,  unit: "g",  category: "protein", checked: false },
+  { id: "shop/tuna",    name: "Tuna",            amount: 560,  unit: "g",  category: "protein", checked: false },
+  { id: "shop/eggs",    name: "Eggs",            amount: 350,  unit: "g",  category: "protein", checked: false },
+  { id: "shop/whey",    name: "Whey Protein",    amount: 60,   unit: "g",  category: "protein", checked: false },
+  // carbs
+  { id: "shop/oats",    name: "Oatmeal",         amount: 440,  unit: "g",  category: "carbs",   checked: false },
+  { id: "shop/rice",    name: "Brown Rice",      amount: 820,  unit: "g",  category: "carbs",   checked: false },
+  { id: "shop/pasta",   name: "Pasta",           amount: 490,  unit: "g",  category: "carbs",   checked: false },
+  { id: "shop/banana",  name: "Banana",          amount: 640,  unit: "g",  category: "carbs",   checked: false },
+  { id: "shop/swtpot",  name: "Sweet Potato",    amount: 1000, unit: "g",  category: "carbs",   checked: false },
+  // veggies
+  { id: "shop/broccol", name: "Broccoli",        amount: 760,  unit: "g",  category: "veggies", checked: false },
+  { id: "shop/spinach", name: "Spinach",         amount: 620,  unit: "g",  category: "veggies", checked: false },
+  { id: "shop/bluebrr", name: "Blueberries",     amount: 430,  unit: "g",  category: "veggies", checked: false },
+  { id: "shop/apple",   name: "Apple",           amount: 580,  unit: "g",  category: "veggies", checked: false },
+  // dairy
+  { id: "shop/yogurt",  name: "Greek Yogurt",    amount: 730,  unit: "g",  category: "dairy",   checked: false },
+  { id: "shop/milk",    name: "Whole Milk",      amount: 400,  unit: "ml", category: "dairy",   checked: false },
+  { id: "shop/cottage", name: "Cottage Cheese",  amount: 550,  unit: "g",  category: "dairy",   checked: false },
+  // fats
+  { id: "shop/almonds", name: "Almonds",         amount: 125,  unit: "g",  category: "fats",    checked: false },
+  { id: "shop/avocado", name: "Avocado",         amount: 220,  unit: "g",  category: "fats",    checked: false },
+  { id: "shop/ooil",    name: "Olive Oil",       amount: 80,   unit: "ml", category: "fats",    checked: false },
 ];

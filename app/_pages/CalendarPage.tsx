@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight, LayoutList, Calendar } from "lucide-react";
 import { MOCK_QUESTS, MOCK_SKILLS } from "@/lib/mock";
 import type { Quest } from "@/lib/mock";
@@ -42,6 +42,15 @@ function getEffectiveQuest(quest: Quest, override: QuestOverride): Quest {
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
+function useNow(): Date {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+  return now;
+}
+
 const WEEKDAY_SHORT: Record<number, string> = {
   0: "Nd",
   1: "Pn",
@@ -70,6 +79,12 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
   const [pinnedIds, setPinnedIds] = useState<string[]>([]);
   const [draggedQuestId, setDraggedQuestId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget>(null);
+  const [pinnedDragOver, setPinnedDragOver] = useState(false);
+
+  const handleChipDragEnd = useCallback(() => {
+    setDraggedQuestId(null);
+    setDropTarget(null);
+  }, []);
 
   const skillById = useMemo(
     () => Object.fromEntries(MOCK_SKILLS.map((s) => [s.id, s])),
@@ -89,6 +104,15 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
       getEffectiveQuest(q, overrides[q.id] ?? {}),
     ).filter((q) => q.plannedDateTime != null && q.plannedDateTime > 0);
   }, [overrides]);
+
+  const handleDropOnPinned = useCallback(() => {
+    if (!draggedQuestId) return;
+    setPinnedDragOver(false);
+    setPinnedIds((prev) =>
+      prev.includes(draggedQuestId) ? prev : [...prev, draggedQuestId],
+    );
+    setDraggedQuestId(null);
+  }, [draggedQuestId]);
 
   const applyOverride = useCallback((questId: string, patch: QuestOverride) => {
     // TODO: [DATA] persistence will go here
@@ -213,15 +237,38 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
       {/* ── Three-column layout ── */}
       <div className="flex flex-1 min-h-0 gap-3">
         {/* ── Col 1: Pinned quests ── */}
-        <aside className="w-52 shrink-0 border border-[#1f1f1f] bg-[#0a0a0a] rounded flex flex-col overflow-hidden">
-          <h2 className="text-[10px] text-[#888] uppercase tracking-widest p-3 border-b border-[#1f1f1f] flex items-center gap-2 shrink-0">
+        <aside
+          className={`w-52 shrink-0 border rounded flex flex-col overflow-hidden transition-colors ${
+            pinnedDragOver
+              ? "border-dashed border-[#facc15]/50 bg-[#facc15]/5"
+              : "border-[#1f1f1f] bg-[#0a0a0a]"
+          }`}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+            if (!pinnedDragOver) setPinnedDragOver(true);
+          }}
+          onDragLeave={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget as Node))
+              setPinnedDragOver(false);
+          }}
+          onDrop={(e) => {
+            e.preventDefault();
+            handleDropOnPinned();
+          }}
+        >
+          <h2 className="text-[10px] text-[#888] uppercase tracking-widest px-3 h-[60px] border-b border-[#1f1f1f] flex items-center gap-2 shrink-0">
             <LayoutList size={12} />
             {t(lang, "calendar_pinned")}
           </h2>
           <ul className="p-2 overflow-y-auto custom-scrollbar flex-1 space-y-1.5">
             {pinnedQuests.length === 0 ? (
               <li className="text-[#555] text-xs p-2">
-                {t(lang, "calendar_pinned_empty")}
+                {pinnedDragOver ? (
+                  <span className="text-[#facc15]/60">{t(lang, "drop_here")}</span>
+                ) : (
+                  t(lang, "calendar_pinned_empty")
+                )}
               </li>
             ) : (
               pinnedQuests.map((quest) => {
@@ -243,6 +290,7 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
                       onDragEnd={() => {
                         setDraggedQuestId(null);
                         setDropTarget(null);
+                        setPinnedDragOver(false);
                       }}
                       onClick={() => onQuestSelect(quest.id)}
                       className={`block w-full text-left p-2 rounded border cursor-grab active:cursor-grabbing transition-colors ${
@@ -278,18 +326,17 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
 
         {/* ── Col 2: Narrow daily view (always today) ── */}
         <aside className="w-52 shrink-0 border border-[#1f1f1f] bg-[#0a0a0a] rounded flex flex-col overflow-hidden">
-          <div className="shrink-0 px-3 py-2 border-b border-[#1f1f1f] flex items-center gap-2">
+          <div className="shrink-0 px-3 h-[60px] border-b border-[#1f1f1f] flex items-center gap-2">
             <Calendar size={12} className="text-[#facc15]" />
             <div>
-              <p className="text-[10px] text-[#888] uppercase tracking-widest">
-                {t(lang, "calendar_daily_header")}
-              </p>
               <p className="text-xs text-white font-mono mt-0.5">
-                {today.toLocaleDateString("pl-PL", {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "short",
-                })}
+                {today
+                  .toLocaleDateString("pl-PL", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "short",
+                  })
+                  .replace(/^\p{L}/u, (c) => c.toUpperCase())}
               </p>
             </div>
           </div>
@@ -302,6 +349,9 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
               onQuestClick={onQuestSelect}
               dropTarget={dropTarget}
               setDropTarget={setDropTargetSlot}
+              draggedQuestId={draggedQuestId}
+              onChipDragStart={setDraggedQuestId}
+              onChipDragEnd={handleChipDragEnd}
             />
           </div>
         </aside>
@@ -319,6 +369,9 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
               dropTarget={dropTarget}
               setDropTarget={setDropTargetSlot}
               today={today}
+              draggedQuestId={draggedQuestId}
+              onChipDragStart={setDraggedQuestId}
+              onChipDragEnd={handleChipDragEnd}
             />
           ) : (
             <MultiDayGridView
@@ -350,6 +403,9 @@ type NarrowDayViewProps = {
   onQuestClick: (id: string) => void;
   dropTarget: DropTarget;
   setDropTarget: (date: Date | null, hour?: number) => void;
+  draggedQuestId: string | null;
+  onChipDragStart: (id: string) => void;
+  onChipDragEnd: () => void;
 };
 
 function NarrowDayView({
@@ -360,8 +416,17 @@ function NarrowDayView({
   onQuestClick,
   dropTarget,
   setDropTarget,
+  draggedQuestId,
+  onChipDragStart,
+  onChipDragEnd,
 }: NarrowDayViewProps) {
   const dayStart = getStartOfDay(date);
+  const now = useNow();
+  const isToday = sameDay(date, now);
+  const sevenAmRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    sevenAmRef.current?.scrollIntoView({ block: "start" });
+  }, []);
   const questsByHour = useMemo(() => {
     const map: Record<number, Quest[]> = {};
     for (const q of quests) {
@@ -399,7 +464,8 @@ function NarrowDayView({
             return (
               <div
                 key={hour}
-                className={`h-10 border-b border-[#1f1f1f] flex flex-col transition-colors ${
+                ref={hour === 7 ? sevenAmRef : undefined}
+                className={`h-10 border-b border-[#1f1f1f] flex flex-col transition-colors relative ${
                   isTarget ? "bg-[#facc15]/10" : ""
                 }`}
                 onDragOver={(e) => {
@@ -413,6 +479,17 @@ function NarrowDayView({
                   onDropSlot(new Date(dayStart), hour);
                 }}
               >
+                {isToday && now.getHours() === hour && (
+                  <div
+                    className="absolute left-0 right-0 z-20 pointer-events-none"
+                    style={{ top: `${(now.getMinutes() / 60) * 100}%` }}
+                  >
+                    <div className="relative flex items-center">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#facc15] shrink-0 -ml-[3px]" />
+                      <div className="flex-1 h-px bg-[#facc15] opacity-80" />
+                    </div>
+                  </div>
+                )}
                 <div className="flex-1 px-1 flex flex-col gap-px overflow-hidden">
                   {(questsByHour[hour] ?? []).map((q) => (
                     <CalendarQuestChip
@@ -421,6 +498,9 @@ function NarrowDayView({
                       color={skillById[q.skill]?.color ?? "#666"}
                       onClick={() => onQuestClick(q.id)}
                       compact
+                      isDragging={draggedQuestId === q.id}
+                      onDragStart={() => onChipDragStart(q.id)}
+                      onDragEnd={onChipDragEnd}
                     />
                   ))}
                 </div>
@@ -447,6 +527,9 @@ type MultiDayHourlyViewProps = {
   dropTarget: DropTarget;
   setDropTarget: (date: Date | null, hour?: number) => void;
   today: Date;
+  draggedQuestId: string | null;
+  onChipDragStart: (id: string) => void;
+  onChipDragEnd: () => void;
 };
 
 function MultiDayHourlyView({
@@ -459,7 +542,17 @@ function MultiDayHourlyView({
   dropTarget,
   setDropTarget,
   today,
+  draggedQuestId,
+  onChipDragStart,
+  onChipDragEnd,
 }: MultiDayHourlyViewProps) {
+  const sevenAmRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    sevenAmRef.current?.scrollIntoView({ block: "start" });
+  }, [days]);
+
+  const now = useNow();
+
   const dayList = useMemo(
     () => Array.from({ length: days }, (_, i) => addDays(startDate, i)),
     [startDate, days],
@@ -480,9 +573,10 @@ function MultiDayHourlyView({
   const hourColW = days <= 7 ? "w-10" : "w-7";
 
   return (
-    <div className={`p-3 ${days > 7 ? "min-w-[700px]" : "min-w-[440px]"}`}>
-      {/* Day headers */}
-      <div className="flex border-b border-[#1f1f1f]">
+    <div className={`pb-3 ${days > 7 ? "min-w-[700px]" : "min-w-[440px]"}`}>
+      {/* Day headers — sticky inside the scrollable main */}
+      <div className="sticky top-0 z-10 bg-[#0a0a0a] px-3">
+      <div className="flex border-b border-[#1f1f1f] h-[60px]">
         <div className={`${hourColW} shrink-0`} />
         {dayList.map((d) => {
           const isToday = sameDay(d, today);
@@ -514,9 +608,10 @@ function MultiDayHourlyView({
           );
         })}
       </div>
+      </div>
 
       {/* Hourly grid */}
-      <div className="flex">
+      <div className="flex px-3">
         <div
           className={`${hourColW} shrink-0 text-[9px] text-[#444] font-mono`}
         >
@@ -531,7 +626,7 @@ function MultiDayHourlyView({
         </div>
 
         <div className="flex-1 flex border-l border-[#1f1f1f]">
-          {dayList.map((day) => {
+          {dayList.map((day, dayIndex) => {
             const isToday = sameDay(day, today);
             return (
               <div
@@ -551,7 +646,8 @@ function MultiDayHourlyView({
                   return (
                     <div
                       key={hour}
-                      className={`${rowH} border-b border-[#1f1f1f] flex flex-col transition-colors ${
+                      ref={dayIndex === 0 && hour === 7 ? sevenAmRef : undefined}
+                      className={`${rowH} border-b border-[#1f1f1f] flex flex-col transition-colors relative ${
                         isTarget ? "bg-[#facc15]/10" : ""
                       }`}
                       onDragOver={(e) => {
@@ -565,6 +661,17 @@ function MultiDayHourlyView({
                         onDropSlot(new Date(day), hour);
                       }}
                     >
+                      {isToday && now.getHours() === hour && (
+                        <div
+                          className="absolute left-0 right-0 z-20 pointer-events-none"
+                          style={{ top: `${(now.getMinutes() / 60) * 100}%` }}
+                        >
+                          <div className="relative flex items-center">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#facc15] shrink-0 -ml-[3px]" />
+                            <div className="flex-1 h-px bg-[#facc15] opacity-80" />
+                          </div>
+                        </div>
+                      )}
                       <div className="flex-1 p-0.5 flex flex-col gap-px overflow-hidden">
                         {slotQuests.map((q) => (
                           <CalendarQuestChip
@@ -573,6 +680,9 @@ function MultiDayHourlyView({
                             color={skillById[q.skill]?.color ?? "#666"}
                             onClick={() => onQuestClick(q.id)}
                             compact
+                            isDragging={draggedQuestId === q.id}
+                            onDragStart={() => onChipDragStart(q.id)}
+                            onDragEnd={onChipDragEnd}
                           />
                         ))}
                       </div>
@@ -704,11 +814,17 @@ function CalendarQuestChip({
   color,
   onClick,
   compact,
+  onDragStart,
+  onDragEnd,
+  isDragging,
 }: {
   quest: Quest;
   color: string;
   onClick: () => void;
   compact?: boolean;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
+  isDragging?: boolean;
 }) {
   const start = quest.plannedDateTime ? new Date(quest.plannedDateTime) : null;
   const end =
@@ -729,13 +845,23 @@ function CalendarQuestChip({
   return (
     <button
       type="button"
+      draggable={!!onDragStart}
+      onDragStart={(e) => {
+        e.stopPropagation();
+        e.dataTransfer.setData("text/plain", quest.id);
+        e.dataTransfer.effectAllowed = "move";
+        onDragStart?.();
+      }}
+      onDragEnd={onDragEnd}
       onClick={(e) => {
         e.stopPropagation();
         onClick();
       }}
       className={`w-full text-left rounded border truncate transition-opacity hover:opacity-90 ${
+        onDragStart ? "cursor-grab active:cursor-grabbing" : ""
+      } ${
         compact ? "px-1 py-px text-[10px]" : "px-2 py-1 text-xs"
-      }`}
+      } ${isDragging ? "opacity-40" : ""}`}
       style={{ borderColor: color, color }}
       title={quest.name + (timeStr ? ` (${timeStr})` : "")}
     >

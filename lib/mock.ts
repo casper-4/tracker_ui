@@ -762,7 +762,13 @@ export type ExerciseSet = {
   weight: number; // kg, 0 = bodyweight only
 };
 
-export type MuscleGroup = "back" | "chest" | "shoulders" | "arms" | "legs" | "core";
+export type MuscleGroup =
+  | "back"
+  | "chest"
+  | "shoulders"
+  | "arms"
+  | "legs"
+  | "core";
 
 export type TrainingExercise = {
   id: string;
@@ -1247,16 +1253,42 @@ export const MOCK_TRAINING_HISTORY: TrainingSession[] = [
 ];
 
 export const MOCK_RECOVERY_TODAY: RecoveryFactor[] = [
-  { label: "Sen", labelKey: "health_factor_sleep", value: 84, color: "#a855f7" },
+  {
+    label: "Sen",
+    labelKey: "health_factor_sleep",
+    value: 84,
+    color: "#a855f7",
+  },
   { label: "HRV", labelKey: "health_factor_hrv", value: 72, color: "#38bdf8" },
-  { label: "Aktywność", labelKey: "health_factor_activity", value: 61, color: "#22c55e" },
-  { label: "Odpoczynek", labelKey: "health_factor_rest", value: 78, color: "#f59e0b" },
-  { label: "Stres", labelKey: "health_factor_stress", value: 55, color: "#ec4899" },
+  {
+    label: "Aktywność",
+    labelKey: "health_factor_activity",
+    value: 61,
+    color: "#22c55e",
+  },
+  {
+    label: "Odpoczynek",
+    labelKey: "health_factor_rest",
+    value: 78,
+    color: "#f59e0b",
+  },
+  {
+    label: "Stres",
+    labelKey: "health_factor_stress",
+    value: 55,
+    color: "#ec4899",
+  },
 ];
 
 // ─── DIET ─────────────────────────────────────────────────────────────────────
 
-export type FoodCategory = "protein" | "carbs" | "veggies" | "dairy" | "fats" | "other";
+export type FoodCategory =
+  | "protein"
+  | "carbs"
+  | "veggies"
+  | "dairy"
+  | "fats"
+  | "other";
 
 export type FoodItem = {
   id: string;
@@ -1289,8 +1321,8 @@ export type DietDay = {
 export type DietGoals = {
   kcal: number;
   protein: number; // g
-  carbs: number;   // g
-  fat: number;     // g
+  carbs: number; // g
+  fat: number; // g
 };
 
 export type ShoppingItem = {
@@ -1310,196 +1342,648 @@ export const MOCK_DIET_GOALS: DietGoals = {
 };
 
 export const MOCK_FOOD_DB: FoodItem[] = [
-  { id: "food/oats",           name: "Oatmeal",        kcalPer100g: 370, proteinPer100g: 13.0, carbsPer100g: 62.0, fatPer100g:  7.0, category: "carbs" },
-  { id: "food/greek_yogurt",   name: "Greek Yogurt",   kcalPer100g:  97, proteinPer100g: 10.0, carbsPer100g:  4.0, fatPer100g:  5.0, category: "dairy" },
-  { id: "food/blueberries",    name: "Blueberries",    kcalPer100g:  57, proteinPer100g:  0.7, carbsPer100g: 14.0, fatPer100g:  0.3, category: "veggies" },
-  { id: "food/banana",         name: "Banana",         kcalPer100g:  89, proteinPer100g:  1.1, carbsPer100g: 23.0, fatPer100g:  0.3, category: "carbs" },
-  { id: "food/whey",           name: "Whey Protein",   kcalPer100g: 380, proteinPer100g: 80.0, carbsPer100g:  6.0, fatPer100g:  5.0, category: "protein" },
-  { id: "food/chicken_breast", name: "Chicken Breast", kcalPer100g: 165, proteinPer100g: 31.0, carbsPer100g:  0.0, fatPer100g:  3.6, category: "protein" },
-  { id: "food/brown_rice",     name: "Brown Rice",     kcalPer100g: 112, proteinPer100g:  2.6, carbsPer100g: 24.0, fatPer100g:  0.9, category: "carbs" },
-  { id: "food/broccoli",       name: "Broccoli",       kcalPer100g:  34, proteinPer100g:  2.8, carbsPer100g:  7.0, fatPer100g:  0.4, category: "veggies" },
-  { id: "food/olive_oil",      name: "Olive Oil",      kcalPer100g: 884, proteinPer100g:  0.0, carbsPer100g:  0.0, fatPer100g:100.0, category: "fats" },
-  { id: "food/salmon",         name: "Salmon",         kcalPer100g: 208, proteinPer100g: 20.0, carbsPer100g:  0.0, fatPer100g: 13.0, category: "protein" },
-  { id: "food/sweet_potato",   name: "Sweet Potato",   kcalPer100g:  86, proteinPer100g:  1.6, carbsPer100g: 20.0, fatPer100g:  0.1, category: "carbs" },
-  { id: "food/spinach",        name: "Spinach",        kcalPer100g:  23, proteinPer100g:  2.9, carbsPer100g:  3.6, fatPer100g:  0.4, category: "veggies" },
-  { id: "food/almonds",        name: "Almonds",        kcalPer100g: 579, proteinPer100g: 21.0, carbsPer100g: 22.0, fatPer100g: 50.0, category: "fats" },
-  { id: "food/apple",          name: "Apple",          kcalPer100g:  52, proteinPer100g:  0.3, carbsPer100g: 14.0, fatPer100g:  0.2, category: "veggies" },
-  { id: "food/eggs",           name: "Eggs",           kcalPer100g: 155, proteinPer100g: 13.0, carbsPer100g:  1.1, fatPer100g: 11.0, category: "protein" },
-  { id: "food/whole_milk",     name: "Whole Milk",     kcalPer100g:  61, proteinPer100g:  3.2, carbsPer100g:  4.8, fatPer100g:  3.3, category: "dairy" },
-  { id: "food/pasta",          name: "Pasta",          kcalPer100g: 371, proteinPer100g: 13.0, carbsPer100g: 74.0, fatPer100g:  1.5, category: "carbs" },
-  { id: "food/tuna",           name: "Tuna",           kcalPer100g: 144, proteinPer100g: 30.0, carbsPer100g:  0.0, fatPer100g:  3.0, category: "protein" },
-  { id: "food/avocado",        name: "Avocado",        kcalPer100g: 160, proteinPer100g:  2.0, carbsPer100g:  9.0, fatPer100g: 15.0, category: "fats" },
-  { id: "food/cottage_cheese", name: "Cottage Cheese", kcalPer100g:  98, proteinPer100g: 11.0, carbsPer100g:  3.4, fatPer100g:  4.3, category: "dairy" },
+  {
+    id: "food/oats",
+    name: "Oatmeal",
+    kcalPer100g: 370,
+    proteinPer100g: 13.0,
+    carbsPer100g: 62.0,
+    fatPer100g: 7.0,
+    category: "carbs",
+  },
+  {
+    id: "food/greek_yogurt",
+    name: "Greek Yogurt",
+    kcalPer100g: 97,
+    proteinPer100g: 10.0,
+    carbsPer100g: 4.0,
+    fatPer100g: 5.0,
+    category: "dairy",
+  },
+  {
+    id: "food/blueberries",
+    name: "Blueberries",
+    kcalPer100g: 57,
+    proteinPer100g: 0.7,
+    carbsPer100g: 14.0,
+    fatPer100g: 0.3,
+    category: "veggies",
+  },
+  {
+    id: "food/banana",
+    name: "Banana",
+    kcalPer100g: 89,
+    proteinPer100g: 1.1,
+    carbsPer100g: 23.0,
+    fatPer100g: 0.3,
+    category: "carbs",
+  },
+  {
+    id: "food/whey",
+    name: "Whey Protein",
+    kcalPer100g: 380,
+    proteinPer100g: 80.0,
+    carbsPer100g: 6.0,
+    fatPer100g: 5.0,
+    category: "protein",
+  },
+  {
+    id: "food/chicken_breast",
+    name: "Chicken Breast",
+    kcalPer100g: 165,
+    proteinPer100g: 31.0,
+    carbsPer100g: 0.0,
+    fatPer100g: 3.6,
+    category: "protein",
+  },
+  {
+    id: "food/brown_rice",
+    name: "Brown Rice",
+    kcalPer100g: 112,
+    proteinPer100g: 2.6,
+    carbsPer100g: 24.0,
+    fatPer100g: 0.9,
+    category: "carbs",
+  },
+  {
+    id: "food/broccoli",
+    name: "Broccoli",
+    kcalPer100g: 34,
+    proteinPer100g: 2.8,
+    carbsPer100g: 7.0,
+    fatPer100g: 0.4,
+    category: "veggies",
+  },
+  {
+    id: "food/olive_oil",
+    name: "Olive Oil",
+    kcalPer100g: 884,
+    proteinPer100g: 0.0,
+    carbsPer100g: 0.0,
+    fatPer100g: 100.0,
+    category: "fats",
+  },
+  {
+    id: "food/salmon",
+    name: "Salmon",
+    kcalPer100g: 208,
+    proteinPer100g: 20.0,
+    carbsPer100g: 0.0,
+    fatPer100g: 13.0,
+    category: "protein",
+  },
+  {
+    id: "food/sweet_potato",
+    name: "Sweet Potato",
+    kcalPer100g: 86,
+    proteinPer100g: 1.6,
+    carbsPer100g: 20.0,
+    fatPer100g: 0.1,
+    category: "carbs",
+  },
+  {
+    id: "food/spinach",
+    name: "Spinach",
+    kcalPer100g: 23,
+    proteinPer100g: 2.9,
+    carbsPer100g: 3.6,
+    fatPer100g: 0.4,
+    category: "veggies",
+  },
+  {
+    id: "food/almonds",
+    name: "Almonds",
+    kcalPer100g: 579,
+    proteinPer100g: 21.0,
+    carbsPer100g: 22.0,
+    fatPer100g: 50.0,
+    category: "fats",
+  },
+  {
+    id: "food/apple",
+    name: "Apple",
+    kcalPer100g: 52,
+    proteinPer100g: 0.3,
+    carbsPer100g: 14.0,
+    fatPer100g: 0.2,
+    category: "veggies",
+  },
+  {
+    id: "food/eggs",
+    name: "Eggs",
+    kcalPer100g: 155,
+    proteinPer100g: 13.0,
+    carbsPer100g: 1.1,
+    fatPer100g: 11.0,
+    category: "protein",
+  },
+  {
+    id: "food/whole_milk",
+    name: "Whole Milk",
+    kcalPer100g: 61,
+    proteinPer100g: 3.2,
+    carbsPer100g: 4.8,
+    fatPer100g: 3.3,
+    category: "dairy",
+  },
+  {
+    id: "food/pasta",
+    name: "Pasta",
+    kcalPer100g: 371,
+    proteinPer100g: 13.0,
+    carbsPer100g: 74.0,
+    fatPer100g: 1.5,
+    category: "carbs",
+  },
+  {
+    id: "food/tuna",
+    name: "Tuna",
+    kcalPer100g: 144,
+    proteinPer100g: 30.0,
+    carbsPer100g: 0.0,
+    fatPer100g: 3.0,
+    category: "protein",
+  },
+  {
+    id: "food/avocado",
+    name: "Avocado",
+    kcalPer100g: 160,
+    proteinPer100g: 2.0,
+    carbsPer100g: 9.0,
+    fatPer100g: 15.0,
+    category: "fats",
+  },
+  {
+    id: "food/cottage_cheese",
+    name: "Cottage Cheese",
+    kcalPer100g: 98,
+    proteinPer100g: 11.0,
+    carbsPer100g: 3.4,
+    fatPer100g: 4.3,
+    category: "dairy",
+  },
 ];
 
 export const MOCK_DIET_WEEK: DietDay[] = [
   {
     date: "2026-03-02",
     meals: [
-      { slot: "breakfast", time: "07:30", ingredients: [
-        { foodId: "food/oats", grams: 80 }, { foodId: "food/greek_yogurt", grams: 150 },
-        { foodId: "food/blueberries", grams: 60 }, { foodId: "food/banana", grams: 100 },
-      ]},
-      { slot: "lunch", time: "13:00", ingredients: [
-        { foodId: "food/chicken_breast", grams: 180 }, { foodId: "food/brown_rice", grams: 150 },
-        { foodId: "food/broccoli", grams: 120 }, { foodId: "food/olive_oil", grams: 10 },
-      ]},
-      { slot: "snack", time: "16:00", ingredients: [
-        { foodId: "food/almonds", grams: 30 }, { foodId: "food/apple", grams: 150 },
-      ]},
-      { slot: "dinner", time: "19:30", ingredients: [
-        { foodId: "food/salmon", grams: 200 }, { foodId: "food/sweet_potato", grams: 200 },
-        { foodId: "food/spinach", grams: 100 },
-      ]},
+      {
+        slot: "breakfast",
+        time: "07:30",
+        ingredients: [
+          { foodId: "food/oats", grams: 80 },
+          { foodId: "food/greek_yogurt", grams: 150 },
+          { foodId: "food/blueberries", grams: 60 },
+          { foodId: "food/banana", grams: 100 },
+        ],
+      },
+      {
+        slot: "lunch",
+        time: "13:00",
+        ingredients: [
+          { foodId: "food/chicken_breast", grams: 180 },
+          { foodId: "food/brown_rice", grams: 150 },
+          { foodId: "food/broccoli", grams: 120 },
+          { foodId: "food/olive_oil", grams: 10 },
+        ],
+      },
+      {
+        slot: "snack",
+        time: "16:00",
+        ingredients: [
+          { foodId: "food/almonds", grams: 30 },
+          { foodId: "food/apple", grams: 150 },
+        ],
+      },
+      {
+        slot: "dinner",
+        time: "19:30",
+        ingredients: [
+          { foodId: "food/salmon", grams: 200 },
+          { foodId: "food/sweet_potato", grams: 200 },
+          { foodId: "food/spinach", grams: 100 },
+        ],
+      },
     ],
   },
   {
     date: "2026-03-03",
     meals: [
-      { slot: "breakfast", time: "08:00", ingredients: [
-        { foodId: "food/oats", grams: 80 }, { foodId: "food/whey", grams: 30 },
-        { foodId: "food/blueberries", grams: 80 },
-      ]},
-      { slot: "lunch", time: "12:30", ingredients: [
-        { foodId: "food/chicken_breast", grams: 200 }, { foodId: "food/pasta", grams: 120 },
-        { foodId: "food/broccoli", grams: 100 }, { foodId: "food/olive_oil", grams: 15 },
-      ]},
-      { slot: "snack", time: "15:30", ingredients: [
-        { foodId: "food/greek_yogurt", grams: 200 }, { foodId: "food/banana", grams: 120 },
-      ]},
-      { slot: "dinner", time: "19:00", ingredients: [
-        { foodId: "food/tuna", grams: 180 }, { foodId: "food/sweet_potato", grams: 180 },
-        { foodId: "food/spinach", grams: 80 }, { foodId: "food/avocado", grams: 60 },
-      ]},
+      {
+        slot: "breakfast",
+        time: "08:00",
+        ingredients: [
+          { foodId: "food/oats", grams: 80 },
+          { foodId: "food/whey", grams: 30 },
+          { foodId: "food/blueberries", grams: 80 },
+        ],
+      },
+      {
+        slot: "lunch",
+        time: "12:30",
+        ingredients: [
+          { foodId: "food/chicken_breast", grams: 200 },
+          { foodId: "food/pasta", grams: 120 },
+          { foodId: "food/broccoli", grams: 100 },
+          { foodId: "food/olive_oil", grams: 15 },
+        ],
+      },
+      {
+        slot: "snack",
+        time: "15:30",
+        ingredients: [
+          { foodId: "food/greek_yogurt", grams: 200 },
+          { foodId: "food/banana", grams: 120 },
+        ],
+      },
+      {
+        slot: "dinner",
+        time: "19:00",
+        ingredients: [
+          { foodId: "food/tuna", grams: 180 },
+          { foodId: "food/sweet_potato", grams: 180 },
+          { foodId: "food/spinach", grams: 80 },
+          { foodId: "food/avocado", grams: 60 },
+        ],
+      },
     ],
   },
   {
     date: "2026-03-04",
     meals: [
-      { slot: "breakfast", time: "07:30", ingredients: [
-        { foodId: "food/oats", grams: 100 }, { foodId: "food/greek_yogurt", grams: 180 },
-        { foodId: "food/blueberries", grams: 50 },
-      ]},
-      { slot: "lunch", time: "13:00", ingredients: [
-        { foodId: "food/chicken_breast", grams: 200 }, { foodId: "food/brown_rice", grams: 180 },
-        { foodId: "food/broccoli", grams: 100 }, { foodId: "food/olive_oil", grams: 10 },
-      ]},
-      { slot: "snack", time: "16:00", ingredients: [
-        { foodId: "food/almonds", grams: 35 }, { foodId: "food/apple", grams: 130 },
-      ]},
-      { slot: "dinner", time: "19:30", ingredients: [
-        { foodId: "food/salmon", grams: 220 }, { foodId: "food/sweet_potato", grams: 200 },
-        { foodId: "food/spinach", grams: 80 },
-      ]},
+      {
+        slot: "breakfast",
+        time: "07:30",
+        ingredients: [
+          { foodId: "food/oats", grams: 100 },
+          { foodId: "food/greek_yogurt", grams: 180 },
+          { foodId: "food/blueberries", grams: 50 },
+        ],
+      },
+      {
+        slot: "lunch",
+        time: "13:00",
+        ingredients: [
+          { foodId: "food/chicken_breast", grams: 200 },
+          { foodId: "food/brown_rice", grams: 180 },
+          { foodId: "food/broccoli", grams: 100 },
+          { foodId: "food/olive_oil", grams: 10 },
+        ],
+      },
+      {
+        slot: "snack",
+        time: "16:00",
+        ingredients: [
+          { foodId: "food/almonds", grams: 35 },
+          { foodId: "food/apple", grams: 130 },
+        ],
+      },
+      {
+        slot: "dinner",
+        time: "19:30",
+        ingredients: [
+          { foodId: "food/salmon", grams: 220 },
+          { foodId: "food/sweet_potato", grams: 200 },
+          { foodId: "food/spinach", grams: 80 },
+        ],
+      },
     ],
   },
   {
     date: "2026-03-05",
     meals: [
-      { slot: "breakfast", time: "07:30", ingredients: [
-        { foodId: "food/eggs", grams: 150 }, { foodId: "food/whole_milk", grams: 200 },
-        { foodId: "food/banana", grams: 100 },
-      ]},
-      { slot: "lunch", time: "12:30", ingredients: [
-        { foodId: "food/chicken_breast", grams: 180 }, { foodId: "food/brown_rice", grams: 160 },
-        { foodId: "food/broccoli", grams: 120 }, { foodId: "food/olive_oil", grams: 10 },
-      ]},
-      { slot: "snack", time: "16:00", ingredients: [
-        { foodId: "food/cottage_cheese", grams: 200 }, { foodId: "food/blueberries", grams: 80 },
-      ]},
-      { slot: "dinner", time: "19:00", ingredients: [
-        { foodId: "food/salmon", grams: 190 }, { foodId: "food/pasta", grams: 100 },
-        { foodId: "food/spinach", grams: 100 }, { foodId: "food/olive_oil", grams: 10 },
-      ]},
+      {
+        slot: "breakfast",
+        time: "07:30",
+        ingredients: [
+          { foodId: "food/eggs", grams: 150 },
+          { foodId: "food/whole_milk", grams: 200 },
+          { foodId: "food/banana", grams: 100 },
+        ],
+      },
+      {
+        slot: "lunch",
+        time: "12:30",
+        ingredients: [
+          { foodId: "food/chicken_breast", grams: 180 },
+          { foodId: "food/brown_rice", grams: 160 },
+          { foodId: "food/broccoli", grams: 120 },
+          { foodId: "food/olive_oil", grams: 10 },
+        ],
+      },
+      {
+        slot: "snack",
+        time: "16:00",
+        ingredients: [
+          { foodId: "food/cottage_cheese", grams: 200 },
+          { foodId: "food/blueberries", grams: 80 },
+        ],
+      },
+      {
+        slot: "dinner",
+        time: "19:00",
+        ingredients: [
+          { foodId: "food/salmon", grams: 190 },
+          { foodId: "food/pasta", grams: 100 },
+          { foodId: "food/spinach", grams: 100 },
+          { foodId: "food/olive_oil", grams: 10 },
+        ],
+      },
     ],
   },
   {
     date: "2026-03-06",
     meals: [
-      { slot: "breakfast", time: "08:00", ingredients: [
-        { foodId: "food/oats", grams: 80 }, { foodId: "food/whey", grams: 30 },
-        { foodId: "food/banana", grams: 100 },
-      ]},
-      { slot: "lunch", time: "13:00", ingredients: [
-        { foodId: "food/tuna", grams: 200 }, { foodId: "food/brown_rice", grams: 180 },
-        { foodId: "food/broccoli", grams: 100 }, { foodId: "food/avocado", grams: 80 },
-      ]},
-      { slot: "snack", time: "15:30", ingredients: [
-        { foodId: "food/almonds", grams: 30 }, { foodId: "food/apple", grams: 150 },
-      ]},
-      { slot: "dinner", time: "19:30", ingredients: [
-        { foodId: "food/chicken_breast", grams: 200 }, { foodId: "food/sweet_potato", grams: 220 },
-        { foodId: "food/spinach", grams: 80 },
-      ]},
+      {
+        slot: "breakfast",
+        time: "08:00",
+        ingredients: [
+          { foodId: "food/oats", grams: 80 },
+          { foodId: "food/whey", grams: 30 },
+          { foodId: "food/banana", grams: 100 },
+        ],
+      },
+      {
+        slot: "lunch",
+        time: "13:00",
+        ingredients: [
+          { foodId: "food/tuna", grams: 200 },
+          { foodId: "food/brown_rice", grams: 180 },
+          { foodId: "food/broccoli", grams: 100 },
+          { foodId: "food/avocado", grams: 80 },
+        ],
+      },
+      {
+        slot: "snack",
+        time: "15:30",
+        ingredients: [
+          { foodId: "food/almonds", grams: 30 },
+          { foodId: "food/apple", grams: 150 },
+        ],
+      },
+      {
+        slot: "dinner",
+        time: "19:30",
+        ingredients: [
+          { foodId: "food/chicken_breast", grams: 200 },
+          { foodId: "food/sweet_potato", grams: 220 },
+          { foodId: "food/spinach", grams: 80 },
+        ],
+      },
     ],
   },
   {
     date: "2026-03-07",
     meals: [
-      { slot: "breakfast", time: "09:00", ingredients: [
-        { foodId: "food/eggs", grams: 200 }, { foodId: "food/whole_milk", grams: 200 },
-        { foodId: "food/blueberries", grams: 80 }, { foodId: "food/avocado", grams: 80 },
-      ]},
-      { slot: "lunch", time: "13:30", ingredients: [
-        { foodId: "food/pasta", grams: 150 }, { foodId: "food/tuna", grams: 180 },
-        { foodId: "food/spinach", grams: 100 }, { foodId: "food/olive_oil", grams: 15 },
-      ]},
-      { slot: "snack", time: "17:00", ingredients: [
-        { foodId: "food/cottage_cheese", grams: 200 }, { foodId: "food/banana", grams: 120 },
-      ]},
-      { slot: "dinner", time: "20:00", ingredients: [
-        { foodId: "food/salmon", grams: 220 }, { foodId: "food/brown_rice", grams: 150 },
-        { foodId: "food/broccoli", grams: 120 },
-      ]},
+      {
+        slot: "breakfast",
+        time: "09:00",
+        ingredients: [
+          { foodId: "food/eggs", grams: 200 },
+          { foodId: "food/whole_milk", grams: 200 },
+          { foodId: "food/blueberries", grams: 80 },
+          { foodId: "food/avocado", grams: 80 },
+        ],
+      },
+      {
+        slot: "lunch",
+        time: "13:30",
+        ingredients: [
+          { foodId: "food/pasta", grams: 150 },
+          { foodId: "food/tuna", grams: 180 },
+          { foodId: "food/spinach", grams: 100 },
+          { foodId: "food/olive_oil", grams: 15 },
+        ],
+      },
+      {
+        slot: "snack",
+        time: "17:00",
+        ingredients: [
+          { foodId: "food/cottage_cheese", grams: 200 },
+          { foodId: "food/banana", grams: 120 },
+        ],
+      },
+      {
+        slot: "dinner",
+        time: "20:00",
+        ingredients: [
+          { foodId: "food/salmon", grams: 220 },
+          { foodId: "food/brown_rice", grams: 150 },
+          { foodId: "food/broccoli", grams: 120 },
+        ],
+      },
     ],
   },
   {
     date: "2026-03-08",
     meals: [
-      { slot: "breakfast", time: "09:00", ingredients: [
-        { foodId: "food/oats", grams: 100 }, { foodId: "food/greek_yogurt", grams: 200 },
-        { foodId: "food/blueberries", grams: 80 }, { foodId: "food/banana", grams: 100 },
-      ]},
-      { slot: "lunch", time: "14:00", ingredients: [
-        { foodId: "food/chicken_breast", grams: 200 }, { foodId: "food/pasta", grams: 120 },
-        { foodId: "food/broccoli", grams: 100 }, { foodId: "food/olive_oil", grams: 10 },
-      ]},
-      { slot: "snack", time: "17:00", ingredients: [
-        { foodId: "food/almonds", grams: 30 }, { foodId: "food/apple", grams: 150 },
-        { foodId: "food/cottage_cheese", grams: 150 },
-      ]},
-      { slot: "dinner", time: "20:00", ingredients: [
-        { foodId: "food/salmon", grams: 200 }, { foodId: "food/sweet_potato", grams: 200 },
-        { foodId: "food/spinach", grams: 80 },
-      ]},
+      {
+        slot: "breakfast",
+        time: "09:00",
+        ingredients: [
+          { foodId: "food/oats", grams: 100 },
+          { foodId: "food/greek_yogurt", grams: 200 },
+          { foodId: "food/blueberries", grams: 80 },
+          { foodId: "food/banana", grams: 100 },
+        ],
+      },
+      {
+        slot: "lunch",
+        time: "14:00",
+        ingredients: [
+          { foodId: "food/chicken_breast", grams: 200 },
+          { foodId: "food/pasta", grams: 120 },
+          { foodId: "food/broccoli", grams: 100 },
+          { foodId: "food/olive_oil", grams: 10 },
+        ],
+      },
+      {
+        slot: "snack",
+        time: "17:00",
+        ingredients: [
+          { foodId: "food/almonds", grams: 30 },
+          { foodId: "food/apple", grams: 150 },
+          { foodId: "food/cottage_cheese", grams: 150 },
+        ],
+      },
+      {
+        slot: "dinner",
+        time: "20:00",
+        ingredients: [
+          { foodId: "food/salmon", grams: 200 },
+          { foodId: "food/sweet_potato", grams: 200 },
+          { foodId: "food/spinach", grams: 80 },
+        ],
+      },
     ],
   },
 ];
 
 export const MOCK_SHOPPING_LIST: ShoppingItem[] = [
   // protein
-  { id: "shop/chicken", name: "Chicken Breast",  amount: 980,  unit: "g",  category: "protein", checked: false },
-  { id: "shop/salmon",  name: "Salmon",          amount: 830,  unit: "g",  category: "protein", checked: false },
-  { id: "shop/tuna",    name: "Tuna",            amount: 560,  unit: "g",  category: "protein", checked: false },
-  { id: "shop/eggs",    name: "Eggs",            amount: 350,  unit: "g",  category: "protein", checked: false },
-  { id: "shop/whey",    name: "Whey Protein",    amount: 60,   unit: "g",  category: "protein", checked: false },
+  {
+    id: "shop/chicken",
+    name: "Chicken Breast",
+    amount: 980,
+    unit: "g",
+    category: "protein",
+    checked: false,
+  },
+  {
+    id: "shop/salmon",
+    name: "Salmon",
+    amount: 830,
+    unit: "g",
+    category: "protein",
+    checked: false,
+  },
+  {
+    id: "shop/tuna",
+    name: "Tuna",
+    amount: 560,
+    unit: "g",
+    category: "protein",
+    checked: false,
+  },
+  {
+    id: "shop/eggs",
+    name: "Eggs",
+    amount: 350,
+    unit: "g",
+    category: "protein",
+    checked: false,
+  },
+  {
+    id: "shop/whey",
+    name: "Whey Protein",
+    amount: 60,
+    unit: "g",
+    category: "protein",
+    checked: false,
+  },
   // carbs
-  { id: "shop/oats",    name: "Oatmeal",         amount: 440,  unit: "g",  category: "carbs",   checked: false },
-  { id: "shop/rice",    name: "Brown Rice",      amount: 820,  unit: "g",  category: "carbs",   checked: false },
-  { id: "shop/pasta",   name: "Pasta",           amount: 490,  unit: "g",  category: "carbs",   checked: false },
-  { id: "shop/banana",  name: "Banana",          amount: 640,  unit: "g",  category: "carbs",   checked: false },
-  { id: "shop/swtpot",  name: "Sweet Potato",    amount: 1000, unit: "g",  category: "carbs",   checked: false },
+  {
+    id: "shop/oats",
+    name: "Oatmeal",
+    amount: 440,
+    unit: "g",
+    category: "carbs",
+    checked: false,
+  },
+  {
+    id: "shop/rice",
+    name: "Brown Rice",
+    amount: 820,
+    unit: "g",
+    category: "carbs",
+    checked: false,
+  },
+  {
+    id: "shop/pasta",
+    name: "Pasta",
+    amount: 490,
+    unit: "g",
+    category: "carbs",
+    checked: false,
+  },
+  {
+    id: "shop/banana",
+    name: "Banana",
+    amount: 640,
+    unit: "g",
+    category: "carbs",
+    checked: false,
+  },
+  {
+    id: "shop/swtpot",
+    name: "Sweet Potato",
+    amount: 1000,
+    unit: "g",
+    category: "carbs",
+    checked: false,
+  },
   // veggies
-  { id: "shop/broccol", name: "Broccoli",        amount: 760,  unit: "g",  category: "veggies", checked: false },
-  { id: "shop/spinach", name: "Spinach",         amount: 620,  unit: "g",  category: "veggies", checked: false },
-  { id: "shop/bluebrr", name: "Blueberries",     amount: 430,  unit: "g",  category: "veggies", checked: false },
-  { id: "shop/apple",   name: "Apple",           amount: 580,  unit: "g",  category: "veggies", checked: false },
+  {
+    id: "shop/broccol",
+    name: "Broccoli",
+    amount: 760,
+    unit: "g",
+    category: "veggies",
+    checked: false,
+  },
+  {
+    id: "shop/spinach",
+    name: "Spinach",
+    amount: 620,
+    unit: "g",
+    category: "veggies",
+    checked: false,
+  },
+  {
+    id: "shop/bluebrr",
+    name: "Blueberries",
+    amount: 430,
+    unit: "g",
+    category: "veggies",
+    checked: false,
+  },
+  {
+    id: "shop/apple",
+    name: "Apple",
+    amount: 580,
+    unit: "g",
+    category: "veggies",
+    checked: false,
+  },
   // dairy
-  { id: "shop/yogurt",  name: "Greek Yogurt",    amount: 730,  unit: "g",  category: "dairy",   checked: false },
-  { id: "shop/milk",    name: "Whole Milk",      amount: 400,  unit: "ml", category: "dairy",   checked: false },
-  { id: "shop/cottage", name: "Cottage Cheese",  amount: 550,  unit: "g",  category: "dairy",   checked: false },
+  {
+    id: "shop/yogurt",
+    name: "Greek Yogurt",
+    amount: 730,
+    unit: "g",
+    category: "dairy",
+    checked: false,
+  },
+  {
+    id: "shop/milk",
+    name: "Whole Milk",
+    amount: 400,
+    unit: "ml",
+    category: "dairy",
+    checked: false,
+  },
+  {
+    id: "shop/cottage",
+    name: "Cottage Cheese",
+    amount: 550,
+    unit: "g",
+    category: "dairy",
+    checked: false,
+  },
   // fats
-  { id: "shop/almonds", name: "Almonds",         amount: 125,  unit: "g",  category: "fats",    checked: false },
-  { id: "shop/avocado", name: "Avocado",         amount: 220,  unit: "g",  category: "fats",    checked: false },
-  { id: "shop/ooil",    name: "Olive Oil",       amount: 80,   unit: "ml", category: "fats",    checked: false },
+  {
+    id: "shop/almonds",
+    name: "Almonds",
+    amount: 125,
+    unit: "g",
+    category: "fats",
+    checked: false,
+  },
+  {
+    id: "shop/avocado",
+    name: "Avocado",
+    amount: 220,
+    unit: "g",
+    category: "fats",
+    checked: false,
+  },
+  {
+    id: "shop/ooil",
+    name: "Olive Oil",
+    amount: 80,
+    unit: "ml",
+    category: "fats",
+    checked: false,
+  },
 ];

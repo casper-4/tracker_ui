@@ -265,7 +265,9 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
             {pinnedQuests.length === 0 ? (
               <li className="text-[#555] text-xs p-2">
                 {pinnedDragOver ? (
-                  <span className="text-[#facc15]/60">{t(lang, "drop_here")}</span>
+                  <span className="text-[#facc15]/60">
+                    {t(lang, "drop_here")}
+                  </span>
                 ) : (
                   t(lang, "calendar_pinned_empty")
                 )}
@@ -576,38 +578,38 @@ function MultiDayHourlyView({
     <div className={`pb-3 ${days > 7 ? "min-w-[700px]" : "min-w-[440px]"}`}>
       {/* Day headers — sticky inside the scrollable main */}
       <div className="sticky top-0 z-10 bg-[#0a0a0a] px-3">
-      <div className="flex border-b border-[#1f1f1f] h-[60px]">
-        <div className={`${hourColW} shrink-0`} />
-        {dayList.map((d) => {
-          const isToday = sameDay(d, today);
-          return (
-            <div
-              key={d.getTime()}
-              className="flex-1 min-w-0 text-center py-2 border-l border-[#1f1f1f]"
-            >
-              <span
-                className={`text-[9px] uppercase tracking-widest block ${
-                  isToday ? "text-[#facc15]" : "text-[#555]"
-                }`}
+        <div className="flex border-b border-[#1f1f1f] h-[60px]">
+          <div className={`${hourColW} shrink-0`} />
+          {dayList.map((d) => {
+            const isToday = sameDay(d, today);
+            return (
+              <div
+                key={d.getTime()}
+                className="flex-1 min-w-0 text-center py-2 border-l border-[#1f1f1f]"
               >
-                {WEEKDAY_SHORT[d.getDay()]}
-              </span>
-              <span
-                className={`font-mono font-bold block leading-tight ${
-                  days <= 7 ? "text-sm" : "text-xs"
-                } ${isToday ? "text-[#facc15]" : "text-[#ccc]"}`}
-              >
-                {d.getDate()}
-              </span>
-              {days <= 7 && (
-                <span className="text-[9px] text-[#444] block">
-                  {d.toLocaleDateString("pl-PL", { month: "short" })}
+                <span
+                  className={`text-[9px] uppercase tracking-widest block ${
+                    isToday ? "text-[#facc15]" : "text-[#555]"
+                  }`}
+                >
+                  {WEEKDAY_SHORT[d.getDay()]}
                 </span>
-              )}
-            </div>
-          );
-        })}
-      </div>
+                <span
+                  className={`font-mono font-bold block leading-tight ${
+                    days <= 7 ? "text-sm" : "text-xs"
+                  } ${isToday ? "text-[#facc15]" : "text-[#ccc]"}`}
+                >
+                  {d.getDate()}
+                </span>
+                {days <= 7 && (
+                  <span className="text-[9px] text-[#444] block">
+                    {d.toLocaleDateString("pl-PL", { month: "short" })}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Hourly grid */}
@@ -646,7 +648,9 @@ function MultiDayHourlyView({
                   return (
                     <div
                       key={hour}
-                      ref={dayIndex === 0 && hour === 7 ? sevenAmRef : undefined}
+                      ref={
+                        dayIndex === 0 && hour === 7 ? sevenAmRef : undefined
+                      }
                       className={`${rowH} border-b border-[#1f1f1f] flex flex-col transition-colors relative ${
                         isTarget ? "bg-[#facc15]/10" : ""
                       }`}

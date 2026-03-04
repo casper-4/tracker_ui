@@ -304,7 +304,8 @@ export default function TrainingPage() {
                       </span>
                       <span className="flex items-center gap-1.5">
                         <Clock size={11} />
-                        {selected.durationMin} {t(lang, "training_duration_min")}
+                        {selected.durationMin}{" "}
+                        {t(lang, "training_duration_min")}
                       </span>
                     </div>
                   </div>
@@ -336,9 +337,7 @@ export default function TrainingPage() {
                     {
                       label: t(lang, "training_exercises"),
                       value: selected.exercises.length,
-                      icon: (
-                        <TrendingUp size={14} className="text-[#a855f7]" />
-                      ),
+                      icon: <TrendingUp size={14} className="text-[#a855f7]" />,
                     },
                     {
                       label: t(lang, "training_prs"),

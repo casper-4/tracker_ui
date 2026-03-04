@@ -755,9 +755,29 @@ export type RecoveryFactor = {
 };
 
 export const MOCK_RECOVERY_TODAY: RecoveryFactor[] = [
-  { label: "Sen", labelKey: "health_factor_sleep", value: 84, color: "#a855f7" },
+  {
+    label: "Sen",
+    labelKey: "health_factor_sleep",
+    value: 84,
+    color: "#a855f7",
+  },
   { label: "HRV", labelKey: "health_factor_hrv", value: 72, color: "#38bdf8" },
-  { label: "Aktywność", labelKey: "health_factor_activity", value: 61, color: "#22c55e" },
-  { label: "Odpoczynek", labelKey: "health_factor_rest", value: 78, color: "#f59e0b" },
-  { label: "Stres", labelKey: "health_factor_stress", value: 55, color: "#ec4899" },
+  {
+    label: "Aktywność",
+    labelKey: "health_factor_activity",
+    value: 61,
+    color: "#22c55e",
+  },
+  {
+    label: "Odpoczynek",
+    labelKey: "health_factor_rest",
+    value: 78,
+    color: "#f59e0b",
+  },
+  {
+    label: "Stres",
+    labelKey: "health_factor_stress",
+    value: 55,
+    color: "#ec4899",
+  },
 ];

@@ -14,7 +14,17 @@ import {
   Bar,
   Cell,
 } from "recharts";
-import { Moon, Zap, Heart, Activity, TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Moon,
+  Zap,
+  Heart,
+  Activity,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { MOCK_SLEEP_LOG, MOCK_RECOVERY_TODAY } from "@/lib/mock";
 import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
@@ -35,7 +45,20 @@ function qualityStars(rating: number): string {
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
-  const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+  const months = [
+    "JAN",
+    "FEB",
+    "MAR",
+    "APR",
+    "MAY",
+    "JUN",
+    "JUL",
+    "AUG",
+    "SEP",
+    "OCT",
+    "NOV",
+    "DEC",
+  ];
   return `${String(d.getDate()).padStart(2, "0")} ${months[d.getMonth()]}`;
 }
 
@@ -67,15 +90,31 @@ type MetricCardProps = {
   trend?: number[];
 };
 
-function MetricCard({ label, value, unit, avg7d, avg7dLabel, accent, icon, trend }: MetricCardProps) {
+function MetricCard({
+  label,
+  value,
+  unit,
+  avg7d,
+  avg7dLabel,
+  accent,
+  icon,
+  trend,
+}: MetricCardProps) {
   return (
     <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-5 flex flex-col gap-3 hover:border-[#333] transition-colors">
       <div className="flex items-center justify-between">
-        <p className="text-[10px] uppercase tracking-widest text-[#666]">{label}</p>
-        <span style={{ color: accent }} className="opacity-70">{icon}</span>
+        <p className="text-[10px] uppercase tracking-widest text-[#666]">
+          {label}
+        </p>
+        <span style={{ color: accent }} className="opacity-70">
+          {icon}
+        </span>
       </div>
       <div className="flex items-end gap-2">
-        <span className="text-3xl font-bold font-mono" style={{ color: accent }}>
+        <span
+          className="text-3xl font-bold font-mono"
+          style={{ color: accent }}
+        >
           {value}
         </span>
         {unit && <span className="text-[#666] text-sm mb-1">{unit}</span>}
@@ -104,10 +143,26 @@ type SleepStagesProps = {
 function SleepStages({ entry, lang }: SleepStagesProps) {
   const total = entry.deepSleep + entry.lightSleep + entry.rem + entry.awake;
   const stages = [
-    { labelKey: "health_stage_deep" as const, hours: entry.deepSleep, color: "#a855f7" },
-    { labelKey: "health_stage_rem" as const, hours: entry.rem, color: "#38bdf8" },
-    { labelKey: "health_stage_light" as const, hours: entry.lightSleep, color: "#1d4ed8" },
-    { labelKey: "health_stage_awake" as const, hours: entry.awake, color: "#374151" },
+    {
+      labelKey: "health_stage_deep" as const,
+      hours: entry.deepSleep,
+      color: "#a855f7",
+    },
+    {
+      labelKey: "health_stage_rem" as const,
+      hours: entry.rem,
+      color: "#38bdf8",
+    },
+    {
+      labelKey: "health_stage_light" as const,
+      hours: entry.lightSleep,
+      color: "#1d4ed8",
+    },
+    {
+      labelKey: "health_stage_awake" as const,
+      hours: entry.awake,
+      color: "#374151",
+    },
   ];
 
   return (
@@ -132,7 +187,10 @@ function SleepStages({ entry, lang }: SleepStagesProps) {
       <div className="grid grid-cols-2 gap-2">
         {stages.map((s) => (
           <div key={s.labelKey} className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-sm shrink-0" style={{ backgroundColor: s.color }} />
+            <div
+              className="w-2 h-2 rounded-sm shrink-0"
+              style={{ backgroundColor: s.color }}
+            />
             <span className="text-[10px] uppercase tracking-widest text-[#666] truncate">
               {t(lang, s.labelKey)}
             </span>
@@ -145,15 +203,25 @@ function SleepStages({ entry, lang }: SleepStagesProps) {
       {/* Compact stats row */}
       <div className="border-t border-[#1f1f1f] pt-3 flex justify-between">
         <div>
-          <p className="text-[10px] text-[#555] uppercase tracking-widest">{t(lang, "health_bedtime")}</p>
-          <p className="text-sm font-mono text-[#e0e0e0] mt-0.5">{entry.bedtime}</p>
+          <p className="text-[10px] text-[#555] uppercase tracking-widest">
+            {t(lang, "health_bedtime")}
+          </p>
+          <p className="text-sm font-mono text-[#e0e0e0] mt-0.5">
+            {entry.bedtime}
+          </p>
         </div>
         <div className="text-right">
-          <p className="text-[10px] text-[#555] uppercase tracking-widest">{t(lang, "health_wake")}</p>
-          <p className="text-sm font-mono text-[#e0e0e0] mt-0.5">{entry.wakeTime}</p>
+          <p className="text-[10px] text-[#555] uppercase tracking-widest">
+            {t(lang, "health_wake")}
+          </p>
+          <p className="text-sm font-mono text-[#e0e0e0] mt-0.5">
+            {entry.wakeTime}
+          </p>
         </div>
         <div className="text-center">
-          <p className="text-[10px] text-[#555] uppercase tracking-widest">{t(lang, "health_resting_hr")}</p>
+          <p className="text-[10px] text-[#555] uppercase tracking-widest">
+            {t(lang, "health_resting_hr")}
+          </p>
           <p className="text-sm font-mono mt-0.5" style={{ color: "#ec4899" }}>
             {entry.restingHR} <span className="text-[10px]">bpm</span>
           </p>
@@ -219,9 +287,16 @@ function SleepLogRow({
         className="w-full grid items-center text-left hover:bg-[#0d0d0d] transition-colors py-2.5 px-3 border-b border-[#1a1a1a]"
         style={{ gridTemplateColumns: "80px 60px 56px 48px 48px 36px 24px" }}
       >
-        <span className="text-[10px] font-mono text-[#888]">{formatDate(entry.date)}</span>
-        <span className="text-xs font-mono text-[#e0e0e0]">{entry.totalHours.toFixed(1)}h</span>
-        <span className="text-[10px] font-mono" style={{ color: QUALITY_COLORS[entry.qualityRating] }}>
+        <span className="text-[10px] font-mono text-[#888]">
+          {formatDate(entry.date)}
+        </span>
+        <span className="text-xs font-mono text-[#e0e0e0]">
+          {entry.totalHours.toFixed(1)}h
+        </span>
+        <span
+          className="text-[10px] font-mono"
+          style={{ color: QUALITY_COLORS[entry.qualityRating] }}
+        >
           {qualityStars(entry.qualityRating)}
         </span>
         <span
@@ -230,29 +305,51 @@ function SleepLogRow({
         >
           {entry.recoveryScore}
         </span>
-        <span className="text-[10px] font-mono text-[#666]">{entry.hrv} ms</span>
-        <span className="text-[10px] font-mono text-[#666]">{entry.restingHR}</span>
+        <span className="text-[10px] font-mono text-[#666]">
+          {entry.hrv} ms
+        </span>
+        <span className="text-[10px] font-mono text-[#666]">
+          {entry.restingHR}
+        </span>
         <span className="text-[#555] flex justify-end">
-          {expanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+          {expanded ? (
+            <ChevronUp className="w-3 h-3" />
+          ) : (
+            <ChevronDown className="w-3 h-3" />
+          )}
         </span>
       </button>
       {expanded && (
         <div className="px-3 py-2 border-b border-[#1a1a1a] bg-[#050505] grid grid-cols-4 gap-3 text-[10px]">
           <div>
-            <p className="text-[#555] uppercase tracking-widest">{t(lang, "health_stage_deep")}</p>
-            <p className="text-[#a855f7] font-mono mt-0.5">{entry.deepSleep.toFixed(1)}h</p>
+            <p className="text-[#555] uppercase tracking-widest">
+              {t(lang, "health_stage_deep")}
+            </p>
+            <p className="text-[#a855f7] font-mono mt-0.5">
+              {entry.deepSleep.toFixed(1)}h
+            </p>
           </div>
           <div>
-            <p className="text-[#555] uppercase tracking-widest">{t(lang, "health_stage_rem")}</p>
-            <p className="text-[#38bdf8] font-mono mt-0.5">{entry.rem.toFixed(1)}h</p>
+            <p className="text-[#555] uppercase tracking-widest">
+              {t(lang, "health_stage_rem")}
+            </p>
+            <p className="text-[#38bdf8] font-mono mt-0.5">
+              {entry.rem.toFixed(1)}h
+            </p>
           </div>
           <div>
-            <p className="text-[#555] uppercase tracking-widest">{t(lang, "health_stage_light")}</p>
-            <p className="text-[#1d4ed8] font-mono mt-0.5">{entry.lightSleep.toFixed(1)}h</p>
+            <p className="text-[#555] uppercase tracking-widest">
+              {t(lang, "health_stage_light")}
+            </p>
+            <p className="text-[#1d4ed8] font-mono mt-0.5">
+              {entry.lightSleep.toFixed(1)}h
+            </p>
           </div>
           {entry.notes && (
             <div className="col-span-4">
-              <p className="text-[#555] uppercase tracking-widest mb-0.5">Note</p>
+              <p className="text-[#555] uppercase tracking-widest mb-0.5">
+                Note
+              </p>
               <p className="text-[#888] italic">{entry.notes}</p>
             </div>
           )}
@@ -264,14 +361,23 @@ function SleepLogRow({
 
 // ─── custom tooltip ───────────────────────────────────────────────────────────
 
-function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number; dataKey: string; color: string }[]; label?: string }) {
+function ChartTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: { value: number; dataKey: string; color: string }[];
+  label?: string;
+}) {
   if (!active || !payload?.length) return null;
   return (
     <div className="border border-[#333] bg-[#0a0a0a] p-3 text-[10px] font-mono min-w-[120px]">
       <p className="text-[#666] uppercase tracking-widest mb-2">{label}</p>
       {payload.map((p) => (
         <p key={p.dataKey} style={{ color: p.color }}>
-          {p.dataKey.toUpperCase()}: {typeof p.value === "number" ? p.value.toFixed(1) : p.value}
+          {p.dataKey.toUpperCase()}:{" "}
+          {typeof p.value === "number" ? p.value.toFixed(1) : p.value}
           {p.dataKey === "sleep" ? "h" : ""}
         </p>
       ))}
@@ -287,7 +393,7 @@ export default function HealthPage() {
 
   const sortedLog = useMemo(
     () => [...MOCK_SLEEP_LOG].sort((a, b) => b.date.localeCompare(a.date)),
-    []
+    [],
   );
 
   const lastNight = sortedLog[0];
@@ -303,17 +409,21 @@ export default function HealthPage() {
           sleep: e.totalHours,
           recovery: e.recoveryScore,
         })),
-    [sortedLog]
+    [sortedLog],
   );
 
   const avg7dSleep = useMemo(() => {
     const slice = sortedLog.slice(0, 7);
-    return (slice.reduce((s, e) => s + e.totalHours, 0) / slice.length).toFixed(1);
+    return (slice.reduce((s, e) => s + e.totalHours, 0) / slice.length).toFixed(
+      1,
+    );
   }, [sortedLog]);
 
   const avg7dRecovery = useMemo(() => {
     const slice = sortedLog.slice(0, 7);
-    return Math.round(slice.reduce((s, e) => s + e.recoveryScore, 0) / slice.length);
+    return Math.round(
+      slice.reduce((s, e) => s + e.recoveryScore, 0) / slice.length,
+    );
   }, [sortedLog]);
 
   const avg7dHrv = useMemo(() => {
@@ -345,7 +455,10 @@ export default function HealthPage() {
           avg7dLabel={t(lang, "health_avg_7d")}
           accent="#a855f7"
           icon={<Moon className="w-4 h-4" />}
-          trend={sortedLog.slice(0, 7).map((e) => e.totalHours).reverse()}
+          trend={sortedLog
+            .slice(0, 7)
+            .map((e) => e.totalHours)
+            .reverse()}
         />
         <MetricCard
           label={t(lang, "health_recovery_score")}
@@ -354,7 +467,10 @@ export default function HealthPage() {
           avg7dLabel={t(lang, "health_avg_7d")}
           accent={recoveryColor(lastNight.recoveryScore)}
           icon={<Zap className="w-4 h-4" />}
-          trend={sortedLog.slice(0, 7).map((e) => e.recoveryScore / 10).reverse()}
+          trend={sortedLog
+            .slice(0, 7)
+            .map((e) => e.recoveryScore / 10)
+            .reverse()}
         />
         <MetricCard
           label={t(lang, "health_hrv")}
@@ -364,7 +480,10 @@ export default function HealthPage() {
           avg7dLabel={t(lang, "health_avg_7d")}
           accent="#38bdf8"
           icon={<Activity className="w-4 h-4" />}
-          trend={sortedLog.slice(0, 7).map((e) => e.hrv / 10).reverse()}
+          trend={sortedLog
+            .slice(0, 7)
+            .map((e) => e.hrv / 10)
+            .reverse()}
         />
         <MetricCard
           label={t(lang, "health_resting_hr")}
@@ -374,7 +493,10 @@ export default function HealthPage() {
           avg7dLabel={t(lang, "health_avg_7d")}
           accent="#ec4899"
           icon={<Heart className="w-4 h-4" />}
-          trend={sortedLog.slice(0, 7).map((e) => e.restingHR / 10).reverse()}
+          trend={sortedLog
+            .slice(0, 7)
+            .map((e) => e.restingHR / 10)
+            .reverse()}
         />
       </div>
 
@@ -389,16 +511,23 @@ export default function HealthPage() {
             <div className="flex items-center gap-4 text-[10px] uppercase tracking-widest">
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#a855f7] inline-block" />
-                <span className="text-[#666]">{t(lang, "health_sleep_duration")}</span>
+                <span className="text-[#666]">
+                  {t(lang, "health_sleep_duration")}
+                </span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#facc15] inline-block" />
-                <span className="text-[#666]">{t(lang, "health_recovery_score")}</span>
+                <span className="text-[#666]">
+                  {t(lang, "health_recovery_score")}
+                </span>
               </span>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+            <AreaChart
+              data={chartData}
+              margin={{ top: 4, right: 4, left: -20, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id="gradSleep" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#a855f7" stopOpacity={0.25} />
@@ -409,7 +538,11 @@ export default function HealthPage() {
                   <stop offset="95%" stopColor="#facc15" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" vertical={false} />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke="#1a1a1a"
+                vertical={false}
+              />
               <XAxis
                 dataKey="date"
                 tick={{ fill: "#444", fontSize: 9, fontFamily: "monospace" }}
@@ -470,10 +603,17 @@ export default function HealthPage() {
           {/* Header row */}
           <div
             className="grid px-3 py-2 border-b border-[#1f1f1f]"
-            style={{ gridTemplateColumns: "80px 60px 56px 48px 48px 36px 24px" }}
+            style={{
+              gridTemplateColumns: "80px 60px 56px 48px 48px 36px 24px",
+            }}
           >
             {["Date", "Sleep", "Quality", "Rec.", "HRV", "HR", ""].map((h) => (
-              <span key={h} className="text-[9px] uppercase tracking-widest text-[#444]">{h}</span>
+              <span
+                key={h}
+                className="text-[9px] uppercase tracking-widest text-[#444]"
+              >
+                {h}
+              </span>
             ))}
           </div>
           <div className="section-label px-3 py-2 border-b border-[#1f1f1f]">

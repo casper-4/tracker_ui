@@ -253,7 +253,9 @@ export default function TrackerUI() {
           }
         />
         <div className="flex-1 flex min-h-0">
-          <main className={`flex-1 min-w-0 custom-scrollbar p-6 lg:p-10 xl:p-16 ${activeTab === TAB_CALENDAR ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
+          <main
+            className={`flex-1 min-w-0 custom-scrollbar p-6 lg:p-10 xl:p-16 ${activeTab === TAB_CALENDAR ? "overflow-hidden flex flex-col" : "overflow-y-auto"}`}
+          >
             <AnimatePresence mode="wait">{content}</AnimatePresence>
           </main>
           <AnimatePresence>

@@ -39,7 +39,10 @@ const PAGE_HEADERS: Record<
     subtitle: string | (() => string);
     title: string;
     titleHighlight?: boolean;
-    descriptionKey?: "quests_description" | "calendar_description" | "health_description";
+    descriptionKey?:
+      | "quests_description"
+      | "calendar_description"
+      | "health_description";
     description?: string;
   }
 > = {

@@ -480,9 +480,7 @@ function MultiDayHourlyView({
   const hourColW = days <= 7 ? "w-10" : "w-7";
 
   return (
-    <div
-      className={`p-3 ${days > 7 ? "min-w-[700px]" : "min-w-[440px]"}`}
-    >
+    <div className={`p-3 ${days > 7 ? "min-w-[700px]" : "min-w-[440px]"}`}>
       {/* Day headers */}
       <div className="flex border-b border-[#1f1f1f]">
         <div className={`${hourColW} shrink-0`} />

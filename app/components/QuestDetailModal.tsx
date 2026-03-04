@@ -8,7 +8,14 @@ import { t } from "@/lib/i18n";
 
 // TODO: [DATA] persistence will go here
 
-const STATUS_OPTIONS: { value: QuestStatus; labelKey: "status_open" | "status_planned" | "status_in_progress" | "status_completed" }[] = [
+const STATUS_OPTIONS: {
+  value: QuestStatus;
+  labelKey:
+    | "status_open"
+    | "status_planned"
+    | "status_in_progress"
+    | "status_completed";
+}[] = [
   { value: "open", labelKey: "status_open" },
   { value: "planned", labelKey: "status_planned" },
   { value: "in_progress", labelKey: "status_in_progress" },
@@ -39,7 +46,9 @@ export default function QuestDetailModal({
   const [quest, setQuest] = useState<Quest>(initialQuest);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(initialQuest.name);
-  const [editDescription, setEditDescription] = useState(initialQuest.description);
+  const [editDescription, setEditDescription] = useState(
+    initialQuest.description,
+  );
 
   useEffect(() => {
     setQuest(initialQuest);
@@ -162,7 +171,9 @@ export default function QuestDetailModal({
                 placeholder={t(lang, "quest_description")}
               />
             ) : (
-              <p className="text-sm text-[#aaa] whitespace-pre-wrap">{quest.description || "—"}</p>
+              <p className="text-sm text-[#aaa] whitespace-pre-wrap">
+                {quest.description || "—"}
+              </p>
             )}
           </div>
 
@@ -214,30 +225,50 @@ export default function QuestDetailModal({
           {/* Read-only fields */}
           <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#1f1f1f]">
             <div>
-              <span className="block text-[10px] uppercase tracking-widest text-[#666] mb-0.5">ID</span>
-              <p className="text-xs text-[#888] font-mono truncate" title={quest.id}>{quest.id}</p>
+              <span className="block text-[10px] uppercase tracking-widest text-[#666] mb-0.5">
+                ID
+              </span>
+              <p
+                className="text-xs text-[#888] font-mono truncate"
+                title={quest.id}
+              >
+                {quest.id}
+              </p>
             </div>
             <div>
-              <span className="block text-[10px] uppercase tracking-widest text-[#666] mb-0.5">Skill</span>
-              <p className="text-xs text-[#888] font-mono truncate" title={quest.skill}>{quest.skill}</p>
+              <span className="block text-[10px] uppercase tracking-widest text-[#666] mb-0.5">
+                Skill
+              </span>
+              <p
+                className="text-xs text-[#888] font-mono truncate"
+                title={quest.skill}
+              >
+                {quest.skill}
+              </p>
             </div>
             <div>
               <span className="block text-[10px] uppercase tracking-widest text-[#666] mb-0.5">
                 {t(lang, "quest_duration")}
               </span>
-              <p className="text-xs text-[#aaa]">{formatDuration(quest.duration)}</p>
+              <p className="text-xs text-[#aaa]">
+                {formatDuration(quest.duration)}
+              </p>
             </div>
             <div>
               <span className="block text-[10px] uppercase tracking-widest text-[#666] mb-0.5">
                 {t(lang, "quest_recurring")}
               </span>
-              <p className="text-xs text-[#aaa]">{quest.isRecurring ? "Tak" : "Nie"}</p>
+              <p className="text-xs text-[#aaa]">
+                {quest.isRecurring ? "Tak" : "Nie"}
+              </p>
             </div>
           </div>
 
           {quest.results && quest.results.length > 0 && (
             <div>
-              <span className="block text-[10px] uppercase tracking-widest text-[#666] mb-1">Results</span>
+              <span className="block text-[10px] uppercase tracking-widest text-[#666] mb-1">
+                Results
+              </span>
               <ul className="space-y-1 text-xs text-[#888]">
                 {quest.results.map((r, i) => (
                   <li key={r.id ?? i} className="flex justify-between gap-2">

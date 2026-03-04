@@ -3,7 +3,7 @@ export const roundSvg = (n: number) => Math.round(n * 1000) / 1000;
 
 // Helper: 6 percentage values → polygon 6-radar (hexagon).
 export function radar6Polygon(
-  values: [number, number, number, number, number, number]
+  values: [number, number, number, number, number, number],
 ) {
   const cx = 50,
     cy = 50,

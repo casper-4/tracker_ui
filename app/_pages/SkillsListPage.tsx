@@ -13,7 +13,10 @@ type SkillsListPageProps = {
   setActiveTab?: Dispatch<SetStateAction<string>>;
 };
 
-export default function SkillsListPage({ setSelectedSkillId, setActiveTab }: SkillsListPageProps) {
+export default function SkillsListPage({
+  setSelectedSkillId,
+  setActiveTab,
+}: SkillsListPageProps) {
   const { lang } = useLang();
 
   return (
@@ -27,11 +30,15 @@ export default function SkillsListPage({ setSelectedSkillId, setActiveTab }: Ski
               key={skill.id}
               skill={skill}
               icon={
-                skill.id === "skill/guitar" ? Music
-                : skill.id === "skill/vocals" ? Mic
-                : skill.id === "skill/production" ? Disc
-                : skill.id === "skill/songwriting" ? PenTool
-                : Crosshair
+                skill.id === "skill/guitar"
+                  ? Music
+                  : skill.id === "skill/vocals"
+                    ? Mic
+                    : skill.id === "skill/production"
+                      ? Disc
+                      : skill.id === "skill/songwriting"
+                        ? PenTool
+                        : Crosshair
               }
               lang={lang}
               onSelect={() => {
@@ -53,7 +60,10 @@ function SkillCard({
   onSelect,
 }: {
   skill: Skill;
-  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  icon: React.ComponentType<{
+    className?: string;
+    style?: React.CSSProperties;
+  }>;
   lang: "pl" | "en";
   onSelect?: () => void;
 }) {
@@ -69,15 +79,22 @@ function SkillCard({
           <div className="w-10 h-10 border border-[#1f1f1f] flex items-center justify-center group-hover:border-white/20 transition-colors">
             <Icon className="w-4 h-4" style={{ color }} />
           </div>
-          <h3 className="text-lg font-bold text-white uppercase tracking-wider">{name}</h3>
+          <h3 className="text-lg font-bold text-white uppercase tracking-wider">
+            {name}
+          </h3>
         </div>
-        <span className="text-xs font-mono font-bold" style={{ color }}>{completionPercentage}%</span>
+        <span className="text-xs font-mono font-bold" style={{ color }}>
+          {completionPercentage}%
+        </span>
       </div>
 
       <p className="text-xs text-[#666] mb-6 flex-1">{description}</p>
 
       <div className="w-full h-1 bg-[#1f1f1f] rounded-full mb-6">
-        <div className="h-full rounded-full" style={{ width: `${completionPercentage}%`, backgroundColor: color }} />
+        <div
+          className="h-full rounded-full"
+          style={{ width: `${completionPercentage}%`, backgroundColor: color }}
+        />
       </div>
 
       <div className="pt-4 border-t border-[#1f1f1f]">

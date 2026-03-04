@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback } from "react";
-import { MOCK_QUESTS, MOCK_SKILLS, MOCK_STATUS_COLORS } from "@/lib/mock";
+import { MOCK_QUESTS, MOCK_SKILLS } from "@/lib/mock";
 import type { Quest, QuestStatus } from "@/lib/mock";
 import { RefreshCw } from "lucide-react";
 import QuestsChart from "@/app/components/QuestsChart";
@@ -232,7 +232,6 @@ type QuestCardProps = {
 function QuestCard({ quest, effectiveStatus, skillName, subSkillLabels, onClick, onDragStart, onDragEnd }: QuestCardProps) {
   const { lang } = useLang();
   const firstColor = subSkillLabels[0]?.color ?? "#666";
-  const statusColor = MOCK_STATUS_COLORS[effectiveStatus];
   return (
     <li
       draggable
@@ -264,22 +263,11 @@ function QuestCard({ quest, effectiveStatus, skillName, subSkillLabels, onClick,
               {ss.name}
             </span>
           ))}
-          <span
-            className="text-[10px] px-1.5 py-0.5 rounded border uppercase tracking-wider"
-            style={{ borderColor: statusColor, color: statusColor }}
-          >
-            {effectiveStatus.replace("_", " ")}
-          </span>
-          {quest.isRecurring ? (
+          {quest.isRecurring && (
             <span
               className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded border uppercase tracking-wider"
               style={{ borderColor: firstColor, color: firstColor }}
             >
-              <RefreshCw size={9} />
-              {t(lang, "quest_recurring_label")}
-            </span>
-          ) : (
-            <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded border border-[#2a2a2a] text-[#444] uppercase tracking-wider">
               <RefreshCw size={9} />
               {t(lang, "quest_recurring_label")}
             </span>

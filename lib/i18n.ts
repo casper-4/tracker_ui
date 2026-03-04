@@ -30,7 +30,8 @@ export const translations = {
 
     // Quests
     quests_title: "Questy",
-    quests_description: "Wszystkie questy pogrupowane według statusu. Kliknij, aby edytować.",
+    quests_description:
+      "Wszystkie questy pogrupowane według statusu. Kliknij, aby edytować.",
     quests_planned: "Zaplanowane",
     quests_in_progress: "W toku",
     quests_completed: "Ukończone",
@@ -53,9 +54,11 @@ export const translations = {
     quest_cancel: "Anuluj",
     quest_close: "Zamknij",
     quest_actual_duration: "Realny czas",
-    quest_status_history: "Historia statusu",    quest_history: "Historia",
+    quest_status_history: "Historia statusu",
+    quest_history: "Historia",
     quest_history_empty: "—",
-    quest_comment: "Komentarz",    quest_attachments: "Załączniki",
+    quest_comment: "Komentarz",
+    quest_attachments: "Załączniki",
     quest_attach_photo: "Zdjęcie",
     quest_attach_video: "Wideo",
     quest_attach_file: "Plik",

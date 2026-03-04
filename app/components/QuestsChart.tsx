@@ -55,14 +55,66 @@ const COLORS: Record<QuestStatus, string> = {
 // 60 days of smooth mock data — consecutive points differ by at most 1
 // [planned, in_progress, completed]
 const SMOOTH_DATA: [number, number, number][] = [
-  [3,2,1],[3,2,1],[4,2,2],[4,2,2],[4,3,2],[5,3,2],[5,3,3],[5,2,3],
-  [4,2,3],[4,2,2],[5,2,3],[5,3,3],[6,3,3],[6,3,4],[5,3,4],[5,2,4],
-  [4,2,3],[4,2,3],[5,2,4],[5,3,4],[5,3,4],[6,3,4],[5,3,5],[5,2,5],
-  [4,2,4],[4,2,4],[3,2,3],[3,3,3],[4,3,4],[4,3,4],[5,3,5],[5,3,5],
-  [5,2,4],[6,2,4],[6,2,5],[5,2,5],[4,2,5],[4,3,4],[4,3,5],[5,3,5],
-  [5,3,5],[5,3,5],[6,2,5],[5,2,5],[4,2,4],[4,3,4],[5,3,5],[5,3,5],
-  [5,3,5],[6,3,5],[6,2,5],[5,2,5],[4,2,4],[4,2,5],[5,2,5],[5,3,5],
-  [6,3,5],[5,3,4],[5,2,4],[5,2,5],
+  [3, 2, 1],
+  [3, 2, 1],
+  [4, 2, 2],
+  [4, 2, 2],
+  [4, 3, 2],
+  [5, 3, 2],
+  [5, 3, 3],
+  [5, 2, 3],
+  [4, 2, 3],
+  [4, 2, 2],
+  [5, 2, 3],
+  [5, 3, 3],
+  [6, 3, 3],
+  [6, 3, 4],
+  [5, 3, 4],
+  [5, 2, 4],
+  [4, 2, 3],
+  [4, 2, 3],
+  [5, 2, 4],
+  [5, 3, 4],
+  [5, 3, 4],
+  [6, 3, 4],
+  [5, 3, 5],
+  [5, 2, 5],
+  [4, 2, 4],
+  [4, 2, 4],
+  [3, 2, 3],
+  [3, 3, 3],
+  [4, 3, 4],
+  [4, 3, 4],
+  [5, 3, 5],
+  [5, 3, 5],
+  [5, 2, 4],
+  [6, 2, 4],
+  [6, 2, 5],
+  [5, 2, 5],
+  [4, 2, 5],
+  [4, 3, 4],
+  [4, 3, 5],
+  [5, 3, 5],
+  [5, 3, 5],
+  [5, 3, 5],
+  [6, 2, 5],
+  [5, 2, 5],
+  [4, 2, 4],
+  [4, 3, 4],
+  [5, 3, 5],
+  [5, 3, 5],
+  [5, 3, 5],
+  [6, 3, 5],
+  [6, 2, 5],
+  [5, 2, 5],
+  [4, 2, 4],
+  [4, 2, 5],
+  [5, 2, 5],
+  [5, 3, 5],
+  [6, 3, 5],
+  [5, 3, 4],
+  [5, 2, 4],
+  [5, 2, 5],
 ];
 
 const allPlanned = MOCK_QUESTS.filter((q) => q.status === "planned");
@@ -114,7 +166,12 @@ export default function QuestsChart({
   void quests;
   void getSkillName;
 
-  const days = rangeMode === "7" ? 7 : rangeMode === "14" ? 14 : Math.max(1, Math.min(60, parseInt(customInput) || 14));
+  const days =
+    rangeMode === "7"
+      ? 7
+      : rangeMode === "14"
+        ? 14
+        : Math.max(1, Math.min(60, parseInt(customInput) || 14));
 
   const allChartData = useMemo(() => {
     const now = new Date();
@@ -127,8 +184,8 @@ export default function QuestsChart({
         i === 0
           ? t(lang, "chart_today")
           : i === 1
-          ? t(lang, "chart_yesterday")
-          : `${i} ${t(lang, "chart_days_ago")}`;
+            ? t(lang, "chart_yesterday")
+            : `${i} ${t(lang, "chart_days_ago")}`;
       return {
         date: dateStr,
         dayLabel,
@@ -149,12 +206,15 @@ export default function QuestsChart({
   // ── dropdown helpers ────────────────────────────────────────────────────────
 
   /** Compute pixel position for a dropdown anchored at (cx, cy) */
-  const resolvePos = (cx: number, cy: number): { left: number; top: number } => {
+  const resolvePos = (
+    cx: number,
+    cy: number,
+  ): { left: number; top: number } => {
     const w = containerRef.current?.clientWidth ?? 800;
     const h = containerRef.current?.clientHeight ?? 500;
     const gap = 10;
     const left = cx + gap + DROPDOWN_W > w ? cx - gap - DROPDOWN_W : cx + gap;
-    const top  = cy + DROPDOWN_H > h      ? cy - DROPDOWN_H          : cy;
+    const top = cy + DROPDOWN_H > h ? cy - DROPDOWN_H : cy;
     return { left, top };
   };
 
@@ -191,7 +251,10 @@ export default function QuestsChart({
       }
       // not pinned yet → pin it (keep current position if already open)
       const pos = resolvePos(entry.cx, entry.cy);
-      return { ...prev, [key]: { ...(prev[key] ?? entry), ...pos, pinned: true } };
+      return {
+        ...prev,
+        [key]: { ...(prev[key] ?? entry), ...pos, pinned: true },
+      };
     });
   };
 
@@ -210,42 +273,41 @@ export default function QuestsChart({
 
   // ── dot renderer factory ────────────────────────────────────────────────────
 
-  const makeDot = (status: QuestStatus) =>
-    (props: Record<string, unknown>) => {
-      const { cx, cy, payload } = props as {
-        cx: number;
-        cy: number;
-        payload: ChartDataPoint;
-      };
-      const key = `${payload.date}-${status}`;
-      const hasQuests = payload.questsBy[status].length > 0;
-      const entry: DropdownEntry = {
-        date: payload.date,
-        status,
-        quests: payload.questsBy[status],
-        cx,
-        cy,
-        left: 0,
-        top: 0,
-        pinned: false,
-      };
-      return (
-        <circle
-          key={key}
-          cx={cx}
-          cy={cy}
-          r={5}
-          fill={COLORS[status]}
-          style={{ cursor: hasQuests ? "pointer" : "default", outline: "none" }}
-          onMouseEnter={() => hasQuests && openDropdown(key, entry)}
-          onMouseLeave={() => scheduleClose(key)}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (hasQuests) togglePin(key, entry);
-          }}
-        />
-      );
+  const makeDot = (status: QuestStatus) => (props: Record<string, unknown>) => {
+    const { cx, cy, payload } = props as {
+      cx: number;
+      cy: number;
+      payload: ChartDataPoint;
     };
+    const key = `${payload.date}-${status}`;
+    const hasQuests = payload.questsBy[status].length > 0;
+    const entry: DropdownEntry = {
+      date: payload.date,
+      status,
+      quests: payload.questsBy[status],
+      cx,
+      cy,
+      left: 0,
+      top: 0,
+      pinned: false,
+    };
+    return (
+      <circle
+        key={key}
+        cx={cx}
+        cy={cy}
+        r={5}
+        fill={COLORS[status]}
+        style={{ cursor: hasQuests ? "pointer" : "default", outline: "none" }}
+        onMouseEnter={() => hasQuests && openDropdown(key, entry)}
+        onMouseLeave={() => scheduleClose(key)}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (hasQuests) togglePin(key, entry);
+        }}
+      />
+    );
+  };
 
   const statusLabel = (status: QuestStatus): string => {
     if (status === "planned") return t(lang, "quests_planned");
@@ -306,7 +368,10 @@ export default function QuestsChart({
       </div>
 
       {/* chart — aggressive outline removal covers recharts svg + wrapper divs */}
-      <div ref={containerRef} className="relative w-full [&_*]:outline-none [&_*:focus]:outline-none [&_*:focus-visible]:outline-none">
+      <div
+        ref={containerRef}
+        className="relative w-full [&_*]:outline-none [&_*:focus]:outline-none [&_*:focus-visible]:outline-none"
+      >
         <ResponsiveContainer width="100%" height={440}>
           <LineChart
             data={chartData}
@@ -426,4 +491,3 @@ export default function QuestsChart({
     </div>
   );
 }
-

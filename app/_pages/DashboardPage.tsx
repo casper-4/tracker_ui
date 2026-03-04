@@ -1,14 +1,7 @@
 "use client";
 
 import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
-import {
-  Music,
-  Crosshair,
-  Mic,
-  Disc,
-  PenTool,
-  ArrowUp,
-} from "lucide-react";
+import { Music, Crosshair, Mic, Disc, PenTool, ArrowUp } from "lucide-react";
 import { MOCK_SKILLS, MOCK_WORKOUT_TODAY, MOCK_MEALS_TODAY } from "@/lib/mock";
 import { roundSvg, radarNPolygon } from "@/app/components/radar";
 import { useLang } from "@/lib/language-context";
@@ -20,12 +13,15 @@ type DashboardPageProps = {
   setActiveTab?: Dispatch<SetStateAction<string>>;
 };
 
-export default function DashboardPage({ setSelectedSkillId, setActiveTab }: DashboardPageProps) {
+export default function DashboardPage({
+  setSelectedSkillId,
+  setActiveTab,
+}: DashboardPageProps) {
   const { lang } = useLang();
   const [hoveredSkillId, setHoveredSkillId] = useState<string | undefined>();
   const mainPlanRadar = useMemo(
     () => radarNPolygon(MOCK_SKILLS.map((s) => s.completionPercentage)),
-    []
+    [],
   );
 
   return (
@@ -38,13 +34,63 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
             {t(lang, "dashboard_plan").toUpperCase()}
           </h3>
           <div className="flex flex-col gap-4 flex-1">
-            <PlanItem time="07:00" title="Sniadanie" tag="DIETA" tagColor="#d946ef" skillId={undefined} hoveredSkillId={hoveredSkillId} />
-            <PlanItem time="09:00" title="CS2 -- Aim training (30 min)" tag="CS2" tagColor="#f97316" skillId="skill/cs2" hoveredSkillId={hoveredSkillId} />
-            <PlanItem time="10:00" title="Gitara -- Hammer-on practice (15 min)" tag="MUZYKA" tagColor="#a855f7" skillId="skill/guitar" hoveredSkillId={hoveredSkillId} />
-            <PlanItem time="12:30" title="Lunch" tag="DIETA" tagColor="#d946ef" skillId={undefined} hoveredSkillId={hoveredSkillId} />
-            <PlanItem time="16:00" title="Silownia -- Push A" tag="TRENING" tagColor="#22c55e" skillId={undefined} hoveredSkillId={hoveredSkillId} />
-            <PlanItem time="19:00" title="Produkcja -- EQ session" tag="MUZYKA" tagColor="#a855f7" active skillId="skill/production" hoveredSkillId={hoveredSkillId} />
-            <PlanItem time="21:00" title="Kolacja" tag="DIETA" tagColor="#d946ef" skillId={undefined} hoveredSkillId={hoveredSkillId} />
+            <PlanItem
+              time="07:00"
+              title="Sniadanie"
+              tag="DIETA"
+              tagColor="#d946ef"
+              skillId={undefined}
+              hoveredSkillId={hoveredSkillId}
+            />
+            <PlanItem
+              time="09:00"
+              title="CS2 -- Aim training (30 min)"
+              tag="CS2"
+              tagColor="#f97316"
+              skillId="skill/cs2"
+              hoveredSkillId={hoveredSkillId}
+            />
+            <PlanItem
+              time="10:00"
+              title="Gitara -- Hammer-on practice (15 min)"
+              tag="MUZYKA"
+              tagColor="#a855f7"
+              skillId="skill/guitar"
+              hoveredSkillId={hoveredSkillId}
+            />
+            <PlanItem
+              time="12:30"
+              title="Lunch"
+              tag="DIETA"
+              tagColor="#d946ef"
+              skillId={undefined}
+              hoveredSkillId={hoveredSkillId}
+            />
+            <PlanItem
+              time="16:00"
+              title="Silownia -- Push A"
+              tag="TRENING"
+              tagColor="#22c55e"
+              skillId={undefined}
+              hoveredSkillId={hoveredSkillId}
+            />
+            <PlanItem
+              time="19:00"
+              title="Produkcja -- EQ session"
+              tag="MUZYKA"
+              tagColor="#a855f7"
+              active
+              skillId="skill/production"
+              hoveredSkillId={hoveredSkillId}
+            />
+            <PlanItem
+              time="21:00"
+              title="Kolacja"
+              tag="DIETA"
+              tagColor="#d946ef"
+              skillId={undefined}
+              hoveredSkillId={hoveredSkillId}
+            />
           </div>
         </div>
 
@@ -57,28 +103,51 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
               {t(lang, "dashboard_neural_map").toUpperCase()}
             </h3>
           </div>
-          <p className="text-[10px] text-[#facc15] uppercase tracking-widest mb-6">
-            {t(lang, "dashboard_today").toUpperCase()}
-          </p>
 
           <div className="flex-1 flex items-center justify-center relative">
-            <svg viewBox="0 0 100 100" className="w-full max-w-[280px] overflow-visible">
+            <svg
+              viewBox="0 0 100 100"
+              className="w-full max-w-[280px] overflow-visible"
+            >
               {[40, 26.7, 13.3].map((r, ri) => {
                 const pts = [0, 60, 120, 180, 240, 300].map((deg) => {
                   const rad = (deg * Math.PI) / 180;
                   return `${roundSvg(50 + r * Math.sin(rad))},${roundSvg(50 - r * Math.cos(rad))}`;
                 });
                 return (
-                  <polygon key={ri} points={pts.join(" ")} fill="none" stroke="#1f1f1f" strokeWidth="0.5" strokeDasharray="2,2" />
+                  <polygon
+                    key={ri}
+                    points={pts.join(" ")}
+                    fill="none"
+                    stroke="#1f1f1f"
+                    strokeWidth="0.5"
+                    strokeDasharray="2,2"
+                  />
                 );
               })}
               {[0, 60, 120, 180, 240, 300].map((deg, i) => {
                 const rad = (deg * Math.PI) / 180;
                 const x = roundSvg(50 + 40 * Math.sin(rad));
                 const y = roundSvg(50 - 40 * Math.cos(rad));
-                return <line key={i} x1="50" y1="50" x2={x} y2={y} stroke="#1f1f1f" strokeWidth="0.5" strokeDasharray="2,2" />;
+                return (
+                  <line
+                    key={i}
+                    x1="50"
+                    y1="50"
+                    x2={x}
+                    y2={y}
+                    stroke="#1f1f1f"
+                    strokeWidth="0.5"
+                    strokeDasharray="2,2"
+                  />
+                );
               })}
-              <polygon points={mainPlanRadar.points} fill="rgba(250, 204, 21, 0.1)" stroke="#facc15" strokeWidth="1.5" />
+              <polygon
+                points={mainPlanRadar.points}
+                fill="rgba(250, 204, 21, 0.1)"
+                stroke="#facc15"
+                strokeWidth="1.5"
+              />
               {MOCK_SKILLS.map((s, i) => {
                 const deg = (i * 360) / MOCK_SKILLS.length;
                 const rad = (deg * Math.PI) / 180;
@@ -110,7 +179,15 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
                     <circle cx={dot.x} cy={dot.y} r="5" fill="transparent" />
                     {/* pulse ring on hover */}
                     {isActive && (
-                      <circle cx={dot.x} cy={dot.y} r="4" fill="none" stroke="#facc15" strokeWidth="0.6" opacity="0.5" />
+                      <circle
+                        cx={dot.x}
+                        cy={dot.y}
+                        r="4"
+                        fill="none"
+                        stroke="#facc15"
+                        strokeWidth="0.6"
+                        opacity="0.5"
+                      />
                     )}
                     {/* data dot */}
                     <circle
@@ -132,9 +209,13 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
                     >
                       {s.name.length > 8 ? (
                         <>
-                          <tspan x={labelX} dy={-2}>{s.name.split(" ")[0]}</tspan>
+                          <tspan x={labelX} dy={-2}>
+                            {s.name.split(" ")[0]}
+                          </tspan>
                           {s.name.split(" ").length > 1 && (
-                            <tspan x={labelX} dy="4">{s.name.split(" ").slice(1).join(" ")}</tspan>
+                            <tspan x={labelX} dy="4">
+                              {s.name.split(" ").slice(1).join(" ")}
+                            </tspan>
                           )}
                         </>
                       ) : (
@@ -163,7 +244,6 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
             <LegendItem color="#22c55e" label="Trening" value="84%" />
           </div>
         </div>
-
       </div>
 
       {/* TODAY'S TRAINING */}
@@ -172,7 +252,9 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
           <h3 className="text-[10px] text-[#666] uppercase tracking-widest">
             {t(lang, "dashboard_training").toUpperCase()}
           </h3>
-          <span className="text-sm text-[#22c55e] font-bold">{MOCK_WORKOUT_TODAY.name}</span>
+          <span className="text-sm text-[#22c55e] font-bold">
+            {MOCK_WORKOUT_TODAY.name}
+          </span>
         </div>
 
         <div className="w-full">
@@ -217,9 +299,15 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
         </div>
         <div className="mt-4 text-right text-xs">
           <span className="text-[#666] mr-4">Total:</span>
-          <span className="text-[#a855f7] mr-4">{MOCK_MEALS_TODAY.reduce((s, m) => s + m.protein, 0)}g P</span>
-          <span className="text-[#f97316] mr-4">{MOCK_MEALS_TODAY.reduce((s, m) => s + m.carbs, 0)}g W</span>
-          <span className="text-[#00f0ff]">{MOCK_MEALS_TODAY.reduce((s, m) => s + m.kcal, 0)} kcal</span>
+          <span className="text-[#a855f7] mr-4">
+            {MOCK_MEALS_TODAY.reduce((s, m) => s + m.protein, 0)}g P
+          </span>
+          <span className="text-[#f97316] mr-4">
+            {MOCK_MEALS_TODAY.reduce((s, m) => s + m.carbs, 0)}g W
+          </span>
+          <span className="text-[#00f0ff]">
+            {MOCK_MEALS_TODAY.reduce((s, m) => s + m.kcal, 0)} kcal
+          </span>
         </div>
       </div>
 
@@ -231,14 +319,22 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {MOCK_SKILLS.map((s) => {
             const aspects = s.aspects;
-            const radarCurrent = aspects.length > 0 ? radarNPolygon(aspects.map((a) => a.completionPercentage)) : null;
-            const radarGoal = aspects.length > 0 ? radarNPolygon(aspects.map(() => 100)) : null;
+            const radarCurrent =
+              aspects.length > 0
+                ? radarNPolygon(aspects.map((a) => a.completionPercentage))
+                : null;
+            const radarGoal =
+              aspects.length > 0 ? radarNPolygon(aspects.map(() => 100)) : null;
             const Icon =
-              s.id === "skill/guitar" ? Music
-              : s.id === "skill/vocals" ? Mic
-              : s.id === "skill/production" ? Disc
-              : s.id === "skill/songwriting" ? PenTool
-              : Crosshair;
+              s.id === "skill/guitar"
+                ? Music
+                : s.id === "skill/vocals"
+                  ? Mic
+                  : s.id === "skill/production"
+                    ? Disc
+                    : s.id === "skill/songwriting"
+                      ? PenTool
+                      : Crosshair;
             const goToSkillDetail = () => {
               setSelectedSkillId?.(s.id);
               setActiveTab?.(TAB_SKILL_DETAIL);
@@ -257,14 +353,28 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
                     <Icon className="w-5 h-5" style={{ color: s.color }} />
                     <h3 className="text-lg font-bold text-white">{s.name}</h3>
                   </div>
-                  <span className="font-mono font-bold" style={{ color: s.color }}>{s.completionPercentage}%</span>
+                  <span
+                    className="font-mono font-bold"
+                    style={{ color: s.color }}
+                  >
+                    {s.completionPercentage}%
+                  </span>
                 </div>
                 <div className="w-full h-2 bg-[#1f1f1f] rounded-full mb-5">
-                  <div className="h-full rounded-full transition-all" style={{ width: `${s.completionPercentage}%`, backgroundColor: s.color }} />
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${s.completionPercentage}%`,
+                      backgroundColor: s.color,
+                    }}
+                  />
                 </div>
                 {radarCurrent && radarGoal && (
                   <div className="flex justify-center mb-6">
-                    <svg viewBox="0 0 100 100" className="w-full max-w-[200px] overflow-visible">
+                    <svg
+                      viewBox="0 0 100 100"
+                      className="w-full max-w-[200px] overflow-visible"
+                    >
                       {[40, 26.7, 13.3].map((maxR, ri) => {
                         const n = aspects.length;
                         const pts = Array.from({ length: n }, (_, i) => {
@@ -272,7 +382,16 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
                           const rad = (angle * Math.PI) / 180;
                           return `${roundSvg(50 + maxR * Math.sin(rad))},${roundSvg(50 - maxR * Math.cos(rad))}`;
                         });
-                        return <polygon key={ri} points={pts.join(" ")} fill="none" stroke="#1f1f1f" strokeWidth="0.5" strokeDasharray="2,2" />;
+                        return (
+                          <polygon
+                            key={ri}
+                            points={pts.join(" ")}
+                            fill="none"
+                            stroke="#1f1f1f"
+                            strokeWidth="0.5"
+                            strokeDasharray="2,2"
+                          />
+                        );
                       })}
                       {aspects.map((_, i) => {
                         const n = aspects.length;
@@ -280,12 +399,41 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
                         const rad = (angle * Math.PI) / 180;
                         const x = roundSvg(50 + 40 * Math.sin(rad));
                         const y = roundSvg(50 - 40 * Math.cos(rad));
-                        return <line key={i} x1="50" y1="50" x2={x} y2={y} stroke="#1f1f1f" strokeWidth="0.5" strokeDasharray="2,2" />;
+                        return (
+                          <line
+                            key={i}
+                            x1="50"
+                            y1="50"
+                            x2={x}
+                            y2={y}
+                            stroke="#1f1f1f"
+                            strokeWidth="0.5"
+                            strokeDasharray="2,2"
+                          />
+                        );
                       })}
-                      <polygon points={radarGoal.points} fill="none" stroke={s.color} strokeWidth="1" strokeDasharray="4,3" opacity={0.6} />
-                      <polygon points={radarCurrent.points} fill={`${s.color}1a`} stroke={s.color} strokeWidth="1.5" />
+                      <polygon
+                        points={radarGoal.points}
+                        fill="none"
+                        stroke={s.color}
+                        strokeWidth="1"
+                        strokeDasharray="4,3"
+                        opacity={0.6}
+                      />
+                      <polygon
+                        points={radarCurrent.points}
+                        fill={`${s.color}1a`}
+                        stroke={s.color}
+                        strokeWidth="1.5"
+                      />
                       {radarCurrent.pts.map((p, i) => (
-                        <circle key={i} cx={p.x} cy={p.y} r="1.5" fill={s.color} />
+                        <circle
+                          key={i}
+                          cx={p.x}
+                          cy={p.y}
+                          r="1.5"
+                          fill={s.color}
+                        />
                       ))}
                       {aspects.map((a, i) => {
                         const n = aspects.length;
@@ -294,7 +442,19 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
                         const dist = 46;
                         const x = roundSvg(50 + dist * Math.sin(rad));
                         const y = roundSvg(50 - dist * Math.cos(rad));
-                        return <text key={i} x={x} y={y} fill="#888" fontSize="3" textAnchor="middle" className="uppercase tracking-widest">{a.name}</text>;
+                        return (
+                          <text
+                            key={i}
+                            x={x}
+                            y={y}
+                            fill="#888"
+                            fontSize="3"
+                            textAnchor="middle"
+                            className="uppercase tracking-widest"
+                          >
+                            {a.name}
+                          </text>
+                        );
                       })}
                     </svg>
                   </div>
@@ -302,7 +462,11 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
                 <div className="flex flex-col gap-3 mt-auto">
                   {aspects.map((a) => (
                     <div key={a.name} className="space-y-1">
-                      <ProgressBar label={a.name} value={a.completionPercentage} color={s.color} />
+                      <ProgressBar
+                        label={a.name}
+                        value={a.completionPercentage}
+                        color={s.color}
+                      />
                     </div>
                   ))}
                 </div>
@@ -334,13 +498,28 @@ function PlanItem({
 }) {
   const isHovered = skillId && hoveredSkillId === skillId;
   return (
-    <div className={`flex items-center justify-between p-2 border transition-all ${isHovered || active ? "border-[#facc15] bg-[#facc15]/5" : "border-transparent hover:border-[#1f1f1f]"}`}>
+    <div
+      className={`flex items-center justify-between p-2 border transition-all ${isHovered || active ? "border-[#facc15] bg-[#facc15]/5" : "border-transparent hover:border-[#1f1f1f]"}`}
+    >
       <div className="flex items-center gap-4">
-        <span className={`text-xs ${active ? "text-[#facc15]" : "text-[#666]"}`}>{time}</span>
-        {active && <div className="w-1.5 h-1.5 rounded-full bg-[#facc15]"></div>}
-        <span className={`text-sm ${active ? "text-white" : "text-[#888]"}`}>{title}</span>
+        <span
+          className={`text-xs ${active ? "text-[#facc15]" : "text-[#666]"}`}
+        >
+          {time}
+        </span>
+        {active && (
+          <div className="w-1.5 h-1.5 rounded-full bg-[#facc15]"></div>
+        )}
+        <span className={`text-sm ${active ? "text-white" : "text-[#888]"}`}>
+          {title}
+        </span>
       </div>
-      <span className="text-[10px] px-2 py-0.5 border uppercase tracking-widest" style={{ color: tagColor, borderColor: `${tagColor}40` }}>{tag}</span>
+      <span
+        className="text-[10px] px-2 py-0.5 border uppercase tracking-widest"
+        style={{ color: tagColor, borderColor: `${tagColor}40` }}
+      >
+        {tag}
+      </span>
     </div>
   );
 }
@@ -365,7 +544,10 @@ function LegendItem({
       className={`flex items-center justify-between text-xs ${onClick ? "cursor-pointer hover:opacity-80" : ""}`}
     >
       <div className="flex items-center gap-2">
-        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }}></div>
+        <div
+          className="w-1.5 h-1.5 rounded-full"
+          style={{ backgroundColor: color }}
+        ></div>
         <span className="text-[#888]">{label}</span>
       </div>
       <span style={{ color }}>{value}</span>
@@ -373,7 +555,19 @@ function LegendItem({
   );
 }
 
-function WorkoutRow({ name, sets, reps, last, today }: { name: string; sets: string; reps: string; last: string; today: string }) {
+function WorkoutRow({
+  name,
+  sets,
+  reps,
+  last,
+  today,
+}: {
+  name: string;
+  sets: string;
+  reps: string;
+  last: string;
+  today: string;
+}) {
   return (
     <div className="grid grid-cols-12 items-center text-sm">
       <div className="col-span-4 text-[#ccc] pr-2">{name}</div>
@@ -387,7 +581,17 @@ function WorkoutRow({ name, sets, reps, last, today }: { name: string; sets: str
   );
 }
 
-function FoodRow({ name, p, w, kcal }: { name: string; p: string; w: string; kcal: string }) {
+function FoodRow({
+  name,
+  p,
+  w,
+  kcal,
+}: {
+  name: string;
+  p: string;
+  w: string;
+  kcal: string;
+}) {
   return (
     <div className="flex items-center justify-between p-4 border border-[#1f1f1f] bg-[#050505]">
       <span className="text-sm text-[#888]">{name}</span>
@@ -400,14 +604,27 @@ function FoodRow({ name, p, w, kcal }: { name: string; p: string; w: string; kca
   );
 }
 
-function ProgressBar({ label, value, color }: { label: string; value: number; color: string }) {
+function ProgressBar({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: number;
+  color: string;
+}) {
   return (
     <div className="flex items-center justify-between text-[10px] uppercase tracking-widest">
       <span className="text-[#888] w-1/3 truncate pr-2">{label}</span>
       <div className="flex-1 h-1 bg-[#1f1f1f] rounded-full mx-4">
-        <div className="h-full rounded-full" style={{ width: `${value}%`, backgroundColor: color }} />
+        <div
+          className="h-full rounded-full"
+          style={{ width: `${value}%`, backgroundColor: color }}
+        />
       </div>
-      <span style={{ color }} className="w-8 text-right">{value}%</span>
+      <span style={{ color }} className="w-8 text-right">
+        {value}%
+      </span>
     </div>
   );
 }

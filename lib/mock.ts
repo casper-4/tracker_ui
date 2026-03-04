@@ -438,7 +438,8 @@ export const MOCK_QUESTS: Quest[] = [
     results: [],
     plannedDateTime: dayAt(-1, 16),
     actualDuration: 52 * 60,
-    comment: "Dobra sesja, skupiłem się na paśmie mid. EQ na kick basie nareszcie ma sens.",
+    comment:
+      "Dobra sesja, skupiłem się na paśmie mid. EQ na kick basie nareszcie ma sens.",
     statusChangelog: [
       { status: "open", timestamp: dayAt(-3, 10) },
       { status: "planned", timestamp: dayAt(-2, 9) },

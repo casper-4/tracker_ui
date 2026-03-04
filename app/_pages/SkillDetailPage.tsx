@@ -498,20 +498,6 @@ export default function SkillDetailPage({
                                 {t(lang, "quest_recurring_label")}
                               </span>
                             )}
-                            {key !== "pinned" && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  togglePinned(quest.id);
-                                }}
-                                className="ml-auto p-1 rounded hover:bg-[#1f1f1f] opacity-60 group-hover:opacity-100 transition-opacity shrink-0"
-                                title={t(lang, "pin")}
-                                style={{ color: skill.color }}
-                              >
-                                <Pin size={12} />
-                              </button>
-                            )}
                           </div>
                         </li>
                       );

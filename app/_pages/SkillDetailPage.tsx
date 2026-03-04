@@ -440,7 +440,6 @@ export default function SkillDetailPage({
                           ? { name: found.name, color: skill.color }
                           : { name: ss.id, color: "#666" };
                       });
-                      const firstColor = subSkillLabels[0]?.color ?? "#666";
                       return (
                         <li
                           key={quest.id}
@@ -464,15 +463,6 @@ export default function SkillDetailPage({
                             {quest.name}
                           </p>
                           <div className="flex flex-wrap items-center gap-1.5">
-                            <span
-                              className="text-[10px] px-1.5 py-0.5 rounded border uppercase tracking-wider"
-                              style={{
-                                borderColor: firstColor,
-                                color: firstColor,
-                              }}
-                            >
-                              {skill.name}
-                            </span>
                             {subSkillLabels.map((ss) => (
                               <span
                                 key={ss.name}

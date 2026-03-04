@@ -73,19 +73,49 @@ export const translations = {
 
     // Calendar
     calendar_title: "Kalendarz",
-    calendar_description: "Widok dzień / tydzień / miesiąc.",
+    calendar_description: "Widok 7 / 14 / 30 dni.",
     calendar_pinned: "Przypięte questy",
     calendar_pinned_empty: "Brak przypiętych questów.",
     calendar_day: "Dzień",
     calendar_week: "Tydzień",
     calendar_month: "Miesiąc",
     calendar_today: "Dziś",
+    calendar_7days: "7 dni",
+    calendar_14days: "14 dni",
+    calendar_30days: "30 dni",
+    calendar_daily_header: "Widok dzienny",
 
     // Training
     training_title: "// TRENING — do zaprojektowania",
 
     // Diet
     diet_title: "// DIETA — do zaprojektowania",
+
+    // Health
+    nav_health: "Zdrowie",
+    health_description: "Sen, recovery i dane biometryczne.",
+    health_last_night: "Ostatnia noc",
+    health_sleep_duration: "Czas snu",
+    health_sleep_quality: "Jakość snu",
+    health_recovery_score: "Recovery",
+    health_hrv: "HRV",
+    health_resting_hr: "Tętno spocz.",
+    health_sleep_stages: "Fazy snu",
+    health_stage_deep: "Głęboki",
+    health_stage_light: "Lekki",
+    health_stage_rem: "REM",
+    health_stage_awake: "Przebudzenie",
+    health_trend: "Trend — 14 nocy",
+    health_recovery_factors: "Czynniki recovery",
+    health_log: "Dziennik snu",
+    health_bedtime: "Zaśnięcie",
+    health_wake: "Pobudka",
+    health_factor_sleep: "Sen",
+    health_factor_hrv: "HRV",
+    health_factor_activity: "Aktywność",
+    health_factor_rest: "Odpoczynek",
+    health_factor_stress: "Stres",
+    health_avg_7d: "Śr. 7 dni",
 
     // Preferences
     prefs_profile: "Profil",
@@ -179,19 +209,49 @@ export const translations = {
 
     // Calendar
     calendar_title: "Calendar",
-    calendar_description: "Day / week / month view.",
+    calendar_description: "7 / 14 / 30 day view.",
     calendar_pinned: "Pinned quests",
     calendar_pinned_empty: "No pinned quests.",
     calendar_day: "Day",
     calendar_week: "Week",
     calendar_month: "Month",
     calendar_today: "Today",
+    calendar_7days: "7 days",
+    calendar_14days: "14 days",
+    calendar_30days: "30 days",
+    calendar_daily_header: "Daily view",
 
     // Training
     training_title: "// TRAINING — to be designed",
 
     // Diet
     diet_title: "// DIET — to be designed",
+
+    // Health
+    nav_health: "Health",
+    health_description: "Sleep, recovery and biometric data.",
+    health_last_night: "Last Night",
+    health_sleep_duration: "Sleep Duration",
+    health_sleep_quality: "Sleep Quality",
+    health_recovery_score: "Recovery",
+    health_hrv: "HRV",
+    health_resting_hr: "Resting HR",
+    health_sleep_stages: "Sleep Stages",
+    health_stage_deep: "Deep",
+    health_stage_light: "Light",
+    health_stage_rem: "REM",
+    health_stage_awake: "Awake",
+    health_trend: "Trend — 14 nights",
+    health_recovery_factors: "Recovery Factors",
+    health_log: "Sleep Log",
+    health_bedtime: "Bedtime",
+    health_wake: "Wake",
+    health_factor_sleep: "Sleep",
+    health_factor_hrv: "HRV",
+    health_factor_activity: "Activity",
+    health_factor_rest: "Rest",
+    health_factor_stress: "Stress",
+    health_avg_7d: "7-day avg",
 
     // Preferences
     prefs_profile: "Profile",

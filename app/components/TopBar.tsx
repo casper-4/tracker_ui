@@ -39,7 +39,7 @@ const PAGE_HEADERS: Record<
     subtitle: string | (() => string);
     title: string;
     titleHighlight?: boolean;
-    descriptionKey?: "quests_description" | "calendar_description";
+    descriptionKey?: "quests_description" | "calendar_description" | "health_description";
     description?: string;
   }
 > = {
@@ -78,6 +78,12 @@ const PAGE_HEADERS: Record<
     title: "CALENDAR",
     titleHighlight: true,
     descriptionKey: "calendar_description",
+  },
+  HEALTH: {
+    subtitle: "// HEALTH",
+    title: "HEALTH",
+    titleHighlight: true,
+    descriptionKey: "health_description",
   },
   PREFERENCES: {
     subtitle: "// SETTINGS",

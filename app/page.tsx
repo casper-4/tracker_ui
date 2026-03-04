@@ -9,6 +9,7 @@ import SkillDetailPage from "@/app/_pages/SkillDetailPage";
 import CalendarPage from "@/app/_pages/CalendarPage";
 import TrainingPage from "@/app/_pages/TrainingPage";
 import DietPage from "@/app/_pages/DietPage";
+import HealthPage from "@/app/_pages/HealthPage";
 import PreferencesPage from "@/app/_pages/PreferencesPage";
 import Sidebar from "@/app/components/Sidebar";
 import TopBar from "@/app/components/TopBar";
@@ -24,6 +25,7 @@ import {
   TAB_TRAINING,
   TAB_DIET,
   TAB_PREFERENCES,
+  TAB_HEALTH,
 } from "@/app/constants";
 import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
@@ -168,7 +170,7 @@ export default function TrackerUI() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="h-full min-h-0 flex flex-col max-w-7xl mx-auto"
+          className="flex-1 min-h-0 flex flex-col"
         >
           <CalendarPage onQuestSelect={setSelectedQuestId} />
         </motion.div>
@@ -197,6 +199,19 @@ export default function TrackerUI() {
           className="max-w-6xl mx-auto"
         >
           <DietPage />
+        </motion.div>
+      );
+    }
+    if (activeTab === TAB_HEALTH) {
+      return (
+        <motion.div
+          key="health"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="max-w-6xl mx-auto"
+        >
+          <HealthPage />
         </motion.div>
       );
     }
@@ -238,7 +253,7 @@ export default function TrackerUI() {
           }
         />
         <div className="flex-1 flex min-h-0">
-          <main className="flex-1 min-w-0 overflow-y-auto custom-scrollbar p-6 lg:p-10 xl:p-16">
+          <main className={`flex-1 min-w-0 custom-scrollbar p-6 lg:p-10 xl:p-16 ${activeTab === TAB_CALENDAR ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
             <AnimatePresence mode="wait">{content}</AnimatePresence>
           </main>
           <AnimatePresence>

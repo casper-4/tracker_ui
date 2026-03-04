@@ -16,22 +16,35 @@ type Props = {
   onQuestStatusChange: (questId: string, status: QuestStatus) => void;
 };
 
-export default function QuestsPage({ questStatuses, onQuestSelect, onQuestStatusChange }: Props) {
+export default function QuestsPage({
+  questStatuses,
+  onQuestSelect,
+  onQuestStatusChange,
+}: Props) {
   const { lang } = useLang();
 
   const [draggedQuestId, setDraggedQuestId] = useState<string | null>(null);
-  const [dragOverColumn, setDragOverColumn] = useState<QuestStatus | null>(null);
+  const [dragOverColumn, setDragOverColumn] = useState<QuestStatus | null>(
+    null,
+  );
 
   const skillById = useMemo(
     () => Object.fromEntries(MOCK_SKILLS.map((s) => [s.id, s])),
-    []
+    [],
   );
 
   const subSkillById = useMemo(() => {
-    const map: Record<string, { name: string; skillName: string; color: string }> = {};
+    const map: Record<
+      string,
+      { name: string; skillName: string; color: string }
+    > = {};
     for (const skill of MOCK_SKILLS) {
       for (const ss of skill.subSkills) {
-        map[ss.id] = { name: ss.name, skillName: skill.name, color: skill.color };
+        map[ss.id] = {
+          name: ss.name,
+          skillName: skill.name,
+          color: skill.color,
+        };
       }
     }
     return map;
@@ -76,13 +89,6 @@ export default function QuestsPage({ questStatuses, onQuestSelect, onQuestStatus
 
   return (
     <div className="max-w-6xl mx-auto">
-      <header className="mb-8">
-        <h1 className="text-[10px] text-[#facc15] uppercase tracking-widest mb-2">
-          {t(lang, "quests_title")}
-        </h1>
-        <p className="text-sm text-[#888]">{t(lang, "quests_description")}</p>
-      </header>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <QuestColumn
           columnKey="planned"
@@ -95,11 +101,16 @@ export default function QuestsPage({ questStatuses, onQuestSelect, onQuestStatus
           dropHereLabel={t(lang, "drop_here")}
           isDragging={draggedQuestId !== null}
           isOver={dragOverColumn === "planned"}
-          onDragOver={() => { if (dragOverColumn !== "planned") setDragOverColumn("planned"); }}
+          onDragOver={() => {
+            if (dragOverColumn !== "planned") setDragOverColumn("planned");
+          }}
           onDragLeave={() => setDragOverColumn(null)}
           onDrop={() => handleDrop("planned")}
           onCardDragStart={setDraggedQuestId}
-          onCardDragEnd={() => { setDraggedQuestId(null); setDragOverColumn(null); }}
+          onCardDragEnd={() => {
+            setDraggedQuestId(null);
+            setDragOverColumn(null);
+          }}
         />
         <QuestColumn
           columnKey="in_progress"
@@ -112,11 +123,17 @@ export default function QuestsPage({ questStatuses, onQuestSelect, onQuestStatus
           dropHereLabel={t(lang, "drop_here")}
           isDragging={draggedQuestId !== null}
           isOver={dragOverColumn === "in_progress"}
-          onDragOver={() => { if (dragOverColumn !== "in_progress") setDragOverColumn("in_progress"); }}
+          onDragOver={() => {
+            if (dragOverColumn !== "in_progress")
+              setDragOverColumn("in_progress");
+          }}
           onDragLeave={() => setDragOverColumn(null)}
           onDrop={() => handleDrop("in_progress")}
           onCardDragStart={setDraggedQuestId}
-          onCardDragEnd={() => { setDraggedQuestId(null); setDragOverColumn(null); }}
+          onCardDragEnd={() => {
+            setDraggedQuestId(null);
+            setDragOverColumn(null);
+          }}
         />
         <QuestColumn
           columnKey="completed"
@@ -129,11 +146,16 @@ export default function QuestsPage({ questStatuses, onQuestSelect, onQuestStatus
           dropHereLabel={t(lang, "drop_here")}
           isDragging={draggedQuestId !== null}
           isOver={dragOverColumn === "completed"}
-          onDragOver={() => { if (dragOverColumn !== "completed") setDragOverColumn("completed"); }}
+          onDragOver={() => {
+            if (dragOverColumn !== "completed") setDragOverColumn("completed");
+          }}
           onDragLeave={() => setDragOverColumn(null)}
           onDrop={() => handleDrop("completed")}
           onCardDragStart={setDraggedQuestId}
-          onCardDragEnd={() => { setDraggedQuestId(null); setDragOverColumn(null); }}
+          onCardDragEnd={() => {
+            setDraggedQuestId(null);
+            setDragOverColumn(null);
+          }}
         />
       </div>
 
@@ -150,7 +172,9 @@ type QuestColumnProps = {
   columnKey: QuestStatus;
   title: string;
   quests: Quest[];
-  getSubSkillLabels: (quest: Quest) => { name: string; skillName: string; color: string }[];
+  getSubSkillLabels: (
+    quest: Quest,
+  ) => { name: string; skillName: string; color: string }[];
   getSkillName: (skillId: string) => string;
   onQuestClick: (questId: string) => void;
   emptyLabel: string;
@@ -165,15 +189,35 @@ type QuestColumnProps = {
 };
 
 function QuestColumn({
-  columnKey, title, quests, getSubSkillLabels, getSkillName, onQuestClick,
-  emptyLabel, dropHereLabel, isDragging, isOver,
-  onDragOver, onDragLeave, onDrop, onCardDragStart, onCardDragEnd,
+  columnKey,
+  title,
+  quests,
+  getSubSkillLabels,
+  getSkillName,
+  onQuestClick,
+  emptyLabel,
+  dropHereLabel,
+  isDragging,
+  isOver,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onCardDragStart,
+  onCardDragEnd,
 }: QuestColumnProps) {
   return (
     <div
-      onDragOver={(e) => { e.preventDefault(); onDragOver(); }}
-      onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) onDragLeave(); }}
-      onDrop={(e) => { e.preventDefault(); onDrop(); }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        onDragOver();
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node)) onDragLeave();
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        onDrop();
+      }}
       className={`p-4 flex flex-col min-h-[280px] transition-colors ${
         isOver
           ? "bg-[#facc15]/5 border border-dashed border-[#facc15]/50"
@@ -184,7 +228,9 @@ function QuestColumn({
     >
       <h2 className="text-[10px] text-[#888] uppercase tracking-widest mb-3 flex items-center justify-between gap-2">
         <span>{title}</span>
-        <span className="font-mono text-[#666] tabular-nums">{quests.length}</span>
+        <span className="font-mono text-[#666] tabular-nums">
+          {quests.length}
+        </span>
       </h2>
       {quests.length === 0 ? (
         <p className="text-[#555] text-xs flex-1">
@@ -198,7 +244,9 @@ function QuestColumn({
         <ul className="flex flex-col gap-2 flex-1">
           {isOver && (
             <li className="h-9 rounded border border-dashed border-[#facc15]/40 bg-[#facc15]/5 flex items-center justify-center">
-              <span className="text-[10px] text-[#facc15]/60 uppercase tracking-widest">{dropHereLabel}</span>
+              <span className="text-[10px] text-[#facc15]/60 uppercase tracking-widest">
+                {dropHereLabel}
+              </span>
             </li>
           )}
           {quests.map((quest) => (
@@ -229,13 +277,24 @@ type QuestCardProps = {
   onDragEnd: () => void;
 };
 
-function QuestCard({ quest, effectiveStatus, skillName, subSkillLabels, onClick, onDragStart, onDragEnd }: QuestCardProps) {
+function QuestCard({
+  quest,
+  effectiveStatus,
+  skillName,
+  subSkillLabels,
+  onClick,
+  onDragStart,
+  onDragEnd,
+}: QuestCardProps) {
   const { lang } = useLang();
   const firstColor = subSkillLabels[0]?.color ?? "#666";
   return (
     <li
       draggable
-      onDragStart={(e) => { e.stopPropagation(); onDragStart(); }}
+      onDragStart={(e) => {
+        e.stopPropagation();
+        onDragStart();
+      }}
       onDragEnd={onDragEnd}
       className="cursor-grab active:cursor-grabbing"
     >

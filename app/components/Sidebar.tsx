@@ -10,6 +10,7 @@ import {
   Diamond,
   Calendar,
   Swords,
+  Heart,
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
@@ -23,6 +24,7 @@ import {
   TAB_CALENDAR,
   TAB_PREFERENCES,
   TAB_SKILL_DETAIL,
+  TAB_HEALTH,
 } from "@/app/constants";
 import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
@@ -39,6 +41,7 @@ const navItems = [
   { icon: Calendar, labelKey: "nav_calendar" as const, tab: TAB_CALENDAR },
   { icon: Activity, labelKey: "nav_training" as const, tab: TAB_TRAINING },
   { icon: Diamond, labelKey: "nav_diet" as const, tab: TAB_DIET },
+  { icon: Heart, labelKey: "nav_health" as const, tab: TAB_HEALTH },
   {
     icon: Settings,
     labelKey: "nav_preferences" as const,

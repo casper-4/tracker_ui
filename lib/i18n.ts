@@ -35,6 +35,12 @@ export const translations = {
     quests_in_progress: "W toku",
     quests_completed: "Ukończone",
     quests_empty: "Brak questów",
+    drop_here: "Upuść tutaj",
+    chart_today: "Dzisiaj",
+    chart_yesterday: "Wczoraj",
+    chart_days_ago: "dni temu",
+    chart_days: "dni",
+    chart_range_custom: "Własny",
 
     // Quest detail
     quest_detail_title: "Szczegóły questu",
@@ -46,6 +52,15 @@ export const translations = {
     quest_save: "Zapisz",
     quest_cancel: "Anuluj",
     quest_close: "Zamknij",
+    quest_actual_duration: "Realny czas",
+    quest_status_history: "Historia statusu",    quest_history: "Historia",
+    quest_history_empty: "—",
+    quest_comment: "Komentarz",    quest_attachments: "Załączniki",
+    quest_attach_photo: "Zdjęcie",
+    quest_attach_video: "Wideo",
+    quest_attach_file: "Plik",
+    quest_gallery: "Galeria",
+    quest_recurring_label: "Cykliczne",
 
     // Status labels
     status_open: "Otwarte",
@@ -68,6 +83,21 @@ export const translations = {
 
     // Diet
     diet_title: "// DIETA — do zaprojektowania",
+
+    // Preferences
+    prefs_profile: "Profil",
+    prefs_language: "Język",
+    prefs_language_desc: "Język interfejsu aplikacji",
+    prefs_settings: "Ustawienia",
+    prefs_notifications: "Powiadomienia",
+    prefs_auto_advance: "Auto-progresja questów",
+    prefs_show_completed: "Pokaż ukończone questy",
+    prefs_week_start: "Tydzień zaczyna się w",
+    prefs_week_start_monday: "Pn",
+    prefs_week_start_sunday: "Nd",
+    prefs_daily_goal: "Dzienny cel",
+    prefs_joined: "Dołączył/a",
+    prefs_streak: "Seria",
 
     // Common
     logged_in: "Zalogowany",
@@ -109,6 +139,12 @@ export const translations = {
     quests_in_progress: "In Progress",
     quests_completed: "Completed",
     quests_empty: "No quests",
+    drop_here: "Drop here",
+    chart_today: "Today",
+    chart_yesterday: "Yesterday",
+    chart_days_ago: "days ago",
+    chart_days: "days",
+    chart_range_custom: "Custom",
 
     // Quest detail
     quest_detail_title: "Quest Details",
@@ -120,6 +156,17 @@ export const translations = {
     quest_save: "Save",
     quest_cancel: "Cancel",
     quest_close: "Close",
+    quest_actual_duration: "Actual duration",
+    quest_status_history: "Status history",
+    quest_history: "History",
+    quest_history_empty: "—",
+    quest_comment: "Comment",
+    quest_attachments: "Attachments",
+    quest_attach_photo: "Photo",
+    quest_attach_video: "Video",
+    quest_attach_file: "File",
+    quest_gallery: "Gallery",
+    quest_recurring_label: "Recurring",
 
     // Status labels
     status_open: "Open",
@@ -142,6 +189,21 @@ export const translations = {
 
     // Diet
     diet_title: "// DIET — to be designed",
+
+    // Preferences
+    prefs_profile: "Profile",
+    prefs_language: "Language",
+    prefs_language_desc: "Interface language",
+    prefs_settings: "Settings",
+    prefs_notifications: "Notifications",
+    prefs_auto_advance: "Auto-advance quests",
+    prefs_show_completed: "Show completed quests",
+    prefs_week_start: "Week starts on",
+    prefs_week_start_monday: "Mon",
+    prefs_week_start_sunday: "Sun",
+    prefs_daily_goal: "Daily goal",
+    prefs_joined: "Joined",
+    prefs_streak: "Streak",
 
     // Common
     logged_in: "Logged in",

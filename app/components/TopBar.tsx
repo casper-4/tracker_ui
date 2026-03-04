@@ -1,14 +1,35 @@
 "use client";
 
-import { User } from "lucide-react";
 import { MOCK_SKILLS, MOCK_USER } from "@/lib/mock";
 import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
+import SkillColorPicker from "@/app/components/SkillColorPicker";
 
 const formatHeaderDate = () => {
   const d = new Date();
-  const days = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
-  const months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"];
+  const days = [
+    "SUNDAY",
+    "MONDAY",
+    "TUESDAY",
+    "WEDNESDAY",
+    "THURSDAY",
+    "FRIDAY",
+    "SATURDAY",
+  ];
+  const months = [
+    "JANUARY",
+    "FEBRUARY",
+    "MARCH",
+    "APRIL",
+    "MAY",
+    "JUNE",
+    "JULY",
+    "AUGUST",
+    "SEPTEMBER",
+    "OCTOBER",
+    "NOVEMBER",
+    "DECEMBER",
+  ];
   return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`;
 };
 
@@ -69,11 +90,17 @@ const PAGE_HEADERS: Record<
 type TopBarProps = {
   activeTab: string;
   selectedSkillId?: string;
+  skillColor?: string;
+  onSkillColorChange?: (color: string) => void;
 };
 
-export default function TopBar({ activeTab, selectedSkillId }: TopBarProps) {
-  const { lang, setLang } = useLang();
-  const user = MOCK_USER;
+export default function TopBar({
+  activeTab,
+  selectedSkillId,
+  skillColor,
+  onSkillColorChange,
+}: TopBarProps) {
+  const { lang } = useLang();
 
   let subtitle = "// MODULE";
   let title = "IN PROGRESS";
@@ -89,7 +116,10 @@ export default function TopBar({ activeTab, selectedSkillId }: TopBarProps) {
   } else {
     const entry = PAGE_HEADERS[activeTab];
     if (entry) {
-      subtitle = typeof entry.subtitle === "function" ? entry.subtitle() : entry.subtitle;
+      subtitle =
+        typeof entry.subtitle === "function"
+          ? entry.subtitle()
+          : entry.subtitle;
       title = entry.title;
       titleHighlight = entry.titleHighlight ?? true;
       if (entry.descriptionKey) {
@@ -131,9 +161,7 @@ export default function TopBar({ activeTab, selectedSkillId }: TopBarProps) {
           )}
         </h2>
         {description ? (
-          <p className="text-sm text-[#888] mt-2 truncate">
-            {description}
-          </p>
+          <p className="text-sm text-[#888] mt-2 truncate">{description}</p>
         ) : (
           <div className="mt-2 min-h-[2.5rem]" aria-hidden />
         )}
@@ -153,14 +181,14 @@ export default function TopBar({ activeTab, selectedSkillId }: TopBarProps) {
                     className="h-full rounded-full transition-[width]"
                     style={{
                       width: `${skill.completionPercentage}%`,
-                      backgroundColor: skill.color,
+                      backgroundColor: skillColor,
                     }}
                   />
                 ) : null}
               </div>
               <span
                 className="text-xs font-mono font-bold shrink-0 w-10 text-right"
-                style={{ color: skill?.color ?? "#666" }}
+                style={{ color: skillColor ?? "#666" }}
               >
                 {skill ? `${skill.completionPercentage}%` : "—"}
               </span>
@@ -169,29 +197,12 @@ export default function TopBar({ activeTab, selectedSkillId }: TopBarProps) {
         ) : null}
       </div>
 
-      {/* Right: language toggle + user */}
-      <div className="flex items-center gap-3 ml-auto">
-        <button
-          onClick={() => setLang(lang === "pl" ? "en" : "pl")}
-          className="px-2 py-1 text-[10px] uppercase tracking-widest border border-[#1f1f1f] text-[#888] hover:text-white hover:border-[#333] transition-colors"
-        >
-          {lang === "pl" ? "EN" : "PL"}
-        </button>
-
-        <div className="flex items-center gap-3 rounded border border-[#1f1f1f] bg-[#0a0a0a] px-4 py-2 shrink-0">
-          <div className="w-8 h-8 rounded-full border border-[#facc15]/50 bg-[#facc15]/10 flex items-center justify-center">
-            <User className="w-4 h-4 text-[#facc15]" />
-          </div>
-          <div className="flex flex-col items-end">
-            <span className="text-xs text-[#888] uppercase tracking-widest">
-              {t(lang, "logged_in")}
-            </span>
-            <span className="text-sm font-medium text-white tracking-wide">
-              {user.name}
-            </span>
-          </div>
+      {/* Right: color swatch (SKILL_DETAIL only) */}
+      {showProgress && skillColor && onSkillColorChange && (
+        <div className="ml-auto shrink-0">
+          <SkillColorPicker color={skillColor} onChange={onSkillColorChange} />
         </div>
-      </div>
+      )}
     </header>
   );
 }

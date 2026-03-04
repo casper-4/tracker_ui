@@ -9,8 +9,12 @@ import SkillDetailPage from "@/app/_pages/SkillDetailPage";
 import CalendarPage from "@/app/_pages/CalendarPage";
 import TrainingPage from "@/app/_pages/TrainingPage";
 import DietPage from "@/app/_pages/DietPage";
+import PreferencesPage from "@/app/_pages/PreferencesPage";
 import Sidebar from "@/app/components/Sidebar";
 import TopBar from "@/app/components/TopBar";
+import QuestDetailPanel from "@/app/components/QuestDetailPanel";
+import { MOCK_QUESTS, MOCK_SKILLS } from "@/lib/mock";
+import type { Quest, QuestStatus } from "@/lib/mock";
 import {
   TAB_DASHBOARD,
   TAB_SKILLS,
@@ -24,7 +28,7 @@ import {
 import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
 
-const MODULE_IN_BUILD = [TAB_PREFERENCES];
+const MODULE_IN_BUILD: string[] = [];
 
 function ModuleInProgress() {
   const { lang } = useLang();
@@ -36,14 +40,54 @@ function ModuleInProgress() {
       exit={{ opacity: 0 }}
       className="flex items-center justify-center h-full text-[#666]"
     >
-      <p className="uppercase tracking-widest text-sm">{t(lang, "module_in_progress")}</p>
+      <p className="uppercase tracking-widest text-sm">
+        {t(lang, "module_in_progress")}
+      </p>
     </motion.div>
   );
 }
 
 export default function TrackerUI() {
   const [activeTab, setActiveTab] = useState(TAB_DASHBOARD);
-  const [selectedSkillId, setSelectedSkillId] = useState<string | undefined>(undefined);
+  const [selectedSkillId, setSelectedSkillId] = useState<string | undefined>(
+    undefined,
+  );
+  const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
+  const [questStatuses, setQuestStatuses] = useState<
+    Record<string, QuestStatus>
+  >({});
+  // Per-skill color overrides — keyed by skill ID
+  // TODO: [DATA] save skill colors to persistence
+  const [skillColors, setSkillColors] = useState<Record<string, string>>({});
+
+  const getSkillColor = (id?: string): string => {
+    if (!id) return "#666666";
+    return (
+      skillColors[id] ??
+      MOCK_SKILLS.find((s) => s.id === id)?.color ??
+      "#666666"
+    );
+  };
+
+  const setSkillColor = (id: string, color: string) => {
+    setSkillColors((prev) => ({ ...prev, [id]: color }));
+  };
+
+  const skillById = useMemo(
+    () => Object.fromEntries(MOCK_SKILLS.map((s) => [s.id, s])),
+    [],
+  );
+
+  const selectedQuest = useMemo<Quest | null>(() => {
+    if (!selectedQuestId) return null;
+    const q = MOCK_QUESTS.find((q) => q.id === selectedQuestId);
+    if (!q) return null;
+    return { ...q, status: questStatuses[q.id] ?? q.status };
+  }, [selectedQuestId, questStatuses]);
+
+  const handleQuestChange = (updated: Quest) => {
+    setQuestStatuses((prev) => ({ ...prev, [updated.id]: updated.status }));
+  };
 
   const content = useMemo(() => {
     if (activeTab === TAB_DASHBOARD) {
@@ -87,7 +131,13 @@ export default function TrackerUI() {
           exit={{ opacity: 0, y: -10 }}
           className="max-w-6xl mx-auto"
         >
-          <QuestsPage />
+          <QuestsPage
+            questStatuses={questStatuses}
+            onQuestSelect={setSelectedQuestId}
+            onQuestStatusChange={(id, status) =>
+              setQuestStatuses((prev) => ({ ...prev, [id]: status }))
+            }
+          />
         </motion.div>
       );
     }
@@ -100,7 +150,14 @@ export default function TrackerUI() {
           exit={{ opacity: 0, y: -10 }}
           className="max-w-6xl mx-auto"
         >
-          <SkillDetailPage skillId={selectedSkillId} />
+          <SkillDetailPage
+            skillId={selectedSkillId}
+            skillColor={getSkillColor(selectedSkillId)}
+            onSkillColorChange={(c) =>
+              selectedSkillId && setSkillColor(selectedSkillId, c)
+            }
+            onQuestSelect={setSelectedQuestId}
+          />
         </motion.div>
       );
     }
@@ -113,7 +170,7 @@ export default function TrackerUI() {
           exit={{ opacity: 0, y: -10 }}
           className="h-full min-h-0 flex flex-col max-w-7xl mx-auto"
         >
-          <CalendarPage />
+          <CalendarPage onQuestSelect={setSelectedQuestId} />
         </motion.div>
       );
     }
@@ -143,11 +200,24 @@ export default function TrackerUI() {
         </motion.div>
       );
     }
+    if (activeTab === TAB_PREFERENCES) {
+      return (
+        <motion.div
+          key="preferences"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="max-w-6xl mx-auto"
+        >
+          <PreferencesPage />
+        </motion.div>
+      );
+    }
     if (MODULE_IN_BUILD.includes(activeTab)) {
       return <ModuleInProgress key="in-build" />;
     }
     return <ModuleInProgress key="other" />;
-  }, [activeTab, selectedSkillId]);
+  }, [activeTab, selectedSkillId, questStatuses]);
 
   return (
     <div className="flex w-full h-screen bg-[#050505] text-[#e0e0e0] font-mono overflow-hidden">
@@ -159,10 +229,32 @@ export default function TrackerUI() {
       />
 
       <div className="flex-1 flex flex-col min-w-0">
-        <TopBar activeTab={activeTab} selectedSkillId={selectedSkillId} />
-        <main className="flex-1 overflow-y-auto custom-scrollbar p-6 lg:p-10 xl:p-16">
-          <AnimatePresence mode="wait">{content}</AnimatePresence>
-        </main>
+        <TopBar
+          activeTab={activeTab}
+          selectedSkillId={selectedSkillId}
+          skillColor={getSkillColor(selectedSkillId)}
+          onSkillColorChange={(c) =>
+            selectedSkillId && setSkillColor(selectedSkillId, c)
+          }
+        />
+        <div className="flex-1 flex min-h-0">
+          <main className="flex-1 min-w-0 overflow-y-auto custom-scrollbar p-6 lg:p-10 xl:p-16">
+            <AnimatePresence mode="wait">{content}</AnimatePresence>
+          </main>
+          <AnimatePresence>
+            {selectedQuest && (
+              <QuestDetailPanel
+                quest={selectedQuest}
+                onClose={() => setSelectedQuestId(null)}
+                skillColor={getSkillColor(selectedQuest.skill)}
+                skillName={
+                  skillById[selectedQuest.skill]?.name ?? selectedQuest.skill
+                }
+                onQuestChange={handleQuestChange}
+              />
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );

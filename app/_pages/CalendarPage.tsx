@@ -4,7 +4,6 @@ import { useMemo, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight, LayoutList } from "lucide-react";
 import { MOCK_QUESTS, MOCK_SKILLS } from "@/lib/mock";
 import type { Quest } from "@/lib/mock";
-import QuestDetailModal from "@/app/components/QuestDetailModal";
 import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
 
@@ -33,7 +32,9 @@ function addDays(d: Date, n: number): Date {
   return out;
 }
 
-function addWeeks(d: Date, n: number): Date { return addDays(d, n * 7); }
+function addWeeks(d: Date, n: number): Date {
+  return addDays(d, n * 7);
+}
 
 function addMonths(d: Date, n: number): Date {
   const out = new Date(d);
@@ -52,31 +53,42 @@ function getEffectiveQuest(quest: Quest, override: QuestOverride): Quest {
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 const WEEKDAY_LABELS = ["Pn", "Wt", "Śr", "Cz", "Pt", "So", "Nd"];
 
-export default function CalendarPage() {
+type CalendarPageProps = {
+  onQuestSelect: (id: string) => void;
+};
+
+export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
   const { lang } = useLang();
   const [view, setView] = useState<CalendarView>("week");
-  const [currentDate, setCurrentDate] = useState(() => getStartOfDay(new Date()));
+  const [currentDate, setCurrentDate] = useState(() =>
+    getStartOfDay(new Date()),
+  );
   // TODO: [DATA] persistence will go here — simple useState for drag/pin state
   const [overrides, setOverrides] = useState<Record<string, QuestOverride>>({});
   const [pinnedIds, setPinnedIds] = useState<string[]>([]);
-  const [selectedQuest, setSelectedQuest] = useState<Quest | null>(null);
   const [draggedQuestId, setDraggedQuestId] = useState<string | null>(null);
-  const [dropTarget, setDropTarget] = useState<{ date: Date; hour?: number } | null>(null);
+  const [dropTarget, setDropTarget] = useState<{
+    date: Date;
+    hour?: number;
+  } | null>(null);
 
   const skillById = useMemo(
     () => Object.fromEntries(MOCK_SKILLS.map((s) => [s.id, s])),
-    []
+    [],
   );
 
   const pinnedQuests = useMemo(
-    () => pinnedIds.map((id) => MOCK_QUESTS.find((q) => q.id === id)).filter((q): q is Quest => q != null),
-    [pinnedIds]
+    () =>
+      pinnedIds
+        .map((id) => MOCK_QUESTS.find((q) => q.id === id))
+        .filter((q): q is Quest => q != null),
+    [pinnedIds],
   );
 
   const questsWithPlanned = useMemo(() => {
-    return MOCK_QUESTS
-      .map((q) => getEffectiveQuest(q, overrides[q.id] ?? {}))
-      .filter((q) => q.plannedDateTime != null && q.plannedDateTime > 0);
+    return MOCK_QUESTS.map((q) =>
+      getEffectiveQuest(q, overrides[q.id] ?? {}),
+    ).filter((q) => q.plannedDateTime != null && q.plannedDateTime > 0);
   }, [overrides]);
 
   const applyOverride = useCallback((questId: string, patch: QuestOverride) => {
@@ -87,23 +99,35 @@ export default function CalendarPage() {
     });
   }, []);
 
-  const handleDropOnSlot = useCallback((date: Date, hour: number) => {
-    if (!draggedQuestId) return;
-    setDropTarget(null);
-    const slotStart = new Date(date);
-    slotStart.setHours(hour, 0, 0, 0);
-    applyOverride(draggedQuestId, { plannedDateTime: slotStart.getTime(), status: "planned" });
-    setDraggedQuestId(null);
-  }, [draggedQuestId, applyOverride]);
+  const handleDropOnSlot = useCallback(
+    (date: Date, hour: number) => {
+      if (!draggedQuestId) return;
+      setDropTarget(null);
+      const slotStart = new Date(date);
+      slotStart.setHours(hour, 0, 0, 0);
+      applyOverride(draggedQuestId, {
+        plannedDateTime: slotStart.getTime(),
+        status: "planned",
+      });
+      setDraggedQuestId(null);
+    },
+    [draggedQuestId, applyOverride],
+  );
 
-  const handleDropOnDay = useCallback((date: Date) => {
-    if (!draggedQuestId) return;
-    setDropTarget(null);
-    const slotStart = getStartOfDay(date);
-    slotStart.setHours(9, 0, 0, 0);
-    applyOverride(draggedQuestId, { plannedDateTime: slotStart.getTime(), status: "planned" });
-    setDraggedQuestId(null);
-  }, [draggedQuestId, applyOverride]);
+  const handleDropOnDay = useCallback(
+    (date: Date) => {
+      if (!draggedQuestId) return;
+      setDropTarget(null);
+      const slotStart = getStartOfDay(date);
+      slotStart.setHours(9, 0, 0, 0);
+      applyOverride(draggedQuestId, {
+        plannedDateTime: slotStart.getTime(),
+        status: "planned",
+      });
+      setDraggedQuestId(null);
+    },
+    [draggedQuestId, applyOverride],
+  );
 
   const setDropTargetSlot = useCallback((date: Date | null, hour?: number) => {
     if (date === null) setDropTarget(null);
@@ -112,14 +136,22 @@ export default function CalendarPage() {
 
   const navLabel = useMemo(() => {
     if (view === "day") {
-      return currentDate.toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+      return currentDate.toLocaleDateString("pl-PL", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
     }
     if (view === "week") {
       const weekStart = getStartOfWeek(currentDate);
       const weekEnd = addDays(weekStart, 6);
       return `${weekStart.getDate()}.${weekStart.getMonth() + 1} – ${weekEnd.getDate()}.${weekEnd.getMonth() + 1}.${weekEnd.getFullYear()}`;
     }
-    return currentDate.toLocaleDateString("pl-PL", { month: "long", year: "numeric" });
+    return currentDate.toLocaleDateString("pl-PL", {
+      month: "long",
+      year: "numeric",
+    });
   }, [view, currentDate]);
 
   const goPrev = useCallback(() => {
@@ -150,7 +182,9 @@ export default function CalendarPage() {
         <h1 className="text-[10px] text-[#facc15] uppercase tracking-widest mb-2">
           {t(lang, "calendar_title")}
         </h1>
-        <p className="text-sm text-[#888] mb-4">{t(lang, "calendar_description")}</p>
+        <p className="text-sm text-[#888] mb-4">
+          {t(lang, "calendar_description")}
+        </p>
 
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-1 border border-[#1f1f1f] rounded overflow-hidden">
@@ -160,7 +194,9 @@ export default function CalendarPage() {
                 type="button"
                 onClick={() => setView(v)}
                 className={`px-3 py-1.5 text-xs uppercase tracking-wider transition-colors ${
-                  view === v ? "bg-[#facc15] text-black" : "bg-[#0a0a0a] text-[#888] hover:text-white hover:bg-[#1a1a1a]"
+                  view === v
+                    ? "bg-[#facc15] text-black"
+                    : "bg-[#0a0a0a] text-[#888] hover:text-white hover:bg-[#1a1a1a]"
                 }`}
               >
                 {viewLabels[v]}
@@ -192,7 +228,9 @@ export default function CalendarPage() {
             >
               <ChevronRight size={18} />
             </button>
-            <span className="text-sm text-[#aaa] min-w-[200px] capitalize">{navLabel}</span>
+            <span className="text-sm text-[#aaa] min-w-[200px] capitalize">
+              {navLabel}
+            </span>
           </div>
         </div>
       </header>
@@ -206,12 +244,17 @@ export default function CalendarPage() {
           </h2>
           <ul className="p-2 overflow-y-auto custom-scrollbar flex-1 space-y-1.5">
             {pinnedQuests.length === 0 ? (
-              <li className="text-[#555] text-xs p-2">{t(lang, "calendar_pinned_empty")}</li>
+              <li className="text-[#555] text-xs p-2">
+                {t(lang, "calendar_pinned_empty")}
+              </li>
             ) : (
               pinnedQuests.map((quest) => {
                 const skill = skillById[quest.skill];
                 const color = skill?.color ?? "#666";
-                const effective = getEffectiveQuest(quest, overrides[quest.id] ?? {});
+                const effective = getEffectiveQuest(
+                  quest,
+                  overrides[quest.id] ?? {},
+                );
                 return (
                   <li key={quest.id}>
                     <div
@@ -225,16 +268,28 @@ export default function CalendarPage() {
                         setDraggedQuestId(null);
                         setDropTarget(null);
                       }}
-                      onClick={() => setSelectedQuest(quest)}
+                      onClick={() => onQuestSelect(quest.id)}
                       className={`block w-full text-left p-2 rounded border cursor-grab active:cursor-grabbing transition-colors ${
-                        draggedQuestId === quest.id ? "opacity-50" : "hover:border-[#333] hover:bg-[#111]"
+                        draggedQuestId === quest.id
+                          ? "opacity-50"
+                          : "hover:border-[#333] hover:bg-[#111]"
                       }`}
                       style={{ borderColor: color }}
                     >
-                      <p className="text-xs font-medium text-white truncate">{quest.name}</p>
+                      <p className="text-xs font-medium text-white truncate">
+                        {quest.name}
+                      </p>
                       {effective.plannedDateTime != null && (
                         <p className="text-[10px] text-[#666] mt-0.5">
-                          {new Date(effective.plannedDateTime).toLocaleString("pl-PL", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                          {new Date(effective.plannedDateTime).toLocaleString(
+                            "pl-PL",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
                         </p>
                       )}
                     </div>
@@ -253,10 +308,7 @@ export default function CalendarPage() {
               quests={questsWithPlanned}
               skillById={skillById}
               onDropSlot={handleDropOnSlot}
-              onQuestClick={(id) => {
-                const q = MOCK_QUESTS.find((x) => x.id === id);
-                if (q) setSelectedQuest(getEffectiveQuest(q, overrides[q.id] ?? {}));
-              }}
+              onQuestClick={onQuestSelect}
               dropTarget={dropTarget}
               setDropTarget={setDropTargetSlot}
             />
@@ -267,10 +319,7 @@ export default function CalendarPage() {
               quests={questsWithPlanned}
               skillById={skillById}
               onDropSlot={handleDropOnSlot}
-              onQuestClick={(id) => {
-                const q = MOCK_QUESTS.find((x) => x.id === id);
-                if (q) setSelectedQuest(getEffectiveQuest(q, overrides[q.id] ?? {}));
-              }}
+              onQuestClick={onQuestSelect}
               dropTarget={dropTarget}
               setDropTarget={setDropTargetSlot}
             />
@@ -281,28 +330,13 @@ export default function CalendarPage() {
               quests={questsWithPlanned}
               skillById={skillById}
               onDropDay={handleDropOnDay}
-              onQuestClick={(id) => {
-                const q = MOCK_QUESTS.find((x) => x.id === id);
-                if (q) setSelectedQuest(getEffectiveQuest(q, overrides[q.id] ?? {}));
-              }}
+              onQuestClick={onQuestSelect}
               dropTarget={dropTarget}
               setDropTarget={setDropTargetSlot}
             />
           )}
         </main>
       </div>
-
-      {selectedQuest && (
-        <QuestDetailModal
-          quest={selectedQuest}
-          onClose={() => setSelectedQuest(null)}
-          skillColor={skillById[selectedQuest.skill]?.color}
-          onQuestChange={(updated) => {
-            // TODO: [DATA] persistence will go here
-            applyOverride(updated.id, { status: updated.status });
-          }}
-        />
-      )}
     </div>
   );
 }
@@ -318,13 +352,24 @@ type SlotViewProps = {
   setDropTarget: (date: Date | null, hour?: number) => void;
 };
 
-function DayView({ date, quests, skillById, onDropSlot, onQuestClick, dropTarget, setDropTarget }: SlotViewProps & { date: Date }) {
+function DayView({
+  date,
+  quests,
+  skillById,
+  onDropSlot,
+  onQuestClick,
+  dropTarget,
+  setDropTarget,
+}: SlotViewProps & { date: Date }) {
   const dayStart = getStartOfDay(date);
   const questsByHour = useMemo(() => {
     const map: Record<number, Quest[]> = {};
     for (const q of quests) {
       const d = new Date(q.plannedDateTime!);
-      if (d.getTime() >= dayStart.getTime() && d.getTime() < addDays(dayStart, 1).getTime()) {
+      if (
+        d.getTime() >= dayStart.getTime() &&
+        d.getTime() < addDays(dayStart, 1).getTime()
+      ) {
         const h = d.getHours();
         if (!map[h]) map[h] = [];
         map[h].push(q);
@@ -345,18 +390,34 @@ function DayView({ date, quests, skillById, onDropSlot, onQuestClick, dropTarget
         </div>
         <div className="flex-1 border-l border-[#1f1f1f]">
           {HOURS.map((hour) => {
-            const isTarget = dropTarget && dropTarget.hour !== undefined && sameDay(dropTarget.date, dayStart) && dropTarget.hour === hour;
+            const isTarget =
+              dropTarget &&
+              dropTarget.hour !== undefined &&
+              sameDay(dropTarget.date, dayStart) &&
+              dropTarget.hour === hour;
             return (
               <div
                 key={hour}
                 className={`h-12 border-b border-[#1f1f1f] min-h-[3rem] flex flex-col transition-colors ${isTarget ? "bg-[#facc15]/10" : ""}`}
-                onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDropTarget(new Date(dayStart), hour); }}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.dataTransfer.dropEffect = "move";
+                  setDropTarget(new Date(dayStart), hour);
+                }}
                 onDragLeave={() => setDropTarget(null)}
-                onDrop={(e) => { e.preventDefault(); onDropSlot(new Date(dayStart), hour); }}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  onDropSlot(new Date(dayStart), hour);
+                }}
               >
                 <div className="flex-1 p-1 flex flex-wrap gap-1">
                   {(questsByHour[hour] ?? []).map((q) => (
-                    <CalendarQuestChip key={q.id} quest={q} color={skillById[q.skill]?.color ?? "#666"} onClick={() => onQuestClick(q.id)} />
+                    <CalendarQuestChip
+                      key={q.id}
+                      quest={q}
+                      color={skillById[q.skill]?.color ?? "#666"}
+                      onClick={() => onQuestClick(q.id)}
+                    />
                   ))}
                 </div>
               </div>
@@ -368,8 +429,19 @@ function DayView({ date, quests, skillById, onDropSlot, onQuestClick, dropTarget
   );
 }
 
-function WeekView({ startDate, quests, skillById, onDropSlot, onQuestClick, dropTarget, setDropTarget }: SlotViewProps & { startDate: Date }) {
-  const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(startDate, i)), [startDate]);
+function WeekView({
+  startDate,
+  quests,
+  skillById,
+  onDropSlot,
+  onQuestClick,
+  dropTarget,
+  setDropTarget,
+}: SlotViewProps & { startDate: Date }) {
+  const days = useMemo(
+    () => Array.from({ length: 7 }, (_, i) => addDays(startDate, i)),
+    [startDate],
+  );
 
   const questsByDayHour = useMemo(() => {
     const map: Record<string, Quest[]> = {};
@@ -389,8 +461,13 @@ function WeekView({ startDate, quests, skillById, onDropSlot, onQuestClick, drop
       <div className="flex border-b border-[#1f1f1f]">
         <div className="w-14 shrink-0" />
         {days.map((d) => (
-          <div key={d.getTime()} className="flex-1 min-w-0 text-center py-2 border-l first:border-l-0 border-[#1f1f1f]">
-            <span className="text-[10px] text-[#666] uppercase">{WEEKDAY_LABELS[d.getDay() === 0 ? 6 : d.getDay() - 1]}</span>
+          <div
+            key={d.getTime()}
+            className="flex-1 min-w-0 text-center py-2 border-l first:border-l-0 border-[#1f1f1f]"
+          >
+            <span className="text-[10px] text-[#666] uppercase">
+              {WEEKDAY_LABELS[d.getDay() === 0 ? 6 : d.getDay() - 1]}
+            </span>
             <p className="text-sm font-medium text-white">{d.getDate()}</p>
           </div>
         ))}
@@ -398,28 +475,50 @@ function WeekView({ startDate, quests, skillById, onDropSlot, onQuestClick, drop
       <div className="flex">
         <div className="w-14 shrink-0 text-[10px] text-[#666] font-mono space-y-0">
           {HOURS.map((h) => (
-            <div key={h} className="h-10 flex items-start pt-0.5">{h.toString().padStart(2, "0")}</div>
+            <div key={h} className="h-10 flex items-start pt-0.5">
+              {h.toString().padStart(2, "0")}
+            </div>
           ))}
         </div>
         <div className="flex-1 flex border-l border-[#1f1f1f]">
           {days.map((day) => (
-            <div key={day.getTime()} className="flex-1 min-w-0 flex flex-col border-l first:border-l-0 border-[#1f1f1f]">
+            <div
+              key={day.getTime()}
+              className="flex-1 min-w-0 flex flex-col border-l first:border-l-0 border-[#1f1f1f]"
+            >
               {HOURS.map((hour) => {
                 const dayStart = getStartOfDay(day);
                 const key = `${dayStart.getTime()}-${hour}`;
                 const slotQuests = questsByDayHour[key] ?? [];
-                const isTarget = dropTarget && dropTarget.hour !== undefined && sameDay(dropTarget.date, day) && dropTarget.hour === hour;
+                const isTarget =
+                  dropTarget &&
+                  dropTarget.hour !== undefined &&
+                  sameDay(dropTarget.date, day) &&
+                  dropTarget.hour === hour;
                 return (
                   <div
                     key={hour}
                     className={`h-10 border-b border-[#1f1f1f] min-h-[2.5rem] flex flex-col transition-colors ${isTarget ? "bg-[#facc15]/10" : ""}`}
-                    onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDropTarget(new Date(day), hour); }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      setDropTarget(new Date(day), hour);
+                    }}
                     onDragLeave={() => setDropTarget(null)}
-                    onDrop={(e) => { e.preventDefault(); onDropSlot(new Date(day), hour); }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      onDropSlot(new Date(day), hour);
+                    }}
                   >
                     <div className="flex-1 p-0.5 flex flex-col gap-0.5 overflow-hidden">
                       {slotQuests.map((q) => (
-                        <CalendarQuestChip key={q.id} quest={q} color={skillById[q.skill]?.color ?? "#666"} onClick={() => onQuestClick(q.id)} compact />
+                        <CalendarQuestChip
+                          key={q.id}
+                          quest={q}
+                          color={skillById[q.skill]?.color ?? "#666"}
+                          onClick={() => onQuestClick(q.id)}
+                          compact
+                        />
                       ))}
                     </div>
                   </div>
@@ -480,10 +579,18 @@ function MonthView({
     <div className="p-4">
       <div className="grid grid-cols-7 gap-px border border-[#1f1f1f] rounded overflow-hidden">
         {WEEKDAY_LABELS.map((label) => (
-          <div key={label} className="bg-[#111] py-2 text-center text-[10px] text-[#666] uppercase">{label}</div>
+          <div
+            key={label}
+            className="bg-[#111] py-2 text-center text-[10px] text-[#666] uppercase"
+          >
+            {label}
+          </div>
         ))}
         {dayDates.map((d, i) => {
-          if (!d) return <div key={`empty-${i}`} className="min-h-[80px] bg-[#0a0a0a]" />;
+          if (!d)
+            return (
+              <div key={`empty-${i}`} className="min-h-[80px] bg-[#0a0a0a]" />
+            );
           const key = d.getTime();
           const dayQuests = questsByDay[key] ?? [];
           const isTarget = dropTarget && sameDay(dropTarget.date, d);
@@ -491,14 +598,29 @@ function MonthView({
             <div
               key={key}
               className={`min-h-[80px] bg-[#0a0a0a] p-1 flex flex-col transition-colors ${isTarget ? "bg-[#facc15]/10" : ""}`}
-              onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = "move"; setDropTarget(new Date(d)); }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                setDropTarget(new Date(d));
+              }}
               onDragLeave={() => setDropTarget(null)}
-              onDrop={(e) => { e.preventDefault(); onDropDay(d); }}
+              onDrop={(e) => {
+                e.preventDefault();
+                onDropDay(d);
+              }}
             >
-              <span className="text-xs text-[#666] font-mono">{d.getDate()}</span>
+              <span className="text-xs text-[#666] font-mono">
+                {d.getDate()}
+              </span>
               <div className="flex-1 mt-1 space-y-1 overflow-y-auto custom-scrollbar">
                 {dayQuests.map((q) => (
-                  <CalendarQuestChip key={q.id} quest={q} color={skillById[q.skill]?.color ?? "#666"} onClick={() => onQuestClick(q.id)} compact />
+                  <CalendarQuestChip
+                    key={q.id}
+                    quest={q}
+                    color={skillById[q.skill]?.color ?? "#666"}
+                    onClick={() => onQuestClick(q.id)}
+                    compact
+                  />
                 ))}
               </div>
             </div>
@@ -521,7 +643,10 @@ function CalendarQuestChip({
   compact?: boolean;
 }) {
   const start = quest.plannedDateTime ? new Date(quest.plannedDateTime) : null;
-  const end = start && quest.duration ? new Date(start.getTime() + quest.duration * 1000) : null;
+  const end =
+    start && quest.duration
+      ? new Date(start.getTime() + quest.duration * 1000)
+      : null;
   const timeStr =
     start && end
       ? `${start.getHours().toString().padStart(2, "0")}:${start.getMinutes().toString().padStart(2, "0")} – ${end.getHours().toString().padStart(2, "0")}:${end.getMinutes().toString().padStart(2, "0")}`
@@ -530,13 +655,18 @@ function CalendarQuestChip({
   return (
     <button
       type="button"
-      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
       className={`w-full text-left rounded border truncate transition-opacity hover:opacity-90 ${compact ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-1 text-xs"}`}
       style={{ borderColor: color, color }}
       title={quest.name + (timeStr ? ` (${timeStr})` : "")}
     >
       <span className="block truncate text-white/95">{quest.name}</span>
-      {!compact && timeStr && <span className="block text-[10px] opacity-80">{timeStr}</span>}
+      {!compact && timeStr && (
+        <span className="block text-[10px] opacity-80">{timeStr}</span>
+      )}
     </button>
   );
 }

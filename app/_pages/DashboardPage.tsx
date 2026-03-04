@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type Dispatch, type SetStateAction } from "react";
+import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import {
   Music,
   Crosshair,
@@ -22,6 +22,7 @@ type DashboardPageProps = {
 
 export default function DashboardPage({ setSelectedSkillId, setActiveTab }: DashboardPageProps) {
   const { lang } = useLang();
+  const [hoveredSkillId, setHoveredSkillId] = useState<string | undefined>();
   const mainPlanRadar = useMemo(
     () => radarNPolygon(MOCK_SKILLS.map((s) => s.completionPercentage)),
     []
@@ -32,22 +33,23 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
       {/* Top Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* DAILY PLAN */}
-        <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6 flex flex-col">
+        <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6 flex flex-col lg:col-span-2">
           <h3 className="text-[10px] text-[#facc15] uppercase tracking-widest mb-6">
             {t(lang, "dashboard_plan").toUpperCase()}
           </h3>
           <div className="flex flex-col gap-4 flex-1">
-            <PlanItem time="07:00" title="Sniadanie" tag="DIETA" tagColor="#d946ef" />
-            <PlanItem time="09:00" title="CS2 -- Aim training (30 min)" tag="CS2" tagColor="#f97316" />
-            <PlanItem time="10:00" title="Gitara -- Hammer-on practice (15 min)" tag="MUZYKA" tagColor="#a855f7" />
-            <PlanItem time="12:30" title="Lunch" tag="DIETA" tagColor="#d946ef" />
-            <PlanItem time="16:00" title="Silownia -- Push A" tag="TRENING" tagColor="#22c55e" />
-            <PlanItem time="19:00" title="Produkcja -- EQ session" tag="MUZYKA" tagColor="#a855f7" active />
-            <PlanItem time="21:00" title="Kolacja" tag="DIETA" tagColor="#d946ef" />
+            <PlanItem time="07:00" title="Sniadanie" tag="DIETA" tagColor="#d946ef" skillId={undefined} hoveredSkillId={hoveredSkillId} />
+            <PlanItem time="09:00" title="CS2 -- Aim training (30 min)" tag="CS2" tagColor="#f97316" skillId="skill/cs2" hoveredSkillId={hoveredSkillId} />
+            <PlanItem time="10:00" title="Gitara -- Hammer-on practice (15 min)" tag="MUZYKA" tagColor="#a855f7" skillId="skill/guitar" hoveredSkillId={hoveredSkillId} />
+            <PlanItem time="12:30" title="Lunch" tag="DIETA" tagColor="#d946ef" skillId={undefined} hoveredSkillId={hoveredSkillId} />
+            <PlanItem time="16:00" title="Silownia -- Push A" tag="TRENING" tagColor="#22c55e" skillId={undefined} hoveredSkillId={hoveredSkillId} />
+            <PlanItem time="19:00" title="Produkcja -- EQ session" tag="MUZYKA" tagColor="#a855f7" active skillId="skill/production" hoveredSkillId={hoveredSkillId} />
+            <PlanItem time="21:00" title="Kolacja" tag="DIETA" tagColor="#d946ef" skillId={undefined} hoveredSkillId={hoveredSkillId} />
           </div>
         </div>
 
         {/* NEURAL MAP */}
+        {/* TODO: [DATA] Neural map elements will be dynamically derived from Daily Plan quests. */}
         <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6 flex flex-col relative">
           <div className="flex items-center gap-2 mb-1">
             <div className="w-2 h-2 rounded-full bg-[#facc15]"></div>
@@ -55,12 +57,12 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
               {t(lang, "dashboard_neural_map").toUpperCase()}
             </h3>
           </div>
-          <p className="text-[10px] text-[#facc15] uppercase tracking-widest mb-8">
+          <p className="text-[10px] text-[#facc15] uppercase tracking-widest mb-6">
             {t(lang, "dashboard_today").toUpperCase()}
           </p>
 
           <div className="flex-1 flex items-center justify-center relative">
-            <svg viewBox="0 0 100 100" className="w-full max-w-[220px] overflow-visible">
+            <svg viewBox="0 0 100 100" className="w-full max-w-[280px] overflow-visible">
               {[40, 26.7, 13.3].map((r, ri) => {
                 const pts = [0, 60, 120, 180, 240, 300].map((deg) => {
                   const rad = (deg * Math.PI) / 180;
@@ -77,19 +79,18 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
                 return <line key={i} x1="50" y1="50" x2={x} y2={y} stroke="#1f1f1f" strokeWidth="0.5" strokeDasharray="2,2" />;
               })}
               <polygon points={mainPlanRadar.points} fill="rgba(250, 204, 21, 0.1)" stroke="#facc15" strokeWidth="1.5" />
-              {mainPlanRadar.pts.map((p, i) => (
-                <circle key={i} cx={p.x} cy={p.y} r="1.5" fill="#facc15" />
-              ))}
               {MOCK_SKILLS.map((s, i) => {
                 const deg = (i * 360) / MOCK_SKILLS.length;
                 const rad = (deg * Math.PI) / 180;
                 const dist = 46;
-                const x = roundSvg(50 + dist * Math.sin(rad));
-                const y = roundSvg(50 - dist * Math.cos(rad));
+                const labelX = roundSvg(50 + dist * Math.sin(rad));
+                const labelY = roundSvg(50 - dist * Math.cos(rad));
+                const dot = mainPlanRadar.pts[i];
+                const isActive = hoveredSkillId === s.id;
                 return (
                   <g
                     key={i}
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: "pointer", outline: "none" }}
                     onClick={() => {
                       setSelectedSkillId?.(s.id);
                       setActiveTab?.(TAB_SKILL_DETAIL);
@@ -100,11 +101,45 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
                         setActiveTab?.(TAB_SKILL_DETAIL);
                       }
                     }}
+                    onMouseEnter={() => setHoveredSkillId(s.id)}
+                    onMouseLeave={() => setHoveredSkillId(undefined)}
                     role="button"
                     tabIndex={0}
                   >
-                    <text x={x} y={y} fill={s.color} fontSize="3.2" textAnchor="middle" className="uppercase tracking-widest">
-                      {s.name}
+                    {/* invisible hit target around dot for easier hovering */}
+                    <circle cx={dot.x} cy={dot.y} r="5" fill="transparent" />
+                    {/* pulse ring on hover */}
+                    {isActive && (
+                      <circle cx={dot.x} cy={dot.y} r="4" fill="none" stroke="#facc15" strokeWidth="0.6" opacity="0.5" />
+                    )}
+                    {/* data dot */}
+                    <circle
+                      cx={dot.x}
+                      cy={dot.y}
+                      r={isActive ? "2.5" : "1.5"}
+                      fill={isActive ? "#facc15" : "#facc15"}
+                      style={{ transition: "r 0.15s ease" }}
+                    />
+                    <text
+                      x={labelX}
+                      y={labelY}
+                      fill={isActive ? "#facc15" : s.color}
+                      fontSize="3.75"
+                      textAnchor="middle"
+                      dominantBaseline="middle"
+                      className="uppercase tracking-widest"
+                      style={{ transition: "fill 0.15s ease" }}
+                    >
+                      {s.name.length > 8 ? (
+                        <>
+                          <tspan x={labelX} dy={-2}>{s.name.split(" ")[0]}</tspan>
+                          {s.name.split(" ").length > 1 && (
+                            <tspan x={labelX} dy="4">{s.name.split(" ").slice(1).join(" ")}</tspan>
+                          )}
+                        </>
+                      ) : (
+                        s.name
+                      )}
                     </text>
                   </g>
                 );
@@ -129,36 +164,37 @@ export default function DashboardPage({ setSelectedSkillId, setActiveTab }: Dash
           </div>
         </div>
 
-        {/* TODAY'S TRAINING */}
-        <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6 flex flex-col">
-          <div className="flex justify-between items-end mb-8">
-            <h3 className="text-[10px] text-[#666] uppercase tracking-widest">
-              {t(lang, "dashboard_training").toUpperCase()}
-            </h3>
-            <span className="text-sm text-[#22c55e] font-bold">{MOCK_WORKOUT_TODAY.name}</span>
+      </div>
+
+      {/* TODAY'S TRAINING */}
+      <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6 mb-6">
+        <div className="flex justify-between items-end mb-8">
+          <h3 className="text-[10px] text-[#666] uppercase tracking-widest">
+            {t(lang, "dashboard_training").toUpperCase()}
+          </h3>
+          <span className="text-sm text-[#22c55e] font-bold">{MOCK_WORKOUT_TODAY.name}</span>
+        </div>
+
+        <div className="w-full">
+          <div className="grid grid-cols-12 text-[10px] text-[#666] uppercase tracking-widest border-b border-[#1f1f1f] pb-3 mb-4">
+            <div className="col-span-4">EXERCISE</div>
+            <div className="col-span-2 text-center">SETS</div>
+            <div className="col-span-2 text-center">REPS</div>
+            <div className="col-span-2 text-right">LAST</div>
+            <div className="col-span-2 text-right">TODAY</div>
           </div>
 
-          <div className="w-full">
-            <div className="grid grid-cols-12 text-[10px] text-[#666] uppercase tracking-widest border-b border-[#1f1f1f] pb-3 mb-4">
-              <div className="col-span-4">EXERCISE</div>
-              <div className="col-span-2 text-center">SETS</div>
-              <div className="col-span-2 text-center">REPS</div>
-              <div className="col-span-2 text-right">LAST</div>
-              <div className="col-span-2 text-right">TODAY</div>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              {MOCK_WORKOUT_TODAY.exercises.map((ex) => (
-                <WorkoutRow
-                  key={ex.name}
-                  name={ex.name}
-                  sets={String(ex.sets)}
-                  reps={String(ex.reps)}
-                  last={ex.lastWeight}
-                  today={ex.todayWeight}
-                />
-              ))}
-            </div>
+          <div className="flex flex-col gap-4">
+            {MOCK_WORKOUT_TODAY.exercises.map((ex) => (
+              <WorkoutRow
+                key={ex.name}
+                name={ex.name}
+                sets={String(ex.sets)}
+                reps={String(ex.reps)}
+                last={ex.lastWeight}
+                today={ex.todayWeight}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -285,15 +321,20 @@ function PlanItem({
   tag,
   tagColor,
   active = false,
+  skillId,
+  hoveredSkillId,
 }: {
   time: string;
   title: string;
   tag: string;
   tagColor: string;
   active?: boolean;
+  skillId?: string;
+  hoveredSkillId?: string;
 }) {
+  const isHovered = skillId && hoveredSkillId === skillId;
   return (
-    <div className={`flex items-center justify-between p-2 border transition-all ${active ? "border-[#facc15] bg-[#facc15]/5" : "border-transparent hover:border-[#1f1f1f]"}`}>
+    <div className={`flex items-center justify-between p-2 border transition-all ${isHovered || active ? "border-[#facc15] bg-[#facc15]/5" : "border-transparent hover:border-[#1f1f1f]"}`}>
       <div className="flex items-center gap-4">
         <span className={`text-xs ${active ? "text-[#facc15]" : "text-[#666]"}`}>{time}</span>
         {active && <div className="w-1.5 h-1.5 rounded-full bg-[#facc15]"></div>}

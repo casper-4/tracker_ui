@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  --bg-color: #050505;
+  --panel-bg: #0a0a0a;
+  --border-color: #1f1f1f;
+  --text-muted: #666666;
+  --text-main: #e0e0e0;
+  --accent-yellow: #facc15;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-mono);
+}
+
+.text-glow-yellow {
+  text-shadow: 0 0 15px rgba(250, 204, 21, 0.6);
+}
+
+/* Custom scrollbar for the terminal feel */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #1f1f1f;
+  border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #333;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}

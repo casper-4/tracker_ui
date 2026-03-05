@@ -1,26 +1,18 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Coffee,
-  Utensils,
-  Apple,
-  Moon,
-  ShoppingCart,
-  BarChart3,
-  Check,
-  RefreshCw,
-  ChevronRight,
-} from "lucide-react";
+import { Coffee, Utensils, Apple, Moon, Plus, Trash2, Search, X } from "lucide-react";
 import {
   MOCK_DIET_WEEK,
   MOCK_FOOD_DB,
   MOCK_DIET_GOALS,
-  MOCK_SHOPPING_LIST,
+  MOCK_NAMED_MEALS,
   type MealSlotId,
-  type ShoppingItem,
   type FoodCategory,
+  type DietDay,
+  type NamedMeal,
+  type MealSlot,
 } from "@/lib/mock";
 import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
@@ -29,69 +21,66 @@ import { cn } from "@/lib/utils";
 // ─── helpers ──────────────────────────────────────────────────────────────────
 
 const FOOD_MAP = Object.fromEntries(MOCK_FOOD_DB.map((f) => [f.id, f]));
+const MEAL_MAP = Object.fromEntries(MOCK_NAMED_MEALS.map((m) => [m.id, m]));
 
 function computeMealMacros(ingredients: { foodId: string; grams: number }[]) {
   return ingredients.reduce(
     (acc, ing) => {
       const food = FOOD_MAP[ing.foodId];
       if (!food) return acc;
-      const ratio = ing.grams / 100;
+      const r = ing.grams / 100;
       return {
-        kcal: acc.kcal + food.kcalPer100g * ratio,
-        protein: acc.protein + food.proteinPer100g * ratio,
-        carbs: acc.carbs + food.carbsPer100g * ratio,
-        fat: acc.fat + food.fatPer100g * ratio,
+        kcal: acc.kcal + food.kcalPer100g * r,
+        protein: acc.protein + food.proteinPer100g * r,
+        carbs: acc.carbs + food.carbsPer100g * r,
+        fat: acc.fat + food.fatPer100g * r,
       };
     },
     { kcal: 0, protein: 0, carbs: 0, fat: 0 },
   );
 }
 
+function computeDayTotals(day: DietDay) {
+  const all = day.meals.flatMap((m) => MEAL_MAP[m.mealId]?.ingredients ?? []);
+  return computeMealMacros(all);
+}
+
+function getHoursBetween(t1: string, t2: string): string[] {
+  const h1 = parseInt(t1.split(":")[0], 10);
+  const h2 = parseInt(t2.split(":")[0], 10);
+  const out: string[] = [];
+  for (let h = h1 + 1; h < h2; h++) out.push(`${String(h).padStart(2, "0")}:00`);
+  return out;
+}
+
 const WEEK_DATES = MOCK_DIET_WEEK.map((d) => d.date);
 
 const DAY_LABELS: Record<string, string> = {
-  "0": "Nd",
-  "1": "Pn",
-  "2": "Wt",
-  "3": "Śr",
-  "4": "Cz",
-  "5": "Pt",
-  "6": "Sb",
+  "0": "Nd", "1": "Pn", "2": "Wt", "3": "Śr", "4": "Cz", "5": "Pt", "6": "Sb",
 };
 const DAY_LABELS_EN: Record<string, string> = {
-  "0": "Su",
-  "1": "Mo",
-  "2": "Tu",
-  "3": "We",
-  "4": "Th",
-  "5": "Fr",
-  "6": "Sa",
+  "0": "Su", "1": "Mo", "2": "Tu", "3": "We", "4": "Th", "5": "Fr", "6": "Sa",
 };
-
-function shortDay(dateStr: string, lang: string): string {
-  const d = new Date(dateStr + "T12:00:00");
-  const idx = String(d.getDay());
+function shortDay(dateStr: string, lang: string) {
+  const idx = String(new Date(dateStr + "T12:00:00").getDay());
   return lang === "pl" ? DAY_LABELS[idx] : DAY_LABELS_EN[idx];
 }
-
-function dayNum(dateStr: string): number {
+function dayNum(dateStr: string) {
   return new Date(dateStr + "T12:00:00").getDate();
 }
 
 const SLOT_ICONS: Record<MealSlotId, React.ReactNode> = {
-  breakfast: <Coffee size={14} />,
-  lunch: <Utensils size={14} />,
-  snack: <Apple size={14} />,
-  dinner: <Moon size={14} />,
+  breakfast: <Coffee size={13} />,
+  lunch: <Utensils size={13} />,
+  snack: <Apple size={13} />,
+  dinner: <Moon size={13} />,
 };
-
 const SLOT_COLORS: Record<MealSlotId, string> = {
   breakfast: "#f59e0b",
   lunch: "#22c55e",
   snack: "#38bdf8",
   dinner: "#a855f7",
 };
-
 const CAT_COLORS: Record<FoodCategory, string> = {
   protein: "#ec4899",
   carbs: "#f59e0b",
@@ -101,709 +90,568 @@ const CAT_COLORS: Record<FoodCategory, string> = {
   other: "#888",
 };
 
-const CAT_ORDER: FoodCategory[] = [
-  "protein",
-  "carbs",
-  "veggies",
-  "dairy",
-  "fats",
-  "other",
-];
+// ─── GhostCard ────────────────────────────────────────────────────────────────
 
-// ─── sub-components ────────────────────────────────────────────────────────────
-
-function KcalRing({ consumed, target }: { consumed: number; target: number }) {
-  const r = 62;
-  const circ = 2 * Math.PI * r;
-  const pct = Math.min(consumed / target, 1);
-  const offset = circ * (1 - pct);
-  const remaining = Math.max(0, target - consumed);
-  const over = consumed > target;
-
+function GhostCard({ meal, slotColor }: { meal: NamedMeal; slotColor: string }) {
   return (
-    <div className="relative flex items-center justify-center">
-      <svg width="160" height="160" className="-rotate-90">
-        <circle
-          cx="80"
-          cy="80"
-          r={r}
-          fill="none"
-          stroke="#1f1f1f"
-          strokeWidth="10"
-        />
-        <circle
-          cx="80"
-          cy="80"
-          r={r}
-          fill="none"
-          stroke={over ? "#ef4444" : "#facc15"}
-          strokeWidth="10"
-          strokeDasharray={circ}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          style={{ transition: "stroke-dashoffset 0.6s ease" }}
-        />
-      </svg>
-      <div className="absolute flex flex-col items-center">
-        <span className="text-2xl font-bold text-[#e0e0e0] font-mono tabular-nums">
-          {Math.round(consumed)}
-        </span>
-        <span className="text-[10px] uppercase tracking-widest text-[#555]">
-          kcal
-        </span>
-        <span
-          className={cn(
-            "text-[10px] font-mono mt-0.5",
-            over ? "text-[#ef4444]" : "text-[#888]",
-          )}
-        >
-          {over
-            ? `+${Math.round(consumed - target)}`
-            : `−${Math.round(remaining)}`}
-        </span>
-      </div>
+    <div
+      className="border border-[#141414] bg-[#080808] rounded-sm p-3 flex flex-col items-center justify-center gap-2 h-full min-h-[130px]"
+      style={{ borderLeftWidth: 2, borderLeftColor: slotColor + "30" }}
+    >
+      <span className="text-2xl">{meal.emoji}</span>
+      <p className="text-[8px] text-[#2a2a2a] text-center font-mono leading-tight line-clamp-3 uppercase tracking-widest px-1">
+        {meal.name}
+      </p>
     </div>
   );
 }
 
-function MacroBar({
-  label,
-  value,
-  target,
-  color,
+// ─── MainMealCard ─────────────────────────────────────────────────────────────
+
+function MainMealCard({
+  slot, time, meal, slotColor,
 }: {
-  label: string;
-  value: number;
-  target: number;
-  color: string;
+  slot: MealSlotId; time: string; meal: NamedMeal; slotColor: string;
 }) {
-  const pct = Math.min((value / target) * 100, 100);
+  const macros = useMemo(() => computeMealMacros(meal.ingredients), [meal]);
   return (
-    <div className="space-y-1">
-      <div className="flex justify-between items-baseline">
-        <span className="text-[10px] uppercase tracking-widest text-[#666]">
-          {label}
+    <div
+      className="border border-[#1f1f1f] bg-[#0a0a0a] rounded-sm overflow-hidden hover:border-[#2a2a2a] transition-colors"
+      style={{ borderLeftWidth: 3, borderLeftColor: slotColor }}
+    >
+      <div className="flex items-center gap-2 px-4 pt-3 pb-1">
+        <span style={{ color: slotColor }}>{SLOT_ICONS[slot]}</span>
+        <span className="text-[9px] uppercase tracking-[0.15em] font-mono" style={{ color: slotColor }}>
+          {slot}
         </span>
-        <span className="text-[11px] font-mono text-[#888]">
-          <span style={{ color }} className="text-[#e0e0e0]">
-            {Math.round(value)}
-          </span>
-          <span className="text-[#444]">/{target}g</span>
-        </span>
+        <span className="text-[9px] font-mono text-[#2a2a2a]">{time}</span>
+        <div className="ml-auto flex items-center gap-2.5">
+          <span className="text-[10px] font-mono text-[#facc15] tabular-nums">{Math.round(macros.kcal)} kcal</span>
+          <span className="text-[10px] font-mono text-[#ec4899] tabular-nums">{Math.round(macros.protein)}g P</span>
+        </div>
       </div>
-      <div className="h-1.5 bg-[#1a1a1a] rounded-full overflow-hidden">
+      <div className="flex items-start gap-3 px-4 pb-2">
         <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${pct}%`, background: color }}
-        />
-      </div>
-    </div>
-  );
-}
-
-function MealSlotCard({
-  slot,
-  time,
-  ingredients,
-  lang: language,
-}: {
-  slot: MealSlotId;
-  time: string;
-  ingredients: { foodId: string; grams: number }[];
-  lang: string;
-}) {
-  const [open, setOpen] = useState(true);
-  const macros = useMemo(() => computeMealMacros(ingredients), [ingredients]);
-  const slotColor = SLOT_COLORS[slot];
-  const slotLabel = t(
-    language as "pl" | "en",
-    `diet_slot_${slot}` as Parameters<typeof t>[1],
-  );
-
-  return (
-    <div className="border border-[#1f1f1f] bg-[#0a0a0a] rounded-sm overflow-hidden hover:border-[#2a2a2a] transition-colors">
-      {/* header */}
-      <button
-        onClick={() => setOpen((o) => !o)}
-        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-[#0d0d0d] transition-colors"
-      >
-        <span style={{ color: slotColor }} className="shrink-0">
-          {SLOT_ICONS[slot]}
-        </span>
-        <span
-          className="text-[10px] uppercase tracking-[0.15em] font-mono"
-          style={{ color: slotColor }}
+          className="text-2xl leading-none shrink-0 mt-0.5 w-9 h-9 flex items-center justify-center rounded border border-[#1a1a1a]"
+          style={{ background: slotColor + "0d" }}
         >
-          {slotLabel}
-        </span>
-        <span className="text-[10px] font-mono text-[#444] ml-1">{time}</span>
-        <span className="ml-auto text-[10px] font-mono text-[#555] tabular-nums">
-          {Math.round(macros.kcal)} kcal
-        </span>
-        <ChevronRight
-          size={12}
-          className={cn(
-            "text-[#444] transition-transform shrink-0",
-            open && "rotate-90",
-          )}
-        />
-      </button>
-
-      {/* body */}
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-3 space-y-1">
-              {ingredients.length === 0 ? (
-                <p className="text-[#444] text-xs py-2">
-                  {t(language as "pl" | "en", "diet_no_ingredients")}
-                </p>
-              ) : (
-                ingredients.map((ing, i) => {
-                  const food = FOOD_MAP[ing.foodId];
-                  if (!food) return null;
-                  const kcal = (food.kcalPer100g * ing.grams) / 100;
-                  return (
-                    <div
-                      key={i}
-                      className="flex items-center gap-2 py-1 border-b border-[#141414] last:border-0"
-                    >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0"
-                        style={{ background: CAT_COLORS[food.category] }}
-                      />
-                      <span className="text-xs text-[#ccc] flex-1 truncate">
-                        {food.name}
-                      </span>
-                      <span className="text-[10px] font-mono text-[#555]">
-                        {ing.grams}g
-                      </span>
-                      <span className="text-[10px] font-mono text-[#444] w-14 text-right">
-                        {Math.round(kcal)} kcal
-                      </span>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-
-            {/* macro strip */}
-            <div className="flex divide-x divide-[#1a1a1a] border-t border-[#1a1a1a]">
-              {(
-                [
-                  { label: "P", value: macros.protein, color: "#ec4899" },
-                  { label: "C", value: macros.carbs, color: "#f59e0b" },
-                  { label: "F", value: macros.fat, color: "#a855f7" },
-                ] as { label: string; value: number; color: string }[]
-              ).map(({ label, value, color }) => (
-                <div
-                  key={label}
-                  className="flex-1 flex items-center justify-center gap-1 py-2"
-                >
-                  <span
-                    className="text-[9px] uppercase tracking-widest"
-                    style={{ color }}
-                  >
-                    {label}
-                  </span>
-                  <span className="text-[10px] font-mono text-[#888]">
-                    {Math.round(value)}g
-                  </span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ─── main page ─────────────────────────────────────────────────────────────────
-
-export default function DietPage() {
-  const { lang } = useLang();
-
-  // today is 2026-03-04
-  const TODAY = "2026-03-04";
-  const [activeDate, setActiveDate] = useState(TODAY);
-  const [rightTab, setRightTab] = useState<"macros" | "shopping">("macros");
-  const [shoppingItems, setShoppingItems] =
-    useState<ShoppingItem[]>(MOCK_SHOPPING_LIST);
-  const [listGenerated, setListGenerated] = useState(false);
-  const [generating, setGenerating] = useState(false);
-
-  const activeDayData = useMemo(
-    () =>
-      MOCK_DIET_WEEK.find((d) => d.date === activeDate) ?? MOCK_DIET_WEEK[0],
-    [activeDate],
-  );
-
-  // total day macros
-  const dayTotals = useMemo(() => {
-    const allIngredients = activeDayData.meals.flatMap((m) => m.ingredients);
-    return computeMealMacros(allIngredients);
-  }, [activeDayData]);
-
-  const goals = MOCK_DIET_GOALS;
-
-  // shopping list helpers
-  function toggleItem(id: string) {
-    setShoppingItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, checked: !item.checked } : item,
-      ),
-    );
-  }
-  function checkAll() {
-    setShoppingItems((prev) => prev.map((i) => ({ ...i, checked: true })));
-  }
-  function uncheckAll() {
-    setShoppingItems((prev) => prev.map((i) => ({ ...i, checked: false })));
-  }
-
-  function handleGenerate() {
-    setGenerating(true);
-    // TODO: [DATA] replace with real algorithm that aggregates week ingredients
-    setTimeout(() => {
-      setGenerating(false);
-      setListGenerated(true);
-      setRightTab("shopping");
-    }, 900);
-  }
-
-  const groupedShopping = useMemo(() => {
-    const groups: Partial<Record<FoodCategory, ShoppingItem[]>> = {};
-    for (const cat of CAT_ORDER) {
-      const items = shoppingItems.filter((i) => i.category === cat);
-      if (items.length > 0) groups[cat] = items;
-    }
-    return groups;
-  }, [shoppingItems]);
-
-  const uncheckedCount = shoppingItems.filter((i) => !i.checked).length;
-
-  const catLabelKey = (cat: FoodCategory): Parameters<typeof t>[1] =>
-    `diet_cat_${cat}` as Parameters<typeof t>[1];
-
-  return (
-    <div className="max-w-7xl mx-auto space-y-5">
-      {/* ── header ─────────────────────────────────────────────── */}
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-[#facc15] text-[10px] uppercase tracking-widest font-mono">
-            {t(lang, "diet_title")}
-          </p>
-          <h1 className="text-lg font-bold text-[#e0e0e0] mt-1">
-            {t(lang, "diet_plan")}
-          </h1>
+          {meal.emoji}
         </div>
-
-        {/* daily kcal + macro pills */}
-        <div className="flex items-center gap-3 flex-wrap justify-end">
-          <div className="flex items-center gap-1.5 border border-[#1f1f1f] px-3 py-1.5 rounded-sm bg-[#0a0a0a]">
-            <span className="text-[10px] uppercase tracking-widest text-[#555] font-mono">
-              {t(lang, "diet_kcal")}
-            </span>
-            <span className="text-sm font-bold text-[#facc15] font-mono tabular-nums">
-              {Math.round(dayTotals.kcal)}
-            </span>
-            <span className="text-[10px] text-[#444] font-mono">
-              / {goals.kcal}
-            </span>
-          </div>
-          {(
-            [
-              {
-                key: "diet_protein",
-                val: dayTotals.protein,
-                target: goals.protein,
-                color: "#ec4899",
-              },
-              {
-                key: "diet_carbs",
-                val: dayTotals.carbs,
-                target: goals.carbs,
-                color: "#f59e0b",
-              },
-              {
-                key: "diet_fat",
-                val: dayTotals.fat,
-                target: goals.fat,
-                color: "#a855f7",
-              },
-            ] as {
-              key: Parameters<typeof t>[1];
-              val: number;
-              target: number;
-              color: string;
-            }[]
-          ).map(({ key, val, target, color }) => (
-            <div
-              key={key}
-              className="flex items-center gap-1.5 border border-[#1f1f1f] px-3 py-1.5 rounded-sm bg-[#0a0a0a]"
-            >
-              <span
-                className="text-[10px] uppercase tracking-widest font-mono"
-                style={{ color: color + "99" }}
-              >
-                {t(lang, key)}
-              </span>
-              <span
-                className="text-sm font-bold font-mono tabular-nums"
-                style={{ color }}
-              >
-                {Math.round(val)}
-              </span>
-              <span className="text-[10px] text-[#444] font-mono">
-                / {target}g
-              </span>
-            </div>
-          ))}
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold text-[#e0e0e0] leading-snug">{meal.name}</p>
+          <p className="text-[10px] text-[#444] leading-relaxed line-clamp-1 mt-0.5">{meal.description}</p>
         </div>
       </div>
-
-      {/* ── day selector ───────────────────────────────────────── */}
-      <div className="flex gap-1 border border-[#1f1f1f] bg-[#0a0a0a] p-1 rounded-sm w-fit">
-        {WEEK_DATES.map((date) => {
-          const isActive = date === activeDate;
-          const isToday = date === TODAY;
+      <div className="flex flex-wrap gap-1 px-4 pb-3">
+        {meal.ingredients.slice(0, 5).map((ing) => {
+          const food = FOOD_MAP[ing.foodId];
+          if (!food) return null;
+          const c = CAT_COLORS[food.category as FoodCategory] ?? "#888";
           return (
-            <button
-              key={date}
-              onClick={() => setActiveDate(date)}
-              className={cn(
-                "flex flex-col items-center px-3 py-1.5 rounded-sm transition-colors min-w-[44px]",
-                isActive
-                  ? "bg-[#facc15]/10 border border-[#facc15]/30"
-                  : "hover:bg-[#0d0d0d] border border-transparent",
-              )}
-            >
-              <span
-                className={cn(
-                  "text-[9px] uppercase tracking-widest font-mono",
-                  isActive ? "text-[#facc15]" : "text-[#555]",
-                )}
-              >
-                {shortDay(date, lang)}
-              </span>
-              <span
-                className={cn(
-                  "text-sm font-bold font-mono mt-0.5",
-                  isActive
-                    ? "text-[#facc15]"
-                    : isToday
-                      ? "text-[#e0e0e0]"
-                      : "text-[#444]",
-                )}
-              >
-                {dayNum(date)}
-              </span>
-              {isToday && (
-                <span className="w-1 h-1 rounded-full bg-[#facc15] mt-1" />
-              )}
-            </button>
+            <span key={ing.foodId} className="text-[8px] px-1.5 py-0.5 rounded border uppercase tracking-widest font-mono"
+              style={{ color: c, borderColor: c + "44", background: c + "11" }}>
+              {food.name}
+            </span>
           );
         })}
       </div>
+    </div>
+  );
+}
 
-      {/* ── main grid ──────────────────────────────────────────── */}
-      <div className="grid grid-cols-12 gap-4">
-        {/* ── left: meal timeline ──────────── */}
-        <div className="col-span-12 lg:col-span-7 space-y-3">
+// ─── MealSearchBar ────────────────────────────────────────────────────────────
+
+function MealSearchBar({
+  slot, currentMealId, onSelect,
+}: {
+  slot: MealSlotId; currentMealId: string; onSelect: (id: string) => void;
+}) {
+  const { lang } = useLang();
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const results = useMemo(
+    () =>
+      MOCK_NAMED_MEALS.filter(
+        (m) =>
+          m.suitableFor.includes(slot) &&
+          m.id !== currentMealId &&
+          (query.trim() === "" || m.name.toLowerCase().includes(query.toLowerCase())),
+      ).slice(0, 5),
+    [slot, currentMealId, query],
+  );
+
+  return (
+    <div className="relative mt-1.5">
+      <div className="flex items-center gap-2 bg-[#080808] border border-[#141414] rounded-sm px-3 py-1.5 focus-within:border-[#1f1f1f] transition-colors">
+        <Search size={10} className="text-[#222] shrink-0" />
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          placeholder={t(lang, "diet_swap_search")}
+          className="flex-1 bg-transparent text-xs text-[#555] placeholder-[#1e1e1e] focus:outline-none"
+        />
+        {query && (
+          <button onClick={() => { setQuery(""); setOpen(false); }} className="text-[#333] hover:text-[#555] transition-colors">
+            <X size={10} />
+          </button>
+        )}
+      </div>
+      {open && results.length > 0 && (
+        <div className="absolute top-full left-0 right-0 z-30 bg-[#0c0c0c] border border-[#1f1f1f] rounded-sm overflow-hidden mt-0.5 shadow-2xl">
+          {results.map((meal) => {
+            const m = computeMealMacros(meal.ingredients);
+            return (
+              <button
+                key={meal.id}
+                onMouseDown={() => { onSelect(meal.id); setQuery(""); setOpen(false); }}
+                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#111] transition-colors text-left border-b border-[#0d0d0d] last:border-0"
+              >
+                <span className="text-base shrink-0">{meal.emoji}</span>
+                <span className="text-xs text-[#aaa] flex-1 truncate">{meal.name}</span>
+                <span className="text-[9px] font-mono text-[#facc15] tabular-nums shrink-0">{Math.round(m.kcal)} kcal</span>
+                <span className="text-[9px] font-mono text-[#ec4899] tabular-nums shrink-0 ml-1">{Math.round(m.protein)}g P</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── MealCarousel ─────────────────────────────────────────────────────────────
+
+function MealCarousel({
+  slot, mealId, time, dateKey,
+  onOpen, onMealChange,
+}: {
+  slot: MealSlotId;
+  mealId: string;
+  time: string;
+  dateKey: string;
+  onOpen: (meal: NamedMeal) => void;
+  onMealChange: (newMealId: string) => void;
+}) {
+  const slotColor = SLOT_COLORS[slot];
+  const alts = useMemo(() => MOCK_NAMED_MEALS.filter((m) => m.suitableFor.includes(slot)), [slot]);
+
+  const [idx, setIdx] = useState(() => {
+    const found = alts.findIndex((m) => m.id === mealId);
+    return found >= 0 ? found : 0;
+  });
+
+  // Sync when mealId or date changes
+  useEffect(() => {
+    const found = alts.findIndex((m) => m.id === mealId);
+    if (found >= 0) setIdx(found);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mealId, dateKey]);
+
+  function go(delta: number) {
+    const newIdx = (idx + delta + alts.length) % alts.length;
+    setIdx(newIdx);
+    onMealChange(alts[newIdx].id);
+  }
+
+  const current = alts[idx];
+  const prev = alts[(idx - 1 + alts.length) % alts.length];
+  const next = alts[(idx + 1) % alts.length];
+
+  if (!current) return null;
+
+  return (
+    <div>
+      <div className="flex items-stretch gap-1.5">
+        {/* Prev ghost */}
+        <button
+          onClick={() => go(-1)}
+          className="w-[108px] shrink-0 opacity-25 hover:opacity-45 transition-opacity"
+          aria-label="previous meal"
+        >
+          <GhostCard meal={prev} slotColor={slotColor} />
+        </button>
+
+        {/* Main card */}
+        <button
+          onClick={() => onOpen(current)}
+          className="flex-1 min-w-0 text-left"
+        >
+          <MainMealCard slot={slot} time={time} meal={current} slotColor={slotColor} />
+        </button>
+
+        {/* Next ghost */}
+        <button
+          onClick={() => go(1)}
+          className="w-[108px] shrink-0 opacity-25 hover:opacity-45 transition-opacity"
+          aria-label="next meal"
+        >
+          <GhostCard meal={next} slotColor={slotColor} />
+        </button>
+      </div>
+
+      {/* Search bar */}
+      <MealSearchBar
+        slot={slot}
+        currentMealId={current.id}
+        onSelect={(newId) => {
+          const newIdx = alts.findIndex((m) => m.id === newId);
+          if (newIdx >= 0) { setIdx(newIdx); onMealChange(newId); }
+        }}
+      />
+    </div>
+  );
+}
+
+// ─── AddMealModal ─────────────────────────────────────────────────────────────
+
+function AddMealModal({
+  onAdd, onClose,
+}: {
+  onAdd: (slot: MealSlotId, time: string, mealId: string) => void;
+  onClose: () => void;
+}) {
+  const { lang } = useLang();
+  const [slot, setSlot] = useState<MealSlotId>("snack");
+  const [time, setTime] = useState("10:00");
+
+  const firstMeal = useMemo(
+    () => MOCK_NAMED_MEALS.find((m) => m.suitableFor.includes(slot)),
+    [slot],
+  );
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="absolute inset-0 bg-black/70" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 10 }}
+        transition={{ duration: 0.16 }}
+        className="relative z-10 w-72 bg-[#0a0a0a] border border-[#222] rounded-sm p-5 space-y-4"
+      >
+        <p className="text-[10px] uppercase tracking-widest text-[#facc15] font-mono">
+          {t(lang, "diet_add_meal")}
+        </p>
+
+        {/* Slot selector */}
+        <div className="grid grid-cols-2 gap-1.5">
+          {(["breakfast", "lunch", "snack", "dinner"] as MealSlotId[]).map((s) => {
+            const labelKey = `diet_slot_${s}` as Parameters<typeof t>[1];
+            return (
+              <button
+                key={s}
+                onClick={() => setSlot(s)}
+                className={cn(
+                  "py-2 text-[9px] uppercase tracking-widest font-mono border rounded-sm transition-colors flex items-center justify-center gap-1.5",
+                  slot === s
+                    ? "border-[#facc15]/40 text-[#facc15] bg-[#facc15]/5"
+                    : "border-[#1a1a1a] text-[#444] hover:text-[#666] hover:border-[#222]",
+                )}
+              >
+                <span style={{ color: slot === s ? SLOT_COLORS[s] : undefined }}>
+                  {SLOT_ICONS[s]}
+                </span>
+                {t(lang, labelKey)}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Time */}
+        <input
+          type="time"
+          value={time}
+          onChange={(e) => setTime(e.target.value)}
+          className="w-full bg-[#0d0d0d] border border-[#1f1f1f] rounded-sm px-3 py-2 text-sm text-[#ccc] font-mono focus:outline-none focus:border-[#333]"
+        />
+
+        {/* Preview */}
+        {firstMeal && (
+          <div className="flex items-center gap-2 p-2 bg-[#0d0d0d] border border-[#1a1a1a] rounded-sm">
+            <span className="text-xl">{firstMeal.emoji}</span>
+            <div>
+              <p className="text-xs text-[#888]">{firstMeal.name}</p>
+              <p className="text-[8px] text-[#333] font-mono uppercase tracking-widest mt-0.5">
+                {t(lang, "diet_add_meal_auto")}
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="flex gap-2 pt-1">
+          <button
+            onClick={() => { if (firstMeal) { onAdd(slot, time, firstMeal.id); onClose(); } }}
+            className="flex-1 py-2 bg-[#facc15]/10 border border-[#facc15]/25 text-[#facc15] text-[9px] uppercase tracking-widest font-mono rounded-sm hover:bg-[#facc15]/15 transition-colors"
+          >
+            {t(lang, "diet_add_meal")}
+          </button>
+          <button
+            onClick={onClose}
+            className="px-3 py-2 border border-[#1a1a1a] text-[#444] text-[9px] uppercase tracking-widest font-mono rounded-sm hover:text-[#666] transition-colors"
+          >
+            {t(lang, "diet_swap_cancel")}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+// ─── DietPage ─────────────────────────────────────────────────────────────────
+
+type Props = {
+  onMealSelect?: (info: { meal: NamedMeal; slot: MealSlotId; time: string }) => void;
+};
+
+export default function DietPage({ onMealSelect }: Props) {
+  const { lang } = useLang();
+  const TODAY = "2026-03-05";
+  const [activeDate, setActiveDate] = useState(TODAY);
+  const [weekState, setWeekState] = useState<DietDay[]>(MOCK_DIET_WEEK);
+  const [showAddModal, setShowAddModal] = useState(false);
+  // TODO: [DATA] persist weekState
+
+  const goals = MOCK_DIET_GOALS;
+
+  const activeDayData = useMemo(
+    () => weekState.find((d) => d.date === activeDate) ?? weekState[0],
+    [activeDate, weekState],
+  );
+
+  // Index meals with their original position, then sort by time for display
+  const sortedMeals = useMemo(() => {
+    return activeDayData.meals
+      .map((m, originalIdx) => ({ ...m, originalIdx }))
+      .sort((a, b) => a.time.localeCompare(b.time));
+  }, [activeDayData]);
+
+  const dayTotals = useMemo(() => {
+    const all = sortedMeals.flatMap((m) => MEAL_MAP[m.mealId]?.ingredients ?? []);
+    return computeMealMacros(all);
+  }, [sortedMeals]);
+
+  const dayKcalMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const day of weekState) map[day.date] = computeDayTotals(day).kcal;
+    return map;
+  }, [weekState]);
+
+  // Build timeline items: intersperse intermediate hour markers between meals
+  const timelineItems = useMemo(() => {
+    type Item =
+      | { type: "meal"; meal: typeof sortedMeals[0] }
+      | { type: "hour"; time: string };
+    const items: Item[] = [];
+    for (let i = 0; i < sortedMeals.length; i++) {
+      if (i > 0) {
+        const hours = getHoursBetween(sortedMeals[i - 1].time, sortedMeals[i].time);
+        // show at most 4 intermediate ticks, spaced evenly
+        const step = hours.length <= 4 ? 1 : Math.ceil(hours.length / 4);
+        for (let j = 0; j < hours.length; j += step) {
+          items.push({ type: "hour", time: hours[j] });
+        }
+      }
+      items.push({ type: "meal", meal: sortedMeals[i] });
+    }
+    return items;
+  }, [sortedMeals]);
+
+  function handleMealChange(originalIdx: number, newMealId: string) {
+    setWeekState((prev) =>
+      prev.map((day) =>
+        day.date !== activeDate
+          ? day
+          : { ...day, meals: day.meals.map((m, i) => (i === originalIdx ? { ...m, mealId: newMealId } : m)) },
+      ),
+    );
+    // TODO: [DATA] persist change
+  }
+
+  function handleRemoveMeal(originalIdx: number) {
+    setWeekState((prev) =>
+      prev.map((day) =>
+        day.date !== activeDate
+          ? day
+          : { ...day, meals: day.meals.filter((_, i) => i !== originalIdx) },
+      ),
+    );
+    // TODO: [DATA] persist removal
+  }
+
+  function handleAddMeal(slot: MealSlotId, time: string, mealId: string) {
+    const newSlot: MealSlot = { slot, time, mealId };
+    setWeekState((prev) =>
+      prev.map((day) =>
+        day.date !== activeDate
+          ? day
+          : {
+              ...day,
+              meals: [...day.meals, newSlot].sort((a, b) => a.time.localeCompare(b.time)),
+            },
+      ),
+    );
+    // TODO: [DATA] persist addition
+  }
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="max-w-[860px] mx-auto py-5 space-y-5">
+
+          {/* ── Day selector ── */}
+          <div className="flex justify-center">
+            <div className="flex gap-1 border border-[#1f1f1f] bg-[#0a0a0a] p-1 rounded-sm">
+              {WEEK_DATES.map((date) => {
+                const isActive = date === activeDate;
+                const isToday = date === TODAY;
+                const pct = Math.min(((dayKcalMap[date] ?? 0) / goals.kcal) * 100, 100);
+                return (
+                  <button
+                    key={date}
+                    onClick={() => setActiveDate(date)}
+                    className={cn(
+                      "flex flex-col items-center px-3 py-1.5 rounded-sm transition-colors min-w-[48px]",
+                      isActive
+                        ? "bg-[#facc15]/10 border border-[#facc15]/30"
+                        : "hover:bg-[#0d0d0d] border border-transparent",
+                    )}
+                  >
+                    <span className={cn("text-[9px] uppercase tracking-widest font-mono", isActive ? "text-[#facc15]" : "text-[#555]")}>
+                      {shortDay(date, lang)}
+                    </span>
+                    <span className={cn("text-sm font-bold font-mono mt-0.5", isActive ? "text-[#facc15]" : isToday ? "text-[#e0e0e0]" : "text-[#444]")}>
+                      {dayNum(date)}
+                    </span>
+                    <div className="w-full h-0.5 bg-[#1a1a1a] rounded-full mt-1.5 overflow-hidden">
+                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: isActive ? "#facc15" : "#333" }} />
+                    </div>
+                    {isToday && !isActive && <span className="w-1 h-1 rounded-full bg-[#facc15]/60 mt-1" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ── Daily summary ── */}
+          <div className="flex items-center justify-center gap-3 text-[10px] font-mono flex-wrap">
+            <span className="text-[#facc15]">{Math.round(dayTotals.kcal)} kcal</span>
+            <span className="text-[#1c1c1c]">·</span>
+            <span className="text-[#ec4899]">{Math.round(dayTotals.protein)}g {t(lang, "diet_protein").toLowerCase()}</span>
+            <span className="text-[#1c1c1c]">·</span>
+            <span className="text-[#f59e0b]">{Math.round(dayTotals.carbs)}g {t(lang, "diet_carbs").toLowerCase()}</span>
+            <span className="text-[#1c1c1c]">·</span>
+            <span className="text-[#2a2a2a]">/ {goals.kcal} kcal {t(lang, "diet_target").toLowerCase()}</span>
+          </div>
+
+          {/* ── Timeline + Meals ── */}
           <AnimatePresence mode="wait">
             <motion.div
               key={activeDate}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
+              exit={{ opacity: 0, y: -6 }}
               transition={{ duration: 0.18 }}
-              className="space-y-3"
+              className="relative"
             >
-              {activeDayData.meals.map((meal) => (
-                <MealSlotCard
-                  key={meal.slot}
-                  slot={meal.slot}
-                  time={meal.time}
-                  ingredients={meal.ingredients}
-                  lang={lang}
-                />
-              ))}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+              {/* Vertical timeline line */}
+              <div className="absolute left-[66px] top-0 bottom-0 w-px bg-[#0f0f0f]" />
 
-        {/* ── right: macros + shopping ─────── */}
-        <div className="col-span-12 lg:col-span-5 space-y-3">
-          {/* tab switcher */}
-          <div className="flex border border-[#1f1f1f] bg-[#0a0a0a] rounded-sm p-0.5">
-            {(["macros", "shopping"] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setRightTab(tab)}
-                className={cn(
-                  "flex-1 flex items-center justify-center gap-2 py-2 rounded-sm text-[10px] uppercase tracking-widest font-mono transition-colors",
-                  rightTab === tab
-                    ? "bg-[#facc15]/10 text-[#facc15] border border-[#facc15]/20"
-                    : "text-[#555] hover:text-[#888]",
-                )}
-              >
-                {tab === "macros" ? (
-                  <BarChart3 size={11} />
-                ) : (
-                  <ShoppingCart size={11} />
-                )}
-                {tab === "macros"
-                  ? t(lang, "diet_macros")
-                  : t(lang, "diet_shopping_list")}
-                {tab === "shopping" && uncheckedCount > 0 && (
-                  <span className="ml-1 bg-[#facc15]/20 text-[#facc15] text-[9px] px-1.5 py-0.5 rounded-full font-mono">
-                    {uncheckedCount}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-
-          <AnimatePresence mode="wait">
-            {rightTab === "macros" ? (
-              <motion.div
-                key="macros"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="border border-[#1f1f1f] bg-[#0a0a0a] rounded-sm p-5 space-y-5"
-              >
-                {/* kcal ring */}
-                <div className="flex flex-col items-center gap-2">
-                  <span className="text-[9px] uppercase tracking-widest text-[#444] font-mono">
-                    {t(lang, "diet_progress_ring")}
-                  </span>
-                  <KcalRing consumed={dayTotals.kcal} target={goals.kcal} />
-                  <div className="flex gap-4 text-[10px] font-mono">
-                    <div className="flex flex-col items-center gap-0.5">
-                      <span className="text-[#444] uppercase tracking-widest text-[9px]">
-                        {t(lang, "diet_target")}
-                      </span>
-                      <span className="text-[#888]">{goals.kcal}</span>
-                    </div>
-                    <div className="flex flex-col items-center gap-0.5">
-                      <span className="text-[#444] uppercase tracking-widest text-[9px]">
-                        {t(lang, "diet_consumed")}
-                      </span>
-                      <span className="text-[#facc15]">
-                        {Math.round(dayTotals.kcal)}
-                      </span>
-                    </div>
-                    <div className="flex flex-col items-center gap-0.5">
-                      <span className="text-[#444] uppercase tracking-widest text-[9px]">
-                        {t(lang, "diet_remaining")}
-                      </span>
-                      <span className="text-[#888]">
-                        {Math.max(0, Math.round(goals.kcal - dayTotals.kcal))}
-                      </span>
-                    </div>
-                  </div>
+              {/* Empty state */}
+              {sortedMeals.length === 0 && (
+                <div className="flex items-center justify-center py-16 text-[#2a2a2a] text-xs font-mono uppercase tracking-widest">
+                  —
                 </div>
+              )}
 
-                <div className="border-t border-[#141414]" />
-
-                {/* macro bars */}
-                <div className="space-y-3">
-                  <MacroBar
-                    label={t(lang, "diet_protein")}
-                    value={dayTotals.protein}
-                    target={goals.protein}
-                    color="#ec4899"
-                  />
-                  <MacroBar
-                    label={t(lang, "diet_carbs")}
-                    value={dayTotals.carbs}
-                    target={goals.carbs}
-                    color="#f59e0b"
-                  />
-                  <MacroBar
-                    label={t(lang, "diet_fat")}
-                    value={dayTotals.fat}
-                    target={goals.fat}
-                    color="#a855f7"
-                  />
-                </div>
-
-                {/* macro legend dots */}
-                <div className="grid grid-cols-3 gap-2 pt-1">
-                  {[
-                    {
-                      label: t(lang, "diet_protein"),
-                      pct: ((dayTotals.protein * 4) / dayTotals.kcal) * 100,
-                      color: "#ec4899",
-                    },
-                    {
-                      label: t(lang, "diet_carbs"),
-                      pct: ((dayTotals.carbs * 4) / dayTotals.kcal) * 100,
-                      color: "#f59e0b",
-                    },
-                    {
-                      label: t(lang, "diet_fat"),
-                      pct: ((dayTotals.fat * 9) / dayTotals.kcal) * 100,
-                      color: "#a855f7",
-                    },
-                  ].map(({ label, pct, color }) => (
-                    <div
-                      key={label}
-                      className="border border-[#1a1a1a] rounded-sm p-2 flex flex-col items-center gap-1"
-                    >
-                      <span
-                        className="text-sm font-bold font-mono tabular-nums"
-                        style={{ color }}
-                      >
-                        {isNaN(pct) ? "—" : `${Math.round(pct)}%`}
-                      </span>
-                      <span className="text-[9px] uppercase tracking-widest text-[#444]">
-                        {label}
-                      </span>
+              {timelineItems.map((item, i) => {
+                if (item.type === "hour") {
+                  return (
+                    <div key={`h-${item.time}-${i}`} className="flex items-center h-7">
+                      <div className="w-[66px] text-right pr-3 shrink-0">
+                        <span className="text-[7px] font-mono text-[#181818]">{item.time}</span>
+                      </div>
+                      <div className="w-1 h-1 rounded-full bg-[#141414] relative z-10" />
                     </div>
-                  ))}
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="shopping"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
-                className="border border-[#1f1f1f] bg-[#0a0a0a] rounded-sm overflow-hidden"
-              >
-                {/* shopping list toolbar */}
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-[#1a1a1a]">
-                  <button
-                    onClick={handleGenerate}
-                    disabled={generating}
-                    className={cn(
-                      "flex items-center gap-1.5 text-[10px] uppercase tracking-widest font-mono px-3 py-1.5 border rounded-sm transition-colors",
-                      listGenerated
-                        ? "border-[#22c55e]/30 text-[#22c55e] bg-[#22c55e]/5 cursor-default"
-                        : "border-[#facc15]/20 text-[#facc15] hover:bg-[#facc15]/5",
-                    )}
+                  );
+                }
+
+                const { meal: mealSlot } = item;
+                const meal = MEAL_MAP[mealSlot.mealId];
+                if (!meal) return null;
+                const slotColor = SLOT_COLORS[mealSlot.slot];
+
+                return (
+                  <div
+                    key={`meal-${activeDate}-${mealSlot.originalIdx}`}
+                    className="flex items-start mb-3"
                   >
-                    {generating ? (
-                      <RefreshCw size={10} className="animate-spin" />
-                    ) : listGenerated ? (
-                      <Check size={10} />
-                    ) : (
-                      <RefreshCw size={10} />
-                    )}
-                    {listGenerated
-                      ? t(lang, "diet_generated")
-                      : t(lang, "diet_generate_list")}
-                  </button>
-                  <div className="ml-auto flex items-center gap-2">
+                    {/* Timeline: time + dot */}
+                    <div className="w-[66px] shrink-0 flex items-center justify-end gap-2 pt-[18px]">
+                      <span className="text-[9px] font-mono text-[#444]">{mealSlot.time}</span>
+                      <div
+                        className="w-2.5 h-2.5 rounded-full border-2 bg-[#050505] relative z-10 shrink-0"
+                        style={{ borderColor: slotColor }}
+                      />
+                    </div>
+
+                    {/* Carousel + search */}
+                    <div className="flex-1 pl-4 min-w-0">
+                      <MealCarousel
+                        slot={mealSlot.slot}
+                        mealId={mealSlot.mealId}
+                        time={mealSlot.time}
+                        dateKey={activeDate}
+                        onOpen={(m) =>
+                          onMealSelect?.({ meal: m, slot: mealSlot.slot, time: mealSlot.time })
+                        }
+                        onMealChange={(newId) => handleMealChange(mealSlot.originalIdx, newId)}
+                      />
+                    </div>
+
+                    {/* Remove */}
                     <button
-                      onClick={uncheckAll}
-                      className="text-[9px] uppercase tracking-widest text-[#444] hover:text-[#888] font-mono transition-colors"
+                      onClick={() => handleRemoveMeal(mealSlot.originalIdx)}
+                      className="p-2 text-[#1c1c1c] hover:text-[#ef4444] transition-colors shrink-0 mt-3.5"
+                      title={t(lang, "diet_remove_meal")}
                     >
-                      {t(lang, "diet_uncheck_all")}
+                      <Trash2 size={13} />
                     </button>
                   </div>
-                </div>
+                );
+              })}
 
-                {/* grouped items */}
-                <div className="max-h-[420px] overflow-y-auto custom-scrollbar divide-y divide-[#0f0f0f]">
-                  {CAT_ORDER.filter((cat) => groupedShopping[cat]).map(
-                    (cat) => (
-                      <div key={cat}>
-                        {/* category header */}
-                        <div className="sticky top-0 flex items-center gap-2 px-4 py-2 bg-[#0a0a0a] border-b border-[#141414]">
-                          <span
-                            className="w-1.5 h-1.5 rounded-full"
-                            style={{ background: CAT_COLORS[cat] }}
-                          />
-                          <span
-                            className="text-[9px] uppercase tracking-widest font-mono"
-                            style={{ color: CAT_COLORS[cat] }}
-                          >
-                            {t(lang, catLabelKey(cat))}
-                          </span>
-                          <span className="ml-auto text-[9px] font-mono text-[#333]">
-                            {
-                              groupedShopping[cat]!.filter((i) => !i.checked)
-                                .length
-                            }
-                            /{groupedShopping[cat]!.length}
-                          </span>
-                        </div>
-
-                        {/* items */}
-                        {groupedShopping[cat]!.map((item) => (
-                          <button
-                            key={item.id}
-                            onClick={() => toggleItem(item.id)}
-                            className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-[#0d0d0d] transition-colors group"
-                          >
-                            <span
-                              className={cn(
-                                "w-4 h-4 rounded-sm border flex items-center justify-center shrink-0 transition-colors",
-                                item.checked
-                                  ? "border-[#22c55e] bg-[#22c55e]/15"
-                                  : "border-[#2a2a2a] group-hover:border-[#333]",
-                              )}
-                            >
-                              {item.checked && (
-                                <Check size={10} className="text-[#22c55e]" />
-                              )}
-                            </span>
-                            <span
-                              className={cn(
-                                "text-xs flex-1 text-left transition-colors",
-                                item.checked
-                                  ? "text-[#444] line-through"
-                                  : "text-[#ccc]",
-                              )}
-                            >
-                              {item.name}
-                            </span>
-                            <span
-                              className={cn(
-                                "text-[10px] font-mono tabular-nums transition-colors",
-                                item.checked ? "text-[#333]" : "text-[#555]",
-                              )}
-                            >
-                              {item.amount >= 1000
-                                ? `${(item.amount / 1000).toFixed(1)} kg`
-                                : `${item.amount} ${item.unit}`}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    ),
-                  )}
-                </div>
-
-                {/* footer count */}
-                <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#1a1a1a] bg-[#050505]">
-                  <span className="text-[9px] uppercase tracking-widest text-[#444] font-mono">
-                    {uncheckedCount} {t(lang, "diet_items_left")}
-                  </span>
-                  <button
-                    onClick={checkAll}
-                    className="text-[9px] uppercase tracking-widest text-[#444] hover:text-[#facc15] font-mono transition-colors"
-                  >
-                    {t(lang, "diet_check_all")}
-                  </button>
-                </div>
-              </motion.div>
-            )}
+              {/* Add meal button */}
+              <div className="flex items-center mt-4 mb-2 pl-[78px]">
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="flex items-center gap-1.5 text-[9px] uppercase tracking-widest font-mono text-[#222] hover:text-[#facc15] border border-[#111] hover:border-[#facc15]/20 px-3 py-1.5 rounded-sm transition-colors"
+                >
+                  <Plus size={10} />
+                  {t(lang, "diet_add_meal")}
+                </button>
+              </div>
+            </motion.div>
           </AnimatePresence>
+
         </div>
       </div>
+
+      {/* Add modal */}
+      <AnimatePresence>
+        {showAddModal && (
+          <AddMealModal
+            onAdd={handleAddMeal}
+            onClose={() => setShowAddModal(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

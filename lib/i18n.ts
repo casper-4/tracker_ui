@@ -42,6 +42,10 @@ export const translations = {
     chart_days_ago: "dni temu",
     chart_days: "dni",
     chart_range_custom: "Własny",
+    chart_range_7d: "7d",
+    chart_range_30d: "30d",
+    chart_range_6m: "6m",
+    chart_range_1y: "1y",
 
     // Quest detail
     quest_detail_title: "Szczegóły questu",
@@ -156,6 +160,20 @@ export const translations = {
     diet_cat_other: "Inne",
     diet_items_left: "pozycji",
     diet_progress_ring: "Dzienne kcal",
+    diet_meal_ingredients: "Składniki",
+    diet_meal_swap: "Zamień posiłek",
+    diet_swap_title: "Zamień na...",
+    diet_swap_search: "Szukaj posiłku...",
+    diet_swap_cancel: "Anuluj",
+    diet_weekly_macros: "Cel tygodniowy",
+    diet_weekly_kcal: "Kcal tyg.",
+    diet_weekly_protein: "Białko tyg.",
+    diet_weekly_carbs: "Węgle tyg.",
+    diet_per_week: "/ tydzień",
+    diet_close_panel: "Zamknij",
+    diet_add_meal: "Dodaj posiłek",
+    diet_remove_meal: "Usuń",
+    diet_add_meal_auto: "zostanie wstępnie wybrany",
 
     // Health
     nav_health: "Zdrowie",
@@ -244,6 +262,10 @@ export const translations = {
     chart_days_ago: "days ago",
     chart_days: "days",
     chart_range_custom: "Custom",
+    chart_range_7d: "7d",
+    chart_range_30d: "30d",
+    chart_range_6m: "6m",
+    chart_range_1y: "1y",
 
     // Quest detail
     quest_detail_title: "Quest Details",
@@ -358,6 +380,20 @@ export const translations = {
     diet_cat_other: "Other",
     diet_items_left: "items",
     diet_progress_ring: "Daily kcal",
+    diet_meal_ingredients: "Ingredients",
+    diet_meal_swap: "Swap meal",
+    diet_swap_title: "Swap for...",
+    diet_swap_search: "Search meals...",
+    diet_swap_cancel: "Cancel",
+    diet_weekly_macros: "Weekly Goal",
+    diet_weekly_kcal: "Kcal wk.",
+    diet_weekly_protein: "Protein wk.",
+    diet_weekly_carbs: "Carbs wk.",
+    diet_per_week: "/ week",
+    diet_close_panel: "Close",
+    diet_add_meal: "Add meal",
+    diet_remove_meal: "Remove",
+    diet_add_meal_auto: "will be pre-selected",
 
     // Health
     nav_health: "Health",

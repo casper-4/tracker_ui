@@ -1,7 +1,16 @@
 "use client";
 
-import { useMemo, useState, useCallback, useRef } from "react";
+import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { Pin, RefreshCw } from "lucide-react";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 import { radarNPolygon, roundSvg } from "@/app/components/radar";
 import { MOCK_SKILLS, MOCK_QUESTS, MOCK_STATUS_COLORS } from "@/lib/mock";
 import type { Quest, QuestStatus } from "@/lib/mock";
@@ -111,6 +120,9 @@ export default function SkillDetailPage({
   const { lang } = useLang();
   // TODO: [DATA] persistence will go here — using simple useState without persistence
   const [pinnedIds, setPinnedIds] = useState<string[]>([]);
+  const [selectedAspectId, setSelectedAspectId] = useState<string | null>(null);
+  const [hoveredAspectId, setHoveredAspectId] = useState<string | null>(null);
+  const [chartRange, setChartRange] = useState<7 | 30 | 180 | 365>(30);
   const [questStatuses, setQuestStatuses] = useState<
     Record<string, QuestStatus>
   >({});
@@ -160,6 +172,10 @@ export default function SkillDetailPage({
     }
     return MOCK_SKILLS[0];
   }, [skillId]);
+
+  useEffect(() => {
+    setSelectedAspectId(null);
+  }, [skill.id]);
 
   const getEffectiveStatus = useCallback(
     (questId: string): QuestStatus => {
@@ -228,6 +244,100 @@ export default function SkillDetailPage({
     aspects.length > 0
       ? radarNPolygon(aspects.map((a) => a.completionPercentage))
       : null;
+  const radarGoal =
+    aspects.length > 0
+      ? radarNPolygon(aspects.map(() => 100))
+      : null;
+
+  const chartData = useMemo(() => {
+    if (aspects.length === 0 || !aspects[0].history?.length) return [];
+    const len = aspects[0].history.length;
+    return Array.from({ length: len }, (_, i) => {
+      const daysAgo = len - 1 - i;
+      const point: Record<string, number> = { daysAgo };
+      aspects.forEach((a) => {
+        point[a.id] = a.history[i];
+      });
+      return point;
+    });
+  }, [aspects]);
+
+  const visibleChartData = useMemo(
+    () => chartData.slice(-chartRange),
+    [chartData, chartRange],
+  );
+
+  const xAxisInterval = useMemo(() => {
+    if (chartRange === 7) return 0;
+    if (chartRange === 30) return 4;
+    if (chartRange === 180) return 29;
+    return 60; // 365
+  }, [chartRange]);
+
+  const formatXTick = useCallback(
+    (v: number): string => {
+      if (v === 0) return t(lang, "chart_today");
+      if (chartRange <= 30) return `${v}d`;
+      const d = new Date();
+      d.setDate(d.getDate() - v);
+      return d.toLocaleDateString(lang === "pl" ? "pl-PL" : "en-US", {
+        month: "short",
+        day: "numeric",
+      });
+    },
+    [chartRange, lang],
+  );
+
+  const renderAspectTooltip = useCallback(
+    (props: {
+      active?: boolean;
+      payload?: Array<{ dataKey?: string; value?: number }>;
+      label?: number;
+    }) => {
+      const { active, payload, label } = props;
+      if (!active || !payload?.length) return null;
+      const dayLabel =
+        label === 0
+          ? t(lang, "chart_today")
+          : `${label} ${t(lang, "chart_days_ago")}`;
+      const filtered = payload.filter(
+        (e) =>
+          selectedAspectId === null || e.dataKey === selectedAspectId,
+      );
+      return (
+        <div className="bg-[#0a0a0a] border border-[#333] p-3 min-w-[140px] shadow-xl">
+          <p className="text-[10px] text-[#555] uppercase tracking-widest mb-2">
+            {dayLabel}
+          </p>
+          {filtered.map((entry) => {
+            const aspect = aspects.find((a) => a.id === entry.dataKey);
+            if (!aspect) return null;
+            return (
+              <div
+                key={entry.dataKey}
+                className="flex items-center gap-2 mb-1 last:mb-0"
+              >
+                <span
+                  className="w-2 h-2 rounded-full shrink-0"
+                  style={{ backgroundColor: aspect.color }}
+                />
+                <span className="text-[10px] text-[#888] uppercase tracking-wide flex-1">
+                  {aspect.name}
+                </span>
+                <span
+                  className="text-[10px] font-mono font-bold"
+                  style={{ color: aspect.color }}
+                >
+                  {entry.value}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      );
+    },
+    [aspects, lang, selectedAspectId],
+  );
 
   // Group subskills by aspect for the tree
   const subSkillsByAspect = new Map(
@@ -258,19 +368,21 @@ export default function SkillDetailPage({
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Neural radar & aspects */}
+      {/* Neural map & aspect progress chart */}
       <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6">
-        <h3 className="text-[10px] text-[#facc15] uppercase tracking-widest mb-4">
+        <h3 className="text-[10px] text-[#555] uppercase tracking-widest mb-4">
           {t(lang, "skill_neural_map").toUpperCase()}
         </h3>
 
-        <div className="flex items-start gap-6">
-          <div className="flex-1 flex items-center justify-center">
+        <div className="grid grid-cols-3 gap-8 items-start">
+          {/* ── Neural map (1 col) ── */}
+          <div className="flex flex-col items-center">
             {radar ? (
               <svg
                 viewBox="0 0 100 100"
-                className="w-full max-w-[320px] overflow-visible"
+                className="w-full max-w-[240px] overflow-visible"
               >
+                {/* Concentric grid rings */}
                 {[40, 26.7, 13.3].map((maxR, ri) => {
                   const n = aspects.length;
                   const pts = Array.from({ length: n }, (_, i) => {
@@ -289,87 +401,272 @@ export default function SkillDetailPage({
                     />
                   );
                 })}
-                <polygon
-                  points={radar.points}
-                  fill="rgba(250,204,21,0.08)"
-                  stroke={skillColor}
-                  strokeWidth="1.5"
-                />
-                {radar.pts.map((p, i) => (
-                  <circle key={i} cx={p.x} cy={p.y} r="1.5" fill={skillColor} />
-                ))}
-                {aspects.map((a, i) => {
+                {/* Axis lines from center — dashed */}
+                {aspects.map((_, i) => {
                   const n = aspects.length;
                   const angle = (i * 360) / n;
                   const rad = (angle * Math.PI) / 180;
-                  const dist = 46;
-                  const x = roundSvg(50 + dist * Math.sin(rad));
-                  const y = roundSvg(50 - dist * Math.cos(rad));
+                  const x = roundSvg(50 + 40 * Math.sin(rad));
+                  const y = roundSvg(50 - 40 * Math.cos(rad));
                   return (
-                    <text
+                    <line
                       key={i}
-                      x={x}
-                      y={y}
-                      fill="#888"
-                      fontSize="3"
-                      textAnchor="middle"
-                      className="uppercase tracking-widest"
+                      x1="50"
+                      y1="50"
+                      x2={x}
+                      y2={y}
+                      stroke="#1f1f1f"
+                      strokeWidth="0.5"
+                      strokeDasharray="2,2"
+                    />
+                  );
+                })}
+                {/* Goal outline (100%) — dashed */}
+                {radarGoal && (
+                  <polygon
+                    points={radarGoal.points}
+                    fill="none"
+                    stroke="#333"
+                    strokeWidth="0.6"
+                    strokeDasharray="3,3"
+                  />
+                )}
+                {/* Colored sector triangles — one per aspect */}
+                {radar.pts.map((p, i) => {
+                  const a = aspects[i];
+                  const next = radar.pts[(i + 1) % aspects.length];
+                  const isActive =
+                    hoveredAspectId === a.id || selectedAspectId === a.id;
+                  return (
+                    <polygon
+                      key={`sector-${i}`}
+                      points={`50,50 ${p.x},${p.y} ${next.x},${next.y}`}
+                      fill={isActive ? `${a.color}38` : `${a.color}18`}
+                      stroke={a.color}
+                      strokeWidth={isActive ? "1.2" : "0.7"}
+                      strokeLinejoin="round"
+                      style={{
+                        transition:
+                          "fill 0.15s ease, stroke-width 0.15s ease",
+                      }}
+                    />
+                  );
+                })}
+                {/* Per-aspect interactive group: hit target + ring + dot + label */}
+                {radar.pts.map((p, i) => {
+                  const a = aspects[i];
+                  const n = aspects.length;
+                  const angle = (i * 360) / n;
+                  const rad = (angle * Math.PI) / 180;
+                  const dist = 47;
+                  const lx = roundSvg(50 + dist * Math.sin(rad));
+                  const ly = roundSvg(50 - dist * Math.cos(rad));
+                  const isHovered = hoveredAspectId === a.id;
+                  const isSelected = selectedAspectId === a.id;
+                  const isActive = isHovered || isSelected;
+                  return (
+                    <g
+                      key={i}
+                      style={{ cursor: "pointer", outline: "none" }}
+                      onClick={() =>
+                        setSelectedAspectId((prev) =>
+                          prev === a.id ? null : a.id,
+                        )
+                      }
+                      onMouseEnter={() => setHoveredAspectId(a.id)}
+                      onMouseLeave={() => setHoveredAspectId(null)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedAspectId((prev) =>
+                            prev === a.id ? null : a.id,
+                          );
+                        }
+                      }}
                     >
-                      {a.name}
-                    </text>
+                      {/* invisible hit target */}
+                      <circle cx={p.x} cy={p.y} r="5" fill="transparent" />
+                      {/* pulse ring on hover or selection */}
+                      {isActive && (
+                        <circle
+                          cx={p.x}
+                          cy={p.y}
+                          r="4"
+                          fill="none"
+                          stroke={a.color}
+                          strokeWidth="0.6"
+                          opacity="0.7"
+                        />
+                      )}
+                      {/* data dot */}
+                      <circle
+                        cx={p.x}
+                        cy={p.y}
+                        r={isActive ? 2.5 : 1.5}
+                        fill={a.color}
+                        style={{ transition: "r 0.15s ease" }}
+                      />
+                      {/* label */}
+                      <text
+                        x={lx}
+                        y={ly}
+                        fill={isSelected ? "#facc15" : isHovered ? a.color : a.color}
+                        fontSize="3.5"
+                        textAnchor="middle"
+                        dominantBaseline="middle"
+                        opacity={isActive ? 1 : 0.7}
+                        className="uppercase tracking-widest"
+                        style={{ transition: "fill 0.15s ease, opacity 0.15s ease" }}
+                      >
+                        {a.name}
+                      </text>
+                    </g>
                   );
                 })}
               </svg>
             ) : (
-              <div className="text-[#666]">No aspects to display.</div>
+              <div className="text-[#666] text-sm">No aspects to display.</div>
             )}
           </div>
 
-          <div className="w-80">
-            <h4 className="text-sm text-white font-bold mb-3">
-              {t(lang, "skill_aspects")}
-            </h4>
-            <div className="flex flex-col gap-3">
-              {aspects.map((a) => (
-                <div key={a.id}>
-                  <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-[#888] mb-1">
-                    <span>{a.name}</span>
-                    <span style={{ color: skillColor }}>
-                      {a.completionPercentage}%
-                    </span>
-                  </div>
-                  <div className="w-full h-2 bg-[#1f1f1f] rounded-full">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${a.completionPercentage}%`,
-                        backgroundColor: skillColor,
-                      }}
-                    />
-                  </div>
+          {/* ── Aspect progress line chart (2 cols) ── */}
+          <div className="col-span-2">
+            {visibleChartData.length > 0 ? (
+              <>
+                {/* Range selector */}
+                <div className="flex justify-end gap-1 mb-3">
+                  {(
+                    [
+                      [7, t(lang, "chart_range_7d")],
+                      [30, t(lang, "chart_range_30d")],
+                      [180, t(lang, "chart_range_6m")],
+                      [365, t(lang, "chart_range_1y")],
+                    ] as [7 | 30 | 180 | 365, string][]
+                  ).map(([r, label]) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setChartRange(r)}
+                      className={`px-2 py-0.5 text-[10px] uppercase tracking-widest border transition-colors ${
+                        chartRange === r
+                          ? "border-[#facc15] text-[#facc15] bg-[#facc15]/5"
+                          : "border-[#1f1f1f] text-[#555] hover:border-[#333] hover:text-[#888]"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
-              ))}
-            </div>
+
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart
+                    data={visibleChartData}
+                    margin={{ top: 4, right: 8, left: -16, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
+                    <XAxis
+                      dataKey="daysAgo"
+                      stroke="#333"
+                      tick={{ fontSize: 10, fill: "#555" }}
+                      tickFormatter={formatXTick}
+                      interval={xAxisInterval}
+                    />
+                    <YAxis
+                      stroke="#333"
+                      tick={{ fontSize: 10, fill: "#555" }}
+                      domain={[0, 100]}
+                      ticks={[0, 25, 50, 75, 100]}
+                      tickFormatter={(v) => `${v}%`}
+                    />
+                    <Tooltip
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      content={renderAspectTooltip as any}
+                      cursor={{ stroke: "#333", strokeWidth: 1 }}
+                    />
+                    {aspects.map((a) => {
+                      const isSelected = selectedAspectId === a.id;
+                      const dimmed =
+                        selectedAspectId !== null && !isSelected;
+                      return (
+                        <Line
+                          key={a.id}
+                          type="monotone"
+                          dataKey={a.id}
+                          stroke={a.color}
+                          strokeWidth={isSelected ? 3 : dimmed ? 1 : 2}
+                          strokeOpacity={dimmed ? 0.2 : 1}
+                          dot={false}
+                          activeDot={{
+                            r: 4,
+                            fill: a.color,
+                            strokeWidth: 0,
+                          }}
+                        />
+                      );
+                    })}
+                  </LineChart>
+                </ResponsiveContainer>
+
+                {/* Aspect legend — clickable, centred */}
+                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 justify-center">
+                  {aspects.map((a) => {
+                    const isSelected = selectedAspectId === a.id;
+                    const dimmed =
+                      selectedAspectId !== null && !isSelected;
+                    return (
+                      <button
+                        key={a.id}
+                        type="button"
+                        onClick={() =>
+                          setSelectedAspectId((prev) =>
+                            prev === a.id ? null : a.id,
+                          )
+                        }
+                        className="flex items-center gap-1.5 transition-opacity"
+                        style={{ opacity: dimmed ? 0.3 : 1 }}
+                      >
+                        <span
+                          className="w-4 h-px inline-block"
+                          style={{ backgroundColor: a.color }}
+                        />
+                        <span
+                          className="text-[9px] uppercase tracking-widest"
+                          style={{
+                            color: isSelected ? a.color : "#666",
+                          }}
+                        >
+                          {a.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div className="text-[#666] text-sm">No history data.</div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Quests: In Progress | Planned | Pinned — drag-and-drop between columns */}
       <section className="mt-6 border border-[#1f1f1f] bg-[#0a0a0a] p-6">
-        <h3 className="text-[10px] text-[#facc15] uppercase tracking-widest mb-4">
+        <h3 className="text-[10px] text-[#555] uppercase tracking-widest mb-4">
           Quests
         </h3>
         <div className="grid grid-cols-3 gap-4">
           {[
             {
-              key: "in_progress" as const,
-              label: t(lang, "quests_in_progress"),
-              quests: questsInProgress,
-            },
-            {
               key: "planned" as const,
               label: t(lang, "quests_planned"),
               quests: questsPlanned,
+            },
+            {
+              key: "in_progress" as const,
+              label: t(lang, "quests_in_progress"),
+              quests: questsInProgress,
             },
             {
               key: "pinned" as const,
@@ -502,7 +799,7 @@ export default function SkillDetailPage({
 
       {/* Tree: aspects → subskills → quests */}
       <section className="mt-10 border border-[#1f1f1f] bg-[#0a0a0a] p-6">
-        <h3 className="text-[10px] text-[#facc15] uppercase tracking-widest mb-6">
+        <h3 className="text-[10px] text-[#555] uppercase tracking-widest mb-6">
           {t(lang, "skill_structure").toUpperCase()}
         </h3>
         <div className="space-y-6">

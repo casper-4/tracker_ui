@@ -142,12 +142,23 @@ export default function DashboardPage({
                   />
                 );
               })}
-              <polygon
-                points={mainPlanRadar.points}
-                fill="rgba(250, 204, 21, 0.1)"
-                stroke="#facc15"
-                strokeWidth="1.5"
-              />
+              {MOCK_SKILLS.map((s, i) => {
+                const next = (i + 1) % MOCK_SKILLS.length;
+                const thisPoint = mainPlanRadar.pts[i];
+                const nextPoint = mainPlanRadar.pts[next];
+                const isActive = hoveredSkillId === s.id;
+                return (
+                  <polygon
+                    key={`sector-${i}`}
+                    points={`50,50 ${thisPoint.x},${thisPoint.y} ${nextPoint.x},${nextPoint.y}`}
+                    fill={isActive ? `${s.color}35` : `${s.color}18`}
+                    stroke={s.color}
+                    strokeWidth={isActive ? "1.2" : "0.7"}
+                    strokeLinejoin="round"
+                    style={{ transition: "fill 0.15s ease, stroke-width 0.15s ease" }}
+                  />
+                );
+              })}
               {MOCK_SKILLS.map((s, i) => {
                 const deg = (i * 360) / MOCK_SKILLS.length;
                 const rad = (deg * Math.PI) / 180;
@@ -184,9 +195,9 @@ export default function DashboardPage({
                         cy={dot.y}
                         r="4"
                         fill="none"
-                        stroke="#facc15"
+                        stroke={s.color}
                         strokeWidth="0.6"
-                        opacity="0.5"
+                        opacity="0.7"
                       />
                     )}
                     {/* data dot */}
@@ -194,7 +205,7 @@ export default function DashboardPage({
                       cx={dot.x}
                       cy={dot.y}
                       r={isActive ? "2.5" : "1.5"}
-                      fill={isActive ? "#facc15" : "#facc15"}
+                      fill={s.color}
                       style={{ transition: "r 0.15s ease" }}
                     />
                     <text

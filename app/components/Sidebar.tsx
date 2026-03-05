@@ -179,10 +179,19 @@ const Sidebar = ({
                                     setSelectedSkillId?.(skill.id);
                                     setActiveTab(TAB_SKILL_DETAIL);
                                   }}
+                                  style={
+                                    isActive
+                                      ? {
+                                          color: skill.color,
+                                          borderLeftColor: skill.color,
+                                          backgroundColor: `${skill.color}0d`,
+                                        }
+                                      : undefined
+                                  }
                                   className={`w-full text-left text-[10px] py-1.5 px-2 transition-colors uppercase tracking-widest ${
                                     isActive
-                                      ? "text-[#facc15] bg-[#facc15]/5 border-l-2 border-[#facc15] -ml-0.5 pl-2.5"
-                                      : "text-[#888] hover:text-[#facc15]"
+                                      ? "border-l-2 -ml-0.5 pl-2.5"
+                                      : "text-[#888] hover:text-[#ccc]"
                                   }`}
                                 >
                                   {skill.name}

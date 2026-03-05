@@ -165,9 +165,9 @@ export default function TopBar({
             ) : (
               <span className="text-[#facc15] text-glow-yellow">{title}</span>
             )
-          ) : (
-            <span className="text-[#facc15] text-glow-yellow">{title}</span>
-          )}
+  ) : (
+    <span style={{ color: skillColor ?? "#facc15" }}>{title}</span>
+  )}
         </h2>
         {description ? (
           <p className="text-sm text-[#888] mt-2 truncate">{description}</p>

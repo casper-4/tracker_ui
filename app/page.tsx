@@ -15,7 +15,8 @@ import Sidebar from "@/app/components/Sidebar";
 import TopBar from "@/app/components/TopBar";
 import QuestDetailPanel from "@/app/components/QuestDetailPanel";
 import { MOCK_QUESTS, MOCK_SKILLS } from "@/lib/mock";
-import type { Quest, QuestStatus } from "@/lib/mock";
+import type { Quest, QuestStatus, NamedMeal, MealSlotId } from "@/lib/mock";
+import MealDetailPanel from "@/app/components/MealDetailPanel";
 import {
   TAB_DASHBOARD,
   TAB_SKILLS,
@@ -61,6 +62,11 @@ export default function TrackerUI() {
   // Per-skill color overrides — keyed by skill ID
   // TODO: [DATA] save skill colors to persistence
   const [skillColors, setSkillColors] = useState<Record<string, string>>({});
+  const [selectedMealForPanel, setSelectedMealForPanel] = useState<{
+    meal: NamedMeal;
+    slot: MealSlotId;
+    time: string;
+  } | null>(null);
 
   const getSkillColor = (id?: string): string => {
     if (!id) return "#666666";
@@ -196,9 +202,9 @@ export default function TrackerUI() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="max-w-6xl mx-auto"
+          className="flex-1 min-h-0 flex flex-col"
         >
-          <DietPage />
+          <DietPage onMealSelect={setSelectedMealForPanel} />
         </motion.div>
       );
     }
@@ -254,7 +260,7 @@ export default function TrackerUI() {
         />
         <div className="flex-1 flex min-h-0">
           <main
-            className={`flex-1 min-w-0 custom-scrollbar p-6 lg:p-10 xl:p-16 ${activeTab === TAB_CALENDAR ? "overflow-hidden flex flex-col" : "overflow-y-auto"}`}
+            className={`flex-1 min-w-0 custom-scrollbar p-6 lg:p-10 xl:p-16 ${activeTab === TAB_CALENDAR || activeTab === TAB_DIET ? "overflow-hidden flex flex-col" : "overflow-y-auto"}`}
           >
             <AnimatePresence mode="wait">{content}</AnimatePresence>
           </main>
@@ -268,6 +274,16 @@ export default function TrackerUI() {
                   skillById[selectedQuest.skill]?.name ?? selectedQuest.skill
                 }
                 onQuestChange={handleQuestChange}
+              />
+            )}
+          </AnimatePresence>
+          <AnimatePresence>
+            {activeTab === TAB_DIET && selectedMealForPanel && (
+              <MealDetailPanel
+                meal={selectedMealForPanel.meal}
+                slot={selectedMealForPanel.slot}
+                time={selectedMealForPanel.time}
+                onClose={() => setSelectedMealForPanel(null)}
               />
             )}
           </AnimatePresence>

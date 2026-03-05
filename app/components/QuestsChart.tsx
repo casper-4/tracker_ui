@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LineChart,
   Line,
@@ -27,12 +27,11 @@ interface ChartDataPoint {
   questsBy: Record<QuestStatus, Quest[]>;
 }
 
-type DropdownEntry = {
+type TooltipState = {
+  key: string;
   date: string;
   status: QuestStatus;
   quests: Quest[];
-  cx: number;
-  cy: number;
   left: number;
   top: number;
   pinned: boolean;
@@ -128,16 +127,19 @@ function cycleSlice(arr: Quest[], count: number): Quest[] {
   return result;
 }
 
-const CustomXTick = (props: Record<string, unknown>) => {
-  const { x, y, payload } = props as {
+const CustomXTick = (
+  props: Record<string, unknown> & { fontSize?: number },
+) => {
+  const { x, y, payload, fontSize = 11 } = props as {
     x: number;
     y: number;
     payload: { value: string };
+    fontSize?: number;
   };
   const words = payload.value.split(" ");
   return (
     <g transform={`translate(${x},${y})`}>
-      <text textAnchor="middle" fill="#666" fontSize={11}>
+      <text textAnchor="middle" fill="#666" fontSize={fontSize}>
         {words.map((word, i) => (
           <tspan key={i} x={0} dy={i === 0 ? "1.1em" : "1.3em"}>
             {word}
@@ -157,11 +159,22 @@ export default function QuestsChart({
   onQuestClick,
 }: QuestsChartProps) {
   const { lang } = useLang();
-  const [dropdowns, setDropdowns] = useState<Record<string, DropdownEntry>>({});
-  const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [rangeMode, setRangeMode] = useState<RangeMode>("14");
   const [customInput, setCustomInput] = useState("30");
+  const [containerWidth, setContainerWidth] = useState(800);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(([entry]) => {
+      setContainerWidth(entry.contentRect.width);
+    });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   void quests;
   void getSkillName;
@@ -172,6 +185,18 @@ export default function QuestsChart({
       : rangeMode === "14"
         ? 14
         : Math.max(1, Math.min(60, parseInt(customInput) || 14));
+
+  const isMobile = containerWidth < 500;
+  const isTablet = containerWidth < 768;
+  const chartHeight = isMobile ? 240 : isTablet ? 320 : 440;
+  const xAxisInterval = isMobile
+    ? Math.ceil(days / 4) - 1
+    : isTablet
+      ? Math.ceil(days / 7) - 1
+      : 0;
+  const xAxisHeight = isMobile ? 45 : 75;
+  const xAxisFontSize = isMobile ? 9 : 11;
+  const chartMarginBottom = isMobile ? 40 : 75;
 
   const allChartData = useMemo(() => {
     const now = new Date();
@@ -203,111 +228,142 @@ export default function QuestsChart({
 
   const chartData = allChartData.slice(-days);
 
-  // ── dropdown helpers ────────────────────────────────────────────────────────
+  // ── tooltip helpers ─────────────────────────────────────────────────────────
 
-  /** Compute pixel position for a dropdown anchored at (cx, cy) */
-  const resolvePos = (
-    cx: number,
-    cy: number,
-  ): { left: number; top: number } => {
-    const w = containerRef.current?.clientWidth ?? 800;
-    const h = containerRef.current?.clientHeight ?? 500;
-    const gap = 10;
-    const left = cx + gap + DROPDOWN_W > w ? cx - gap - DROPDOWN_W : cx + gap;
-    const top = cy + DROPDOWN_H > h ? cy - DROPDOWN_H : cy;
-    return { left, top };
-  };
+  const resolvePos = useCallback(
+    (cx: number, cy: number): { left: number; top: number } => {
+      const w = containerRef.current?.clientWidth ?? 800;
+      const h = containerRef.current?.clientHeight ?? 500;
+      const gap = 10;
+      const left =
+        cx + gap + DROPDOWN_W > w ? cx - gap - DROPDOWN_W : cx + gap;
+      const top = cy + DROPDOWN_H > h ? cy - DROPDOWN_H : cy;
+      return { left, top };
+    },
+    [],
+  );
 
-  const openDropdown = (key: string, entry: DropdownEntry) => {
-    clearTimeout(timers.current[key]);
-    const pos = resolvePos(entry.cx, entry.cy);
-    setDropdowns((prev) => ({
-      ...prev,
-      // preserve pinned state if already in state — only update position
-      [key]: prev[key] ? { ...prev[key], ...pos } : { ...entry, ...pos },
-    }));
-  };
+  const cancelClose = useCallback(() => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  }, []);
 
-  const scheduleClose = (key: string) => {
-    timers.current[key] = setTimeout(() => {
-      setDropdowns((prev) => {
-        if (prev[key]?.pinned) return prev;
-        const next = { ...prev };
-        delete next[key];
-        return next;
+  const openTooltip = useCallback(
+    (
+      key: string,
+      date: string,
+      status: QuestStatus,
+      quests: Quest[],
+      cx: number,
+      cy: number,
+    ) => {
+      cancelClose();
+      // skip setState entirely if same non-pinned tooltip is already shown
+      setTooltip((prev) => {
+        if (prev?.key === key && !prev.pinned) return prev;
+        const pos = resolvePos(cx, cy);
+        return {
+          key,
+          date,
+          status,
+          quests,
+          ...pos,
+          pinned: prev?.key === key ? prev.pinned : false,
+        };
       });
-    }, 60);
-  };
+    },
+    [cancelClose, resolvePos],
+  );
 
-  /** Click a dot: pin if not yet pinned, close if already pinned */
-  const togglePin = (key: string, entry: DropdownEntry) => {
-    clearTimeout(timers.current[key]);
-    setDropdowns((prev) => {
-      if (prev[key]?.pinned) {
-        // already pinned → close
-        const next = { ...prev };
-        delete next[key];
-        return next;
-      }
-      // not pinned yet → pin it (keep current position if already open)
-      const pos = resolvePos(entry.cx, entry.cy);
-      return {
-        ...prev,
-        [key]: { ...(prev[key] ?? entry), ...pos, pinned: true },
-      };
-    });
-  };
+  const scheduleClose = useCallback(() => {
+    cancelClose();
+    closeTimer.current = setTimeout(() => {
+      setTooltip((prev) => (prev?.pinned ? prev : null));
+    }, 80);
+  }, [cancelClose]);
 
-  const closeDropdown = (key: string) => {
-    clearTimeout(timers.current[key]);
-    setDropdowns((prev) => {
-      const next = { ...prev };
-      delete next[key];
-      return next;
-    });
-  };
+  const togglePin = useCallback(
+    (
+      key: string,
+      date: string,
+      status: QuestStatus,
+      quests: Quest[],
+      cx: number,
+      cy: number,
+    ) => {
+      cancelClose();
+      setTooltip((prev) => {
+        if (prev?.key === key && prev.pinned) return null;
+        const pos = resolvePos(cx, cy);
+        return {
+          key,
+          date,
+          status,
+          quests,
+          ...pos,
+          pinned: true,
+        };
+      });
+    },
+    [cancelClose, resolvePos],
+  );
 
-  const cancelClose = (key: string) => {
-    clearTimeout(timers.current[key]);
-  };
+  const closeTooltip = useCallback(() => {
+    cancelClose();
+    setTooltip(null);
+  }, [cancelClose]);
 
   // ── dot renderer factory ────────────────────────────────────────────────────
 
-  const makeDot = (status: QuestStatus) => (props: Record<string, unknown>) => {
-    const { cx, cy, payload } = props as {
-      cx: number;
-      cy: number;
-      payload: ChartDataPoint;
-    };
-    const key = `${payload.date}-${status}`;
-    const hasQuests = payload.questsBy[status].length > 0;
-    const entry: DropdownEntry = {
-      date: payload.date,
-      status,
-      quests: payload.questsBy[status],
-      cx,
-      cy,
-      left: 0,
-      top: 0,
-      pinned: false,
-    };
-    return (
-      <circle
-        key={key}
-        cx={cx}
-        cy={cy}
-        r={5}
-        fill={COLORS[status]}
-        style={{ cursor: hasQuests ? "pointer" : "default", outline: "none" }}
-        onMouseEnter={() => hasQuests && openDropdown(key, entry)}
-        onMouseLeave={() => scheduleClose(key)}
-        onClick={(e) => {
-          e.stopPropagation();
-          if (hasQuests) togglePin(key, entry);
-        }}
-      />
-    );
-  };
+  const makeDot = useCallback(
+    (status: QuestStatus) =>
+      (props: Record<string, unknown>) => {
+        const { cx, cy, payload } = props as {
+          cx: number;
+          cy: number;
+          payload: ChartDataPoint;
+        };
+        const key = `${payload.date}-${status}`;
+        const hasQuests = payload.questsBy[status].length > 0;
+        return (
+          <circle
+            key={key}
+            cx={cx}
+            cy={cy}
+            r={5}
+            fill={COLORS[status]}
+            style={{ cursor: hasQuests ? "pointer" : "default", outline: "none" }}
+            onMouseEnter={() =>
+              hasQuests &&
+              openTooltip(
+                key,
+                payload.date,
+                status,
+                payload.questsBy[status],
+                cx,
+                cy,
+              )
+            }
+            onMouseLeave={scheduleClose}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (hasQuests)
+                togglePin(
+                  key,
+                  payload.date,
+                  status,
+                  payload.questsBy[status],
+                  cx,
+                  cy,
+                );
+            }}
+          />
+        );
+      },
+    [openTooltip, scheduleClose, togglePin],
+  );
 
   const statusLabel = (status: QuestStatus): string => {
     if (status === "planned") return t(lang, "quests_planned");
@@ -330,13 +386,13 @@ export default function QuestsChart({
   );
 
   return (
-    <div className="mt-8 border border-[#1f1f1f] bg-[#0a0a0a] p-6">
+    <div className="mt-8 border border-[#1f1f1f] bg-[#0a0a0a] p-4 sm:p-6">
       {/* header row */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
         <h2 className="text-[10px] text-[#888] uppercase tracking-widest">
           Stats
         </h2>
-        <div className="flex items-center gap-1">
+        <div className="flex flex-wrap items-center gap-1">
           {rangeBtn("7", "7d")}
           {rangeBtn("14", "14d")}
           <button
@@ -372,23 +428,24 @@ export default function QuestsChart({
         ref={containerRef}
         className="relative w-full [&_*]:outline-none [&_*:focus]:outline-none [&_*:focus-visible]:outline-none"
       >
-        <ResponsiveContainer width="100%" height={440}>
+        <ResponsiveContainer width="100%" height={chartHeight}>
           <LineChart
             data={chartData}
-            margin={{ top: 10, right: 30, left: 0, bottom: 75 }}
+            margin={{ top: 10, right: isMobile ? 10 : 30, left: 0, bottom: chartMarginBottom }}
             tabIndex={-1}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />
             <XAxis
               dataKey="dayLabel"
               stroke="#666"
-              tick={CustomXTick}
-              height={75}
-              interval={0}
+              tick={(props) => <CustomXTick {...props} fontSize={xAxisFontSize} />}
+              height={xAxisHeight}
+              interval={xAxisInterval}
             />
             <YAxis
               stroke="#666"
-              tick={{ fontSize: 12, fill: "#666" }}
+              tick={{ fontSize: isMobile ? 10 : 12, fill: "#666" }}
+              width={isMobile ? 24 : 40}
               domain={[0, 7]}
               ticks={[0, 1, 2, 3, 4, 5, 6, 7]}
               allowDecimals={false}
@@ -432,36 +489,35 @@ export default function QuestsChart({
           </LineChart>
         </ResponsiveContainer>
 
-        {/* ── per-dot dropdowns ─────────────────────────────────────────────── */}
-        {Object.entries(dropdowns).map(([key, dd]) => (
+        {/* ── tooltip ───────────────────────────────────────────────────────── */}
+        {tooltip && (
           <div
-            key={key}
             className="absolute z-50 w-64 border border-[#333] bg-[#0a0a0a] shadow-2xl"
-            style={{ left: dd.left, top: dd.top }}
-            onMouseEnter={() => cancelClose(key)}
-            onMouseLeave={() => !dd.pinned && closeDropdown(key)}
+            style={{ left: tooltip.left, top: tooltip.top }}
+            onMouseEnter={cancelClose}
+            onMouseLeave={() => !tooltip.pinned && closeTooltip()}
           >
             <div className="flex items-center justify-between px-3 py-2 border-b border-[#1f1f1f]">
               <div>
                 <p className="text-[10px] text-[#555] uppercase tracking-widest">
-                  {dd.date}
+                  {tooltip.date}
                 </p>
                 <p
                   className="text-[11px] font-medium mt-0.5 uppercase tracking-widest"
-                  style={{ color: COLORS[dd.status] }}
+                  style={{ color: COLORS[tooltip.status] }}
                 >
-                  {statusLabel(dd.status)}
+                  {statusLabel(tooltip.status)}
                 </p>
               </div>
               <button
-                onClick={() => closeDropdown(key)}
+                onClick={closeTooltip}
                 className="text-[#444] hover:text-[#999] transition-colors ml-3 flex-shrink-0"
               >
                 <X size={13} />
               </button>
             </div>
             <ul className="flex flex-col max-h-48 overflow-y-auto">
-              {dd.quests.map((quest, qi) => (
+              {tooltip.quests.map((quest, qi) => (
                 <li
                   key={`${quest.id}-${qi}`}
                   className="border-b border-[#1f1f1f] last:border-0"
@@ -469,7 +525,7 @@ export default function QuestsChart({
                   <button
                     onClick={() => {
                       onQuestClick(quest.id);
-                      closeDropdown(key);
+                      closeTooltip();
                     }}
                     className="w-full text-left px-3 py-2 hover:bg-[#0d0d0d] transition-colors group"
                   >
@@ -486,7 +542,7 @@ export default function QuestsChart({
               ))}
             </ul>
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

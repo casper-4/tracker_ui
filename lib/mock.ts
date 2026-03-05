@@ -66,6 +66,8 @@ export type Aspect = {
   name: string;
   description: string;
   completionPercentage: number;
+  color: string;     // unique color for neural map dot & chart line
+  history: number[]; // 14-day completion % history: index 0 = 13 days ago, last index = today
 };
 
 export type Skill = {
@@ -81,6 +83,28 @@ export type Skill = {
   nextQuest: string;
 };
 
+// ─── Aspect history helpers ──────────────────────────────────────────────────
+
+function _seededRandom(seed: number): number {
+  const s = Math.sin(seed * 9301 + 49297) % 1;
+  return s < 0 ? s + 1 : s;
+}
+
+/** Generates 365-day deterministic completion % history ending at endValue. */
+function _aspectHistory(endValue: number, seed: number): number[] {
+  const variance = 15 + Math.floor(_seededRandom(seed) * 12);
+  const startValue = Math.max(5, endValue - variance);
+  return Array.from({ length: 365 }, (_, i) => {
+    if (i === 364) return endValue;
+    const t = i / 364;
+    const trend = startValue + (endValue - startValue) * t;
+    const w1 = Math.sin((i + seed * 7) * 0.14) * 3;
+    const w2 = Math.cos((i + seed * 3) * 0.07) * 2;
+    const w3 = Math.sin((i * 1.1 + seed) * 0.9) * 1.5;
+    return Math.min(100, Math.max(0, Math.round(trend + w1 + w2 + w3)));
+  });
+}
+
 export const MOCK_SKILLS: Skill[] = [
   {
     id: "skill/guitar",
@@ -92,36 +116,11 @@ export const MOCK_SKILLS: Skill[] = [
     nextQuest: "Hammer-on practice — 15 min",
     description: "Technika, rytmika, teoria",
     aspects: [
-      {
-        id: "asp/git/1",
-        name: "Technika",
-        description: "",
-        completionPercentage: 70,
-      },
-      {
-        id: "asp/git/2",
-        name: "Rytmika",
-        description: "",
-        completionPercentage: 55,
-      },
-      {
-        id: "asp/git/3",
-        name: "Teoria",
-        description: "",
-        completionPercentage: 60,
-      },
-      {
-        id: "asp/git/4",
-        name: "Słuch",
-        description: "",
-        completionPercentage: 65,
-      },
-      {
-        id: "asp/git/5",
-        name: "Artykulacja",
-        description: "",
-        completionPercentage: 58,
-      },
+      { id: "asp/git/1", name: "Technika",    description: "", completionPercentage: 70, color: "#a78bfa", history: _aspectHistory(70,  0) },
+      { id: "asp/git/2", name: "Rytmika",     description: "", completionPercentage: 55, color: "#34d399", history: _aspectHistory(55,  1) },
+      { id: "asp/git/3", name: "Teoria",      description: "", completionPercentage: 60, color: "#60a5fa", history: _aspectHistory(60,  2) },
+      { id: "asp/git/4", name: "Słuch",       description: "", completionPercentage: 65, color: "#f87171", history: _aspectHistory(65,  3) },
+      { id: "asp/git/5", name: "Artykulacja", description: "", completionPercentage: 58, color: "#fbbf24", history: _aspectHistory(58,  4) },
     ],
     subSkills: [
       {
@@ -163,36 +162,11 @@ export const MOCK_SKILLS: Skill[] = [
     nextQuest: "Belting — 20 min warm-up",
     description: "Emisja, intonacja, scream",
     aspects: [
-      {
-        id: "asp/voc/1",
-        name: "Emisja",
-        description: "",
-        completionPercentage: 50,
-      },
-      {
-        id: "asp/voc/2",
-        name: "Intonacja",
-        description: "",
-        completionPercentage: 40,
-      },
-      {
-        id: "asp/voc/3",
-        name: "Oddech",
-        description: "",
-        completionPercentage: 55,
-      },
-      {
-        id: "asp/voc/4",
-        name: "Artykulacja",
-        description: "",
-        completionPercentage: 35,
-      },
-      {
-        id: "asp/voc/5",
-        name: "Scream",
-        description: "",
-        completionPercentage: 30,
-      },
+      { id: "asp/voc/1", name: "Emisja",      description: "", completionPercentage: 50, color: "#a78bfa", history: _aspectHistory(50,  5) },
+      { id: "asp/voc/2", name: "Intonacja",   description: "", completionPercentage: 40, color: "#34d399", history: _aspectHistory(40,  6) },
+      { id: "asp/voc/3", name: "Oddech",      description: "", completionPercentage: 55, color: "#60a5fa", history: _aspectHistory(55,  7) },
+      { id: "asp/voc/4", name: "Artykulacja", description: "", completionPercentage: 35, color: "#f87171", history: _aspectHistory(35,  8) },
+      { id: "asp/voc/5", name: "Scream",      description: "", completionPercentage: 30, color: "#fbbf24", history: _aspectHistory(30,  9) },
     ],
     subSkills: [
       {
@@ -225,36 +199,11 @@ export const MOCK_SKILLS: Skill[] = [
     nextQuest: "EQ session — Ableton",
     description: "DAW, miks, mastering",
     aspects: [
-      {
-        id: "asp/pro/1",
-        name: "DAW",
-        description: "",
-        completionPercentage: 80,
-      },
-      {
-        id: "asp/pro/2",
-        name: "Miks",
-        description: "",
-        completionPercentage: 70,
-      },
-      {
-        id: "asp/pro/3",
-        name: "Master",
-        description: "",
-        completionPercentage: 60,
-      },
-      {
-        id: "asp/pro/4",
-        name: "Sound Design",
-        description: "",
-        completionPercentage: 75,
-      },
-      {
-        id: "asp/pro/5",
-        name: "Teoria",
-        description: "",
-        completionPercentage: 65,
-      },
+      { id: "asp/pro/1", name: "DAW",         description: "", completionPercentage: 80, color: "#a78bfa", history: _aspectHistory(80, 10) },
+      { id: "asp/pro/2", name: "Miks",        description: "", completionPercentage: 70, color: "#34d399", history: _aspectHistory(70, 11) },
+      { id: "asp/pro/3", name: "Master",      description: "", completionPercentage: 60, color: "#60a5fa", history: _aspectHistory(60, 12) },
+      { id: "asp/pro/4", name: "Sound Design",description: "", completionPercentage: 75, color: "#f87171", history: _aspectHistory(75, 13) },
+      { id: "asp/pro/5", name: "Teoria",      description: "", completionPercentage: 65, color: "#fbbf24", history: _aspectHistory(65, 14) },
     ],
     subSkills: [],
   },
@@ -268,36 +217,11 @@ export const MOCK_SKILLS: Skill[] = [
     nextQuest: "Hook writing — 30 min",
     description: "Teksty, flow, melodia",
     aspects: [
-      {
-        id: "asp/son/1",
-        name: "Teksty",
-        description: "",
-        completionPercentage: 45,
-      },
-      {
-        id: "asp/son/2",
-        name: "Storytelling",
-        description: "",
-        completionPercentage: 35,
-      },
-      {
-        id: "asp/son/3",
-        name: "Flow",
-        description: "",
-        completionPercentage: 40,
-      },
-      {
-        id: "asp/son/4",
-        name: "Struktura",
-        description: "",
-        completionPercentage: 30,
-      },
-      {
-        id: "asp/son/5",
-        name: "Melodia",
-        description: "",
-        completionPercentage: 38,
-      },
+      { id: "asp/son/1", name: "Teksty",       description: "", completionPercentage: 45, color: "#a78bfa", history: _aspectHistory(45, 15) },
+      { id: "asp/son/2", name: "Storytelling", description: "", completionPercentage: 35, color: "#34d399", history: _aspectHistory(35, 16) },
+      { id: "asp/son/3", name: "Flow",         description: "", completionPercentage: 40, color: "#60a5fa", history: _aspectHistory(40, 17) },
+      { id: "asp/son/4", name: "Struktura",    description: "", completionPercentage: 30, color: "#f87171", history: _aspectHistory(30, 18) },
+      { id: "asp/son/5", name: "Melodia",      description: "", completionPercentage: 38, color: "#fbbf24", history: _aspectHistory(38, 19) },
     ],
     subSkills: [],
   },
@@ -311,36 +235,11 @@ export const MOCK_SKILLS: Skill[] = [
     nextQuest: "Aim training — 1000 fragów",
     description: "Aim, movement, utility",
     aspects: [
-      {
-        id: "asp/cs/1",
-        name: "Aim",
-        description: "",
-        completionPercentage: 60,
-      },
-      {
-        id: "asp/cs/2",
-        name: "Movement",
-        description: "",
-        completionPercentage: 70,
-      },
-      {
-        id: "asp/cs/3",
-        name: "Utility",
-        description: "",
-        completionPercentage: 50,
-      },
-      {
-        id: "asp/cs/4",
-        name: "Gamesense",
-        description: "",
-        completionPercentage: 65,
-      },
-      {
-        id: "asp/cs/5",
-        name: "Komunikacja",
-        description: "",
-        completionPercentage: 75,
-      },
+      { id: "asp/cs/1", name: "Aim",         description: "", completionPercentage: 60, color: "#a78bfa", history: _aspectHistory(60, 20) },
+      { id: "asp/cs/2", name: "Movement",    description: "", completionPercentage: 70, color: "#34d399", history: _aspectHistory(70, 21) },
+      { id: "asp/cs/3", name: "Utility",     description: "", completionPercentage: 50, color: "#60a5fa", history: _aspectHistory(50, 22) },
+      { id: "asp/cs/4", name: "Gamesense",   description: "", completionPercentage: 65, color: "#f87171", history: _aspectHistory(65, 23) },
+      { id: "asp/cs/5", name: "Komunikacja", description: "", completionPercentage: 75, color: "#fbbf24", history: _aspectHistory(75, 24) },
     ],
     subSkills: [],
   },
@@ -1307,10 +1206,19 @@ export type MealIngredient = {
 
 export type MealSlotId = "breakfast" | "lunch" | "snack" | "dinner";
 
+export type NamedMeal = {
+  id: string;
+  name: string;
+  description: string;
+  emoji: string;
+  suitableFor: MealSlotId[];
+  ingredients: MealIngredient[];
+};
+
 export type MealSlot = {
   slot: MealSlotId;
   time: string; // "HH:MM"
-  ingredients: MealIngredient[];
+  mealId: string; // references NamedMeal.id
 };
 
 export type DietDay = {
@@ -1524,298 +1432,343 @@ export const MOCK_FOOD_DB: FoodItem[] = [
   },
 ];
 
+export const MOCK_NAMED_MEALS: NamedMeal[] = [
+  // ── Breakfasts ──────────────────────────────────────────────────────────────
+  {
+    id: "meal/oat_power_bowl",
+    name: "Oat Power Bowl",
+    description:
+      "Creamy oats loaded with Greek yogurt, fresh blueberries, and banana for a high-protein start to the day.",
+    emoji: "🥣",
+    suitableFor: ["breakfast"],
+    ingredients: [
+      { foodId: "food/oats", grams: 90 },
+      { foodId: "food/greek_yogurt", grams: 160 },
+      { foodId: "food/blueberries", grams: 60 },
+      { foodId: "food/banana", grams: 100 },
+    ],
+  },
+  {
+    id: "meal/protein_oats",
+    name: "Protein Oats",
+    description:
+      "Thick oats blended with whey protein and blueberries — clean fuel designed for training days.",
+    emoji: "💪",
+    suitableFor: ["breakfast"],
+    ingredients: [
+      { foodId: "food/oats", grams: 80 },
+      { foodId: "food/whey", grams: 30 },
+      { foodId: "food/blueberries", grams: 80 },
+    ],
+  },
+  {
+    id: "meal/egg_breakfast",
+    name: "Eggs & Milk Bowl",
+    description:
+      "Scrambled eggs with whole milk and a banana — a classic balanced morning plate with steady-release energy.",
+    emoji: "🍳",
+    suitableFor: ["breakfast"],
+    ingredients: [
+      { foodId: "food/eggs", grams: 150 },
+      { foodId: "food/whole_milk", grams: 200 },
+      { foodId: "food/banana", grams: 100 },
+    ],
+  },
+  {
+    id: "meal/eggs_avocado",
+    name: "Eggs & Avocado Bowl",
+    description:
+      "Fluffy eggs with whole milk, fresh blueberries, and creamy avocado — rich in healthy fats and antioxidants.",
+    emoji: "🥑",
+    suitableFor: ["breakfast"],
+    ingredients: [
+      { foodId: "food/eggs", grams: 200 },
+      { foodId: "food/whole_milk", grams: 200 },
+      { foodId: "food/blueberries", grams: 80 },
+      { foodId: "food/avocado", grams: 80 },
+    ],
+  },
+  {
+    id: "meal/whey_banana",
+    name: "Protein Shake Bowl",
+    description:
+      "Quick liquid breakfast — whey protein blended with banana and whole milk for fast-digesting macros.",
+    emoji: "🥛",
+    suitableFor: ["breakfast"],
+    ingredients: [
+      { foodId: "food/whey", grams: 40 },
+      { foodId: "food/banana", grams: 120 },
+      { foodId: "food/whole_milk", grams: 250 },
+    ],
+  },
+
+  // ── Lunches ──────────────────────────────────────────────────────────────────
+  {
+    id: "meal/chicken_rice",
+    name: "Chicken & Rice",
+    description:
+      "The classic bodybuilder plate — grilled chicken breast, brown rice, steamed broccoli with olive oil.",
+    emoji: "🍗",
+    suitableFor: ["lunch"],
+    ingredients: [
+      { foodId: "food/chicken_breast", grams: 200 },
+      { foodId: "food/brown_rice", grams: 165 },
+      { foodId: "food/broccoli", grams: 110 },
+      { foodId: "food/olive_oil", grams: 10 },
+    ],
+  },
+  {
+    id: "meal/pasta_chicken",
+    name: "Chicken Pasta",
+    description:
+      "Al dente pasta with grilled chicken, steamed broccoli, and a drizzle of olive oil.",
+    emoji: "🍝",
+    suitableFor: ["lunch"],
+    ingredients: [
+      { foodId: "food/chicken_breast", grams: 190 },
+      { foodId: "food/pasta", grams: 120 },
+      { foodId: "food/broccoli", grams: 100 },
+      { foodId: "food/olive_oil", grams: 12 },
+    ],
+  },
+  {
+    id: "meal/tuna_rice",
+    name: "Tuna Rice Bowl",
+    description:
+      "Brown rice topped with tuna, steamed broccoli, and creamy avocado slices for healthy omega-3 fats.",
+    emoji: "🍱",
+    suitableFor: ["lunch"],
+    ingredients: [
+      { foodId: "food/tuna", grams: 180 },
+      { foodId: "food/brown_rice", grams: 180 },
+      { foodId: "food/broccoli", grams: 100 },
+      { foodId: "food/avocado", grams: 80 },
+    ],
+  },
+  {
+    id: "meal/pasta_tuna",
+    name: "Tuna Pasta",
+    description:
+      "Al dente pasta tossed with tuna, wilted spinach, and a generous pour of olive oil.",
+    emoji: "🐟",
+    suitableFor: ["lunch"],
+    ingredients: [
+      { foodId: "food/pasta", grams: 150 },
+      { foodId: "food/tuna", grams: 175 },
+      { foodId: "food/spinach", grams: 100 },
+      { foodId: "food/olive_oil", grams: 15 },
+    ],
+  },
+  {
+    id: "meal/chicken_spinach",
+    name: "Chicken Spinach Plate",
+    description:
+      "Lean grilled chicken over a bed of brown rice with plenty of fresh spinach and olive oil.",
+    emoji: "🥬",
+    suitableFor: ["lunch"],
+    ingredients: [
+      { foodId: "food/chicken_breast", grams: 200 },
+      { foodId: "food/brown_rice", grams: 180 },
+      { foodId: "food/spinach", grams: 150 },
+      { foodId: "food/olive_oil", grams: 10 },
+    ],
+  },
+
+  // ── Snacks ───────────────────────────────────────────────────────────────────
+  {
+    id: "meal/almond_apple",
+    name: "Almonds & Apple",
+    description:
+      "Simple and satiating — a handful of raw almonds paired with a crisp, fresh apple.",
+    emoji: "🍎",
+    suitableFor: ["snack"],
+    ingredients: [
+      { foodId: "food/almonds", grams: 30 },
+      { foodId: "food/apple", grams: 150 },
+    ],
+  },
+  {
+    id: "meal/yogurt_banana",
+    name: "Yogurt Banana",
+    description:
+      "Creamy Greek yogurt with a ripe banana — a quick protein hit between main meals.",
+    emoji: "🍌",
+    suitableFor: ["snack"],
+    ingredients: [
+      { foodId: "food/greek_yogurt", grams: 200 },
+      { foodId: "food/banana", grams: 120 },
+    ],
+  },
+  {
+    id: "meal/cottage_blueberry",
+    name: "Cottage & Blueberries",
+    description:
+      "Low-fat cottage cheese topped with fresh blueberries — high protein, light on carbs.",
+    emoji: "🫐",
+    suitableFor: ["snack"],
+    ingredients: [
+      { foodId: "food/cottage_cheese", grams: 200 },
+      { foodId: "food/blueberries", grams: 80 },
+    ],
+  },
+  {
+    id: "meal/almond_apple_cottage",
+    name: "Nut Cottage Mix",
+    description:
+      "Cottage cheese with crunchy almonds and apple slices — high protein, high fiber afternoon snack.",
+    emoji: "🧀",
+    suitableFor: ["snack"],
+    ingredients: [
+      { foodId: "food/almonds", grams: 30 },
+      { foodId: "food/apple", grams: 150 },
+      { foodId: "food/cottage_cheese", grams: 150 },
+    ],
+  },
+  {
+    id: "meal/cottage_banana",
+    name: "Cottage & Banana",
+    description:
+      "Smooth cottage cheese paired with a ripe banana — easy casein protein before rest.",
+    emoji: "🍌",
+    suitableFor: ["snack"],
+    ingredients: [
+      { foodId: "food/cottage_cheese", grams: 200 },
+      { foodId: "food/banana", grams: 120 },
+    ],
+  },
+
+  // ── Dinners ──────────────────────────────────────────────────────────────────
+  {
+    id: "meal/salmon_sweet",
+    name: "Salmon & Sweet Potato",
+    description:
+      "Oven-baked salmon fillet with roasted sweet potato and fresh spinach — omega-3 rich evening meal.",
+    emoji: "🍣",
+    suitableFor: ["dinner"],
+    ingredients: [
+      { foodId: "food/salmon", grams: 210 },
+      { foodId: "food/sweet_potato", grams: 200 },
+      { foodId: "food/spinach", grams: 90 },
+    ],
+  },
+  {
+    id: "meal/tuna_sweet",
+    name: "Tuna Sweet Bowl",
+    description:
+      "Tuna with sweet potato and spinach, finished with creamy avocado slices for healthy fats.",
+    emoji: "🐟",
+    suitableFor: ["dinner"],
+    ingredients: [
+      { foodId: "food/tuna", grams: 180 },
+      { foodId: "food/sweet_potato", grams: 180 },
+      { foodId: "food/spinach", grams: 80 },
+      { foodId: "food/avocado", grams: 60 },
+    ],
+  },
+  {
+    id: "meal/chicken_sweet",
+    name: "Chicken Sweet Bowl",
+    description:
+      "Seasoned chicken breast paired with roasted sweet potato and wilted spinach — light and satisfying.",
+    emoji: "🥘",
+    suitableFor: ["dinner"],
+    ingredients: [
+      { foodId: "food/chicken_breast", grams: 200 },
+      { foodId: "food/sweet_potato", grams: 220 },
+      { foodId: "food/spinach", grams: 80 },
+    ],
+  },
+  {
+    id: "meal/salmon_pasta",
+    name: "Salmon Pasta",
+    description:
+      "Pan-seared salmon with pasta, wilted spinach, and a light olive oil sauce — comfort without the guilt.",
+    emoji: "🍜",
+    suitableFor: ["dinner"],
+    ingredients: [
+      { foodId: "food/salmon", grams: 195 },
+      { foodId: "food/pasta", grams: 100 },
+      { foodId: "food/spinach", grams: 100 },
+      { foodId: "food/olive_oil", grams: 10 },
+    ],
+  },
+  {
+    id: "meal/salmon_rice",
+    name: "Salmon & Rice",
+    description:
+      "Grilled salmon with fluffy brown rice and steamed broccoli — clean, high-protein dinner with complex carbs.",
+    emoji: "🍣",
+    suitableFor: ["dinner"],
+    ingredients: [
+      { foodId: "food/salmon", grams: 220 },
+      { foodId: "food/brown_rice", grams: 150 },
+      { foodId: "food/broccoli", grams: 120 },
+    ],
+  },
+];
+
 export const MOCK_DIET_WEEK: DietDay[] = [
   {
     date: "2026-03-02",
     meals: [
-      {
-        slot: "breakfast",
-        time: "07:30",
-        ingredients: [
-          { foodId: "food/oats", grams: 80 },
-          { foodId: "food/greek_yogurt", grams: 150 },
-          { foodId: "food/blueberries", grams: 60 },
-          { foodId: "food/banana", grams: 100 },
-        ],
-      },
-      {
-        slot: "lunch",
-        time: "13:00",
-        ingredients: [
-          { foodId: "food/chicken_breast", grams: 180 },
-          { foodId: "food/brown_rice", grams: 150 },
-          { foodId: "food/broccoli", grams: 120 },
-          { foodId: "food/olive_oil", grams: 10 },
-        ],
-      },
-      {
-        slot: "snack",
-        time: "16:00",
-        ingredients: [
-          { foodId: "food/almonds", grams: 30 },
-          { foodId: "food/apple", grams: 150 },
-        ],
-      },
-      {
-        slot: "dinner",
-        time: "19:30",
-        ingredients: [
-          { foodId: "food/salmon", grams: 200 },
-          { foodId: "food/sweet_potato", grams: 200 },
-          { foodId: "food/spinach", grams: 100 },
-        ],
-      },
+      { slot: "breakfast", time: "07:30", mealId: "meal/oat_power_bowl" },
+      { slot: "lunch", time: "13:00", mealId: "meal/chicken_rice" },
+      { slot: "snack", time: "16:00", mealId: "meal/almond_apple" },
+      { slot: "dinner", time: "19:30", mealId: "meal/salmon_sweet" },
     ],
   },
   {
     date: "2026-03-03",
     meals: [
-      {
-        slot: "breakfast",
-        time: "08:00",
-        ingredients: [
-          { foodId: "food/oats", grams: 80 },
-          { foodId: "food/whey", grams: 30 },
-          { foodId: "food/blueberries", grams: 80 },
-        ],
-      },
-      {
-        slot: "lunch",
-        time: "12:30",
-        ingredients: [
-          { foodId: "food/chicken_breast", grams: 200 },
-          { foodId: "food/pasta", grams: 120 },
-          { foodId: "food/broccoli", grams: 100 },
-          { foodId: "food/olive_oil", grams: 15 },
-        ],
-      },
-      {
-        slot: "snack",
-        time: "15:30",
-        ingredients: [
-          { foodId: "food/greek_yogurt", grams: 200 },
-          { foodId: "food/banana", grams: 120 },
-        ],
-      },
-      {
-        slot: "dinner",
-        time: "19:00",
-        ingredients: [
-          { foodId: "food/tuna", grams: 180 },
-          { foodId: "food/sweet_potato", grams: 180 },
-          { foodId: "food/spinach", grams: 80 },
-          { foodId: "food/avocado", grams: 60 },
-        ],
-      },
+      { slot: "breakfast", time: "08:00", mealId: "meal/protein_oats" },
+      { slot: "lunch", time: "12:30", mealId: "meal/pasta_chicken" },
+      { slot: "snack", time: "15:30", mealId: "meal/yogurt_banana" },
+      { slot: "dinner", time: "19:00", mealId: "meal/tuna_sweet" },
     ],
   },
   {
     date: "2026-03-04",
     meals: [
-      {
-        slot: "breakfast",
-        time: "07:30",
-        ingredients: [
-          { foodId: "food/oats", grams: 100 },
-          { foodId: "food/greek_yogurt", grams: 180 },
-          { foodId: "food/blueberries", grams: 50 },
-        ],
-      },
-      {
-        slot: "lunch",
-        time: "13:00",
-        ingredients: [
-          { foodId: "food/chicken_breast", grams: 200 },
-          { foodId: "food/brown_rice", grams: 180 },
-          { foodId: "food/broccoli", grams: 100 },
-          { foodId: "food/olive_oil", grams: 10 },
-        ],
-      },
-      {
-        slot: "snack",
-        time: "16:00",
-        ingredients: [
-          { foodId: "food/almonds", grams: 35 },
-          { foodId: "food/apple", grams: 130 },
-        ],
-      },
-      {
-        slot: "dinner",
-        time: "19:30",
-        ingredients: [
-          { foodId: "food/salmon", grams: 220 },
-          { foodId: "food/sweet_potato", grams: 200 },
-          { foodId: "food/spinach", grams: 80 },
-        ],
-      },
+      { slot: "breakfast", time: "07:30", mealId: "meal/oat_power_bowl" },
+      { slot: "lunch", time: "13:00", mealId: "meal/chicken_rice" },
+      { slot: "snack", time: "16:00", mealId: "meal/almond_apple" },
+      { slot: "dinner", time: "19:30", mealId: "meal/salmon_sweet" },
     ],
   },
   {
     date: "2026-03-05",
     meals: [
-      {
-        slot: "breakfast",
-        time: "07:30",
-        ingredients: [
-          { foodId: "food/eggs", grams: 150 },
-          { foodId: "food/whole_milk", grams: 200 },
-          { foodId: "food/banana", grams: 100 },
-        ],
-      },
-      {
-        slot: "lunch",
-        time: "12:30",
-        ingredients: [
-          { foodId: "food/chicken_breast", grams: 180 },
-          { foodId: "food/brown_rice", grams: 160 },
-          { foodId: "food/broccoli", grams: 120 },
-          { foodId: "food/olive_oil", grams: 10 },
-        ],
-      },
-      {
-        slot: "snack",
-        time: "16:00",
-        ingredients: [
-          { foodId: "food/cottage_cheese", grams: 200 },
-          { foodId: "food/blueberries", grams: 80 },
-        ],
-      },
-      {
-        slot: "dinner",
-        time: "19:00",
-        ingredients: [
-          { foodId: "food/salmon", grams: 190 },
-          { foodId: "food/pasta", grams: 100 },
-          { foodId: "food/spinach", grams: 100 },
-          { foodId: "food/olive_oil", grams: 10 },
-        ],
-      },
+      { slot: "breakfast", time: "07:30", mealId: "meal/egg_breakfast" },
+      { slot: "lunch", time: "12:30", mealId: "meal/chicken_rice" },
+      { slot: "snack", time: "16:00", mealId: "meal/cottage_blueberry" },
+      { slot: "dinner", time: "19:00", mealId: "meal/salmon_pasta" },
     ],
   },
   {
     date: "2026-03-06",
     meals: [
-      {
-        slot: "breakfast",
-        time: "08:00",
-        ingredients: [
-          { foodId: "food/oats", grams: 80 },
-          { foodId: "food/whey", grams: 30 },
-          { foodId: "food/banana", grams: 100 },
-        ],
-      },
-      {
-        slot: "lunch",
-        time: "13:00",
-        ingredients: [
-          { foodId: "food/tuna", grams: 200 },
-          { foodId: "food/brown_rice", grams: 180 },
-          { foodId: "food/broccoli", grams: 100 },
-          { foodId: "food/avocado", grams: 80 },
-        ],
-      },
-      {
-        slot: "snack",
-        time: "15:30",
-        ingredients: [
-          { foodId: "food/almonds", grams: 30 },
-          { foodId: "food/apple", grams: 150 },
-        ],
-      },
-      {
-        slot: "dinner",
-        time: "19:30",
-        ingredients: [
-          { foodId: "food/chicken_breast", grams: 200 },
-          { foodId: "food/sweet_potato", grams: 220 },
-          { foodId: "food/spinach", grams: 80 },
-        ],
-      },
+      { slot: "breakfast", time: "08:00", mealId: "meal/protein_oats" },
+      { slot: "lunch", time: "13:00", mealId: "meal/tuna_rice" },
+      { slot: "snack", time: "15:30", mealId: "meal/almond_apple" },
+      { slot: "dinner", time: "19:30", mealId: "meal/chicken_sweet" },
     ],
   },
   {
     date: "2026-03-07",
     meals: [
-      {
-        slot: "breakfast",
-        time: "09:00",
-        ingredients: [
-          { foodId: "food/eggs", grams: 200 },
-          { foodId: "food/whole_milk", grams: 200 },
-          { foodId: "food/blueberries", grams: 80 },
-          { foodId: "food/avocado", grams: 80 },
-        ],
-      },
-      {
-        slot: "lunch",
-        time: "13:30",
-        ingredients: [
-          { foodId: "food/pasta", grams: 150 },
-          { foodId: "food/tuna", grams: 180 },
-          { foodId: "food/spinach", grams: 100 },
-          { foodId: "food/olive_oil", grams: 15 },
-        ],
-      },
-      {
-        slot: "snack",
-        time: "17:00",
-        ingredients: [
-          { foodId: "food/cottage_cheese", grams: 200 },
-          { foodId: "food/banana", grams: 120 },
-        ],
-      },
-      {
-        slot: "dinner",
-        time: "20:00",
-        ingredients: [
-          { foodId: "food/salmon", grams: 220 },
-          { foodId: "food/brown_rice", grams: 150 },
-          { foodId: "food/broccoli", grams: 120 },
-        ],
-      },
+      { slot: "breakfast", time: "09:00", mealId: "meal/eggs_avocado" },
+      { slot: "lunch", time: "13:30", mealId: "meal/pasta_tuna" },
+      { slot: "snack", time: "17:00", mealId: "meal/cottage_banana" },
+      { slot: "dinner", time: "20:00", mealId: "meal/salmon_rice" },
     ],
   },
   {
     date: "2026-03-08",
     meals: [
-      {
-        slot: "breakfast",
-        time: "09:00",
-        ingredients: [
-          { foodId: "food/oats", grams: 100 },
-          { foodId: "food/greek_yogurt", grams: 200 },
-          { foodId: "food/blueberries", grams: 80 },
-          { foodId: "food/banana", grams: 100 },
-        ],
-      },
-      {
-        slot: "lunch",
-        time: "14:00",
-        ingredients: [
-          { foodId: "food/chicken_breast", grams: 200 },
-          { foodId: "food/pasta", grams: 120 },
-          { foodId: "food/broccoli", grams: 100 },
-          { foodId: "food/olive_oil", grams: 10 },
-        ],
-      },
-      {
-        slot: "snack",
-        time: "17:00",
-        ingredients: [
-          { foodId: "food/almonds", grams: 30 },
-          { foodId: "food/apple", grams: 150 },
-          { foodId: "food/cottage_cheese", grams: 150 },
-        ],
-      },
-      {
-        slot: "dinner",
-        time: "20:00",
-        ingredients: [
-          { foodId: "food/salmon", grams: 200 },
-          { foodId: "food/sweet_potato", grams: 200 },
-          { foodId: "food/spinach", grams: 80 },
-        ],
-      },
+      { slot: "breakfast", time: "09:00", mealId: "meal/oat_power_bowl" },
+      { slot: "lunch", time: "14:00", mealId: "meal/pasta_chicken" },
+      { slot: "snack", time: "17:00", mealId: "meal/almond_apple_cottage" },
+      { slot: "dinner", time: "20:00", mealId: "meal/salmon_sweet" },
     ],
   },
 ];

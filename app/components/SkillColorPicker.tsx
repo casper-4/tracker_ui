@@ -205,4 +205,3 @@ export default function SkillColorPicker({ color, onChange }: Props) {
     </div>
   );
 }
-

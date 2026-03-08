@@ -24,12 +24,12 @@ import { TAB_SKILL_DETAIL } from "@/app/constants";
 
 /* ── design tokens ── */
 const T = {
-  bgOverlay:      "#1C1C1C",
-  borderDefault:  "rgba(255,255,255,0.09)",
-  borderStrong:   "rgba(255,255,255,0.16)",
-  textPrimary:    "#FFFFFF",
-  textSecondary:  "rgba(255,255,255,0.70)",
-  textTertiary:   "rgba(255,255,255,0.55)",
+  bgOverlay: "#1C1C1C",
+  borderDefault: "rgba(255,255,255,0.09)",
+  borderStrong: "rgba(255,255,255,0.16)",
+  textPrimary: "#FFFFFF",
+  textSecondary: "rgba(255,255,255,0.70)",
+  textTertiary: "rgba(255,255,255,0.55)",
   textSupporting: "rgba(255,255,255,0.30)",
 };
 
@@ -45,11 +45,11 @@ type IconComponent = React.ComponentType<{
 }>;
 
 const SKILL_ICONS: Record<string, IconComponent> = {
-  "skill/guitar":      MusicNote,
-  "skill/vocals":      Microphone,
-  "skill/production":  CompactDisc,
+  "skill/guitar": MusicNote,
+  "skill/vocals": Microphone,
+  "skill/production": CompactDisc,
   "skill/songwriting": PenTablet,
-  "skill/cs2":         Gamepad,
+  "skill/cs2": Gamepad,
 };
 
 type Props = {
@@ -57,7 +57,10 @@ type Props = {
   setActiveTab?: Dispatch<SetStateAction<string>>;
 };
 
-export default function SkillsListPage({ setSelectedSkillId, setActiveTab }: Props) {
+export default function SkillsListPage({
+  setSelectedSkillId,
+  setActiveTab,
+}: Props) {
   const { lang } = useLang();
 
   return (
@@ -105,7 +108,9 @@ function SkillCard({
   onSelect: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -121,7 +126,7 @@ function SkillCard({
           obs.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -247,7 +252,10 @@ function SkillCard({
       </div>
 
       {/* ── Description ── */}
-      <p className="text-[12px] mb-4 relative z-10" style={{ color: T.textTertiary }}>
+      <p
+        className="text-[12px] mb-4 relative z-10"
+        style={{ color: T.textTertiary }}
+      >
         {description}
       </p>
 
@@ -331,15 +339,11 @@ function SkillCard({
   );
 }
 
-function AddSkillCard({
-  lang,
-  index,
-}: {
-  lang: "pl" | "en";
-  index: number;
-}) {
+function AddSkillCard({ lang, index }: { lang: "pl" | "en"; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -354,7 +358,7 @@ function AddSkillCard({
           obs.disconnect();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -434,7 +438,12 @@ function AddSkillCard({
             justifyContent: "center",
           }}
         >
-          <Plus width={20} height={20} strokeWidth={1.8} style={{ color: "rgba(255,255,255,0.3)" }} />
+          <Plus
+            width={20}
+            height={20}
+            strokeWidth={1.8}
+            style={{ color: "rgba(255,255,255,0.3)" }}
+          />
         </div>
         <span
           className="text-[13px] text-center"

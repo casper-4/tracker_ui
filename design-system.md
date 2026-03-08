@@ -264,13 +264,13 @@ Each sidebar nav item has a per-item accent color (see mapping in the Sidebar co
 
 ### Icon color lifecycle
 
-| State          | Icon color                   | Label color               | Notes                        |
-| -------------- | ---------------------------- | ------------------------- | ---------------------------- |
-| Default (idle) | `rgba(255,255,255,0.35)`     | `rgba(255,255,255,0.35)`  | dim, recedes into background |
-| Hover          | item's `accentColor`         | `rgba(255,255,255,0.35)`  | lights up immediately        |
-| Active (page)  | item's `accentColor`         | `rgba(255,255,255,1.0)`   | stays lit, label goes white  |
-| Leave → active | item's `accentColor`         | `rgba(255,255,255,1.0)`   | color kept — page is open    |
-| Leave → idle   | `rgba(255,255,255,0.35)`     | `rgba(255,255,255,0.35)`  | dims back down               |
+| State          | Icon color               | Label color              | Notes                        |
+| -------------- | ------------------------ | ------------------------ | ---------------------------- |
+| Default (idle) | `rgba(255,255,255,0.35)` | `rgba(255,255,255,0.35)` | dim, recedes into background |
+| Hover          | item's `accentColor`     | `rgba(255,255,255,0.35)` | lights up immediately        |
+| Active (page)  | item's `accentColor`     | `rgba(255,255,255,1.0)`  | stays lit, label goes white  |
+| Leave → active | item's `accentColor`     | `rgba(255,255,255,1.0)`  | color kept — page is open    |
+| Leave → idle   | `rgba(255,255,255,0.35)` | `rgba(255,255,255,0.35)` | dims back down               |
 
 ### Rules
 
@@ -284,11 +284,11 @@ Each sidebar nav item has a per-item accent color (see mapping in the Sidebar co
 
 Skill rows in the expanded Skills submenu use a small `6px` dot instead of an icon:
 
-| State          | Dot color                    | Dot shadow                     |
-| -------------- | ---------------------------- | ------------------------------ |
-| Default (idle) | `rgba(255,255,255,0.2)`      | none                           |
-| Hover          | `skill.color`                | `0 0 6px {skill.color}99`      |
-| Active         | `skill.color`                | `0 0 6px {skill.color}99`      |
+| State          | Dot color               | Dot shadow                |
+| -------------- | ----------------------- | ------------------------- |
+| Default (idle) | `rgba(255,255,255,0.2)` | none                      |
+| Hover          | `skill.color`           | `0 0 6px {skill.color}99` |
+| Active         | `skill.color`           | `0 0 6px {skill.color}99` |
 
 Dot transition matches the icon: 150ms color + box-shadow.
 
@@ -303,7 +303,7 @@ const iconColor = active || hovered ? accentColor : "rgba(255,255,255,0.35)";
   onMouseLeave={() => setHovered(false)}
 >
   <Icon style={{ color: iconColor }} className="transition-colors" />
-</button>
+</button>;
 ```
 
 ---
@@ -333,30 +333,36 @@ Habit grid:
 Used on DashboardPage (Neural Map) and SkillDetailPage. N-polygon SVG with per-axis colors.
 
 **Grid (rings + spokes):**
+
 - Rings: `rgba(255,255,255,0.07)` stroke, `0.4px` — barely visible scaffold
 - Spokes: per-axis accent color, `opacity 0.20`, `0.4px` — lightly tinted
 
 **Sectors (wedge per axis):**
+
 - Fill at rest: `{color}18` (≈10% opacity)
 - Fill on hover: `{color}38` (≈22% opacity)
 - Stroke: axis color, `0.5px` rest → `0.8px` hover
 - `opacity` 0.8 rest → 1.0 hover, transition `0.2s ease`
 
 **Radar shape (the filled polygon outline):**
+
 - Soft outer glow: one `<line>` per edge, `strokeWidth 4`, `opacity 0.14`, `filter: blur(3px)`, color = originating node's accent
 - Inner fill: `rgba(255,255,255,0.03)` polygon with no stroke
 - Sharp edge: one `<line>` per edge, `strokeWidth 1.0`, `opacity 0.85`, + SVG `feGaussianBlur` filter at `stdDeviation 2.2`
 - Result: each edge glows in the color of its node — no single white outline
 
 **Vertex dots (3-layer):**
+
 ```
 1. Corona: r = 3.5 (rest) → 5.5 (hover), opacity 0.08 → 0.16
 2. Inner glow: r = 2.2 (rest) → 3.5 (hover), opacity 0.14 → 0.28
 3. Sharp dot: r = 1.6 (rest) → 2.2 (hover) — always neon filter applied
 ```
+
 All circles use axis `color`, transition `0.2s ease`.
 
 **Labels:**
+
 - Font: `var(--font-mono)`, `3.2px`, `letterSpacing 0.06em`
 - Color: `--text-supporting` at rest → axis `color` on hover
 - Multi-word names: one `<tspan>` per word, `dy="4"` for each subsequent line, centered on x

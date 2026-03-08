@@ -35,26 +35,26 @@ import { TAB_SKILL_DETAIL, TAB_TRAINING, TAB_DIET } from "@/app/constants";
    DESIGN TOKENS — aligned to design-system.md
    ═══════════════════════════════════════════════════════════════ */
 const T = {
-  bgBase:         "#000000",
-  bgSurface:      "#0A0A0A",
-  bgElevated:     "#141414",
-  bgOverlay:      "#1C1C1C",
-  borderSubtle:   "rgba(255,255,255,0.06)",
-  borderDefault:  "rgba(255,255,255,0.09)",
-  borderStrong:   "rgba(255,255,255,0.16)",
-  textPrimary:    "#FFFFFF",
-  textSecondary:  "rgba(255,255,255,0.70)",
-  textTertiary:   "rgba(255,255,255,0.55)",
+  bgBase: "#000000",
+  bgSurface: "#0A0A0A",
+  bgElevated: "#141414",
+  bgOverlay: "#1C1C1C",
+  borderSubtle: "rgba(255,255,255,0.06)",
+  borderDefault: "rgba(255,255,255,0.09)",
+  borderStrong: "rgba(255,255,255,0.16)",
+  textPrimary: "#FFFFFF",
+  textSecondary: "rgba(255,255,255,0.70)",
+  textTertiary: "rgba(255,255,255,0.55)",
   textSupporting: "rgba(255,255,255,0.30)",
-  textDisabled:   "rgba(255,255,255,0.18)",
-  accentGreen:    "#00FF9F",
-  accentYellow:   "#F3E600",
-  accentCyan:     "#55EAD4",
-  accentRed:      "#FF2060",
-  accentViolet:   "#C840FF",
+  textDisabled: "rgba(255,255,255,0.18)",
+  accentGreen: "#00FF9F",
+  accentYellow: "#F3E600",
+  accentCyan: "#55EAD4",
+  accentRed: "#FF2060",
+  accentViolet: "#C840FF",
   // semantic shortcut used across this page
-  accent:         "#F3E600",
-  accentGlow:     "rgba(243,230,0,0.08)",
+  accent: "#F3E600",
+  accentGlow: "rgba(243,230,0,0.08)",
 } as const;
 
 /* ── glass card background ── */
@@ -85,10 +85,20 @@ export default function DashboardPage({
       if (entry.skillId) {
         const skill = MOCK_SKILLS.find((s) => s.id === entry.skillId);
         if (skill)
-          result.push({ id: skill.id, name: skill.name.toUpperCase(), color: skill.color, value: skill.completionPercentage });
+          result.push({
+            id: skill.id,
+            name: skill.name.toUpperCase(),
+            color: skill.color,
+            value: skill.completionPercentage,
+          });
       } else {
         const meta = PLAN_CATEGORY_META[entry.category];
-        result.push({ id: entry.category, name: t(lang, meta.tagKey), color: meta.color, value: MOCK_CATEGORY_PROGRESS[entry.category] });
+        result.push({
+          id: entry.category,
+          name: t(lang, meta.tagKey),
+          color: meta.color,
+          value: MOCK_CATEGORY_PROGRESS[entry.category],
+        });
       }
     }
     return result;
@@ -120,9 +130,7 @@ export default function DashboardPage({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
         {/* DAILY PLAN */}
         <Card className="lg:col-span-2">
-          <SectionLabel>
-            {t(lang, "dashboard_plan").toUpperCase()}
-          </SectionLabel>
+          <SectionLabel>{t(lang, "dashboard_plan").toUpperCase()}</SectionLabel>
           <div className="flex flex-col gap-1 mt-5">
             {MOCK_DAILY_PLAN.map((entry) => (
               <PlanItem
@@ -142,14 +150,16 @@ export default function DashboardPage({
 
         {/* NEURAL MAP */}
         <Card>
-          <SectionLabel>{t(lang, "dashboard_neural_map").toUpperCase()}</SectionLabel>
+          <SectionLabel>
+            {t(lang, "dashboard_neural_map").toUpperCase()}
+          </SectionLabel>
           <div className="flex-1 flex items-center justify-center relative py-4">
             <svg
               viewBox="0 0 100 100"
               className="w-full max-w-[210px] overflow-visible"
             >
               <defs>
-                {/* Per-node neon glow filter */}
+                {/* Per-  node neon glow filter */}
                 {planNodes.map((node) => (
                   <filter
                     key={node.id}
@@ -167,7 +177,13 @@ export default function DashboardPage({
                   </filter>
                 ))}
                 {/* Broad soft glow for edge segments */}
-                <filter id="edge-glow" x="-80%" y="-80%" width="260%" height="260%">
+                <filter
+                  id="edge-glow"
+                  x="-80%"
+                  y="-80%"
+                  width="260%"
+                  height="260%"
+                >
                   <feGaussianBlur stdDeviation="2.2" result="blur" />
                   <feMerge>
                     <feMergeNode in="blur" />
@@ -211,7 +227,7 @@ export default function DashboardPage({
                     y2={y}
                     stroke={node.color}
                     strokeWidth="0.4"
-                    opacity={0.20}
+                    opacity={0.2}
                   />
                 );
               })}
@@ -253,7 +269,10 @@ export default function DashboardPage({
                 return (
                   <line
                     key={`glow-${i}`}
-                    x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
+                    x1={p1.x}
+                    y1={p1.y}
+                    x2={p2.x}
+                    y2={p2.y}
                     stroke={node.color}
                     strokeWidth="4"
                     opacity={0.14}
@@ -276,7 +295,10 @@ export default function DashboardPage({
                 return (
                   <line
                     key={`edge-${i}`}
-                    x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
+                    x1={p1.x}
+                    y1={p1.y}
+                    x2={p2.x}
+                    y2={p2.y}
                     stroke={node.color}
                     strokeWidth="1.0"
                     opacity={0.85}
@@ -345,7 +367,10 @@ export default function DashboardPage({
                       fontFamily="var(--font-mono)"
                       textAnchor="middle"
                       letterSpacing="0.06em"
-                      style={{ transition: "fill 0.2s ease", userSelect: "none" }}
+                      style={{
+                        transition: "fill 0.2s ease",
+                        userSelect: "none",
+                      }}
                     >
                       {node.name.split(" ").map((word, wi, arr) => (
                         <tspan
@@ -410,9 +435,7 @@ export default function DashboardPage({
 
       {/* ───── MEAL PLAN ───── */}
       <Card className="mb-10">
-        <SectionLabel>
-          {t(lang, "dashboard_diet").toUpperCase()}
-        </SectionLabel>
+        <SectionLabel>{t(lang, "dashboard_diet").toUpperCase()}</SectionLabel>
         <div className="flex flex-col gap-2 mt-5">
           {MOCK_MEALS_TODAY.map((meal) => (
             <FoodRow
@@ -513,7 +536,9 @@ function Card({
   onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
 
@@ -550,14 +575,20 @@ function Card({
         transition: "transform 0.2s ease",
       }}
       onMouseMove={handleMouseMove}
-      onMouseEnter={() => { if (isInteractive) setHovered(true); }}
+      onMouseEnter={() => {
+        if (isInteractive) setHovered(true);
+      }}
       onMouseLeave={() => {
         setMousePos(null);
         setHovered(false);
         setPressed(false);
       }}
-      onMouseDown={() => { if (isInteractive) setPressed(true); }}
-      onMouseUp={() => { if (isInteractive) setPressed(false); }}
+      onMouseDown={() => {
+        if (isInteractive) setPressed(true);
+      }}
+      onMouseUp={() => {
+        if (isInteractive) setPressed(false);
+      }}
     >
       {/* Top-edge shine line */}
       <div
@@ -614,12 +645,25 @@ function SectionLabel({
 /* Category → accent color + i18n tag key + Iconoir icon */
 const PLAN_CATEGORY_META: Record<
   PlanCategory,
-  { color: string; tagKey: "plan_cat_diet" | "plan_cat_music" | "plan_cat_training" | "plan_cat_gaming"; Icon: React.ComponentType<{ width?: number; height?: number; strokeWidth?: number; style?: React.CSSProperties }> }
+  {
+    color: string;
+    tagKey:
+      | "plan_cat_diet"
+      | "plan_cat_music"
+      | "plan_cat_training"
+      | "plan_cat_gaming";
+    Icon: React.ComponentType<{
+      width?: number;
+      height?: number;
+      strokeWidth?: number;
+      style?: React.CSSProperties;
+    }>;
+  }
 > = {
-  diet:     { color: T.accentViolet, tagKey: "plan_cat_diet",     Icon: Apple    },
-  music:    { color: T.accentCyan,   tagKey: "plan_cat_music",    Icon: MusicNote },
-  training: { color: T.accentGreen,  tagKey: "plan_cat_training", Icon: Gym      },
-  gaming:   { color: T.accentYellow, tagKey: "plan_cat_gaming",   Icon: Gamepad   },
+  diet: { color: T.accentViolet, tagKey: "plan_cat_diet", Icon: Apple },
+  music: { color: T.accentCyan, tagKey: "plan_cat_music", Icon: MusicNote },
+  training: { color: T.accentGreen, tagKey: "plan_cat_training", Icon: Gym },
+  gaming: { color: T.accentYellow, tagKey: "plan_cat_gaming", Icon: Gamepad },
 };
 
 /** Plan timeline item — sidebar-style hover: only icon + title light up, no bg change */
@@ -726,7 +770,13 @@ function PlanItem({
         onClick={handleTagClick}
         role={skill ? "button" : undefined}
         tabIndex={skill ? 0 : undefined}
-        onKeyDown={skill && onSkillClick ? (e) => { if (e.key === "Enter") onSkillClick(skillId!); } : undefined}
+        onKeyDown={
+          skill && onSkillClick
+            ? (e) => {
+                if (e.key === "Enter") onSkillClick(skillId!);
+              }
+            : undefined
+        }
       >
         {/* Top-edge gloss */}
         <span
@@ -835,8 +885,7 @@ function WorkoutRow({
         className="col-span-2 text-right font-mono tabular-nums font-medium flex items-center justify-end gap-1"
         style={{ color: T.accentGreen }}
       >
-        {today}{" "}
-        <ArrowUp width={12} height={12} strokeWidth={2.2} />
+        {today} <ArrowUp width={12} height={12} strokeWidth={2.2} />
       </div>
     </div>
   );
@@ -976,7 +1025,9 @@ function SkillCard({
   onClick: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
 
@@ -1001,7 +1052,11 @@ function SkillCard({
         borderRadius: "14px",
         backdropFilter: "blur(24px)",
         padding: "1.25rem",
-        transform: pressed ? "scale(0.994)" : hovered ? "translateY(-2px)" : "none",
+        transform: pressed
+          ? "scale(0.994)"
+          : hovered
+            ? "translateY(-2px)"
+            : "none",
         transition: "transform 0.2s ease",
       }}
       onMouseMove={handleMouseMove}

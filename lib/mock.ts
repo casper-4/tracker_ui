@@ -392,6 +392,38 @@ export const MOCK_MEALS_TODAY = [
   { name: "Evening Salmon", protein: 40, carbs: 30, kcal: 505 },
 ];
 
+export type PlanCategory = "diet" | "music" | "training" | "gaming";
+
+export type PlanEntry = {
+  id: string;
+  time: string;
+  title: string;
+  category: PlanCategory;
+  skillId?: string;
+  questId?: string; // reference to MOCK_QUESTS entry
+  active?: boolean;
+};
+
+// TODO: [DATA] Daily plan should be dynamically generated from quests and training
+export const MOCK_DAILY_PLAN: PlanEntry[] = [
+  { id: "plan/1", time: "07:00", title: "Śniadanie",           category: "diet"                                                             },
+  { id: "plan/2", time: "09:00", title: "Hammer-on practice",  category: "music",    skillId: "skill/guitar",   questId: "q/git/1"       },
+  { id: "plan/3", time: "10:30", title: "Belting warm-up",     category: "music",    skillId: "skill/vocals",   questId: "q/voc/1"       },
+  { id: "plan/4", time: "12:30", title: "Lunch",               category: "diet"                                                             },
+  { id: "plan/5", time: "16:00", title: "Siłownia — Pull B",   category: "training"                                                         },
+  { id: "plan/6", time: "20:00", title: "Aim training — aimbotz", category: "gaming", skillId: "skill/cs2",    questId: "q/cs/1", active: true },
+  { id: "plan/7", time: "22:00", title: "Kolacja",             category: "diet"                                                             },
+];
+
+// Progress value (0-100) used on the neural map for non-skill plan categories
+// TODO: [DATA] derive from actual daily completion tracking
+export const MOCK_CATEGORY_PROGRESS: Record<PlanCategory, number> = {
+  diet:     78,
+  training: 62,
+  music:     0, // covered via skill nodes
+  gaming:    0, // covered via skill nodes
+};
+
 export const MOCK_USER = {
   id: "user/atlas",
   name: "Atlas",

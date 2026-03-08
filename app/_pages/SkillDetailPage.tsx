@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { Pin, PinSolid, Refresh } from "iconoir-react";
+import SkillColorPicker from "@/app/components/SkillColorPicker";
 import {
   LineChart,
   Line,
@@ -369,6 +370,102 @@ export default function SkillDetailPage({
 
   return (
     <div className="max-w-6xl mx-auto">
+      {/* ── Skill hero widget ── */}
+      <div
+        className="mb-6 p-6 rounded-[14px] relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+          border: "1px solid rgba(255,255,255,0.09)",
+          borderTop: "1px solid rgba(255,255,255,0.16)",
+          backdropFilter: "blur(24px)",
+        }}
+      >
+        {/* Colored glow blob */}
+        <div
+          className="absolute w-96 h-96 rounded-full pointer-events-none"
+          style={{
+            background: skillColor,
+            filter: "blur(70px)",
+            opacity: 0.13,
+            top: -80,
+            right: 60,
+          }}
+        />
+
+        <div className="relative z-10 flex items-center gap-8">
+          {/* Identity */}
+          <div className="min-w-[200px]">
+            <p className="text-[10px] text-white/30 uppercase tracking-[0.08em] mb-2">
+              // {t(lang, "nav_skills")}
+            </p>
+            <h1
+              className="text-4xl font-bold leading-none mb-3 tracking-tight"
+              style={{ color: skillColor }}
+            >
+              {skill.name}
+            </h1>
+            <p className="text-sm text-white/55">{skill.description}</p>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px self-stretch bg-white/6 shrink-0 mx-2" />
+
+          {/* Progress */}
+          <div className="flex-1 max-w-[320px]">
+            <div className="flex justify-between items-baseline mb-2">
+              <span className="text-[10px] text-white/30 uppercase tracking-[0.08em]">
+                {t(lang, "skill_progress")}
+              </span>
+              <span
+                className="text-3xl font-bold font-mono tracking-tight"
+                style={{ color: skillColor }}
+              >
+                {skill.completionPercentage}%
+              </span>
+            </div>
+            <div
+              className="w-full h-1.5 rounded-full overflow-hidden relative"
+              style={{ background: "rgba(255,255,255,0.06)" }}
+            >
+              {/* Target marker */}
+              <div
+                className="absolute top-0 bottom-0 w-px"
+                style={{
+                  left: `${skill.targetPercentage}%`,
+                  background: "rgba(255,255,255,0.25)",
+                }}
+              />
+              {/* Fill */}
+              <div
+                className="h-full rounded-full transition-[width] duration-700"
+                style={{
+                  width: `${skill.completionPercentage}%`,
+                  background: `linear-gradient(90deg, ${skillColor}40, ${skillColor})`,
+                }}
+              />
+            </div>
+            <div className="flex justify-between mt-1.5">
+              <span className="text-[9px] text-white/20">0%</span>
+              <span className="text-[9px] text-white/30">
+                {t(lang, "skill_target")}: {skill.targetPercentage}%
+              </span>
+            </div>
+          </div>
+
+          {/* Color picker */}
+          <div className="ml-auto shrink-0 flex flex-col items-end gap-2">
+            <span className="text-[9px] text-white/20 uppercase tracking-[0.08em]">
+              {t(lang, "skill_color")}
+            </span>
+            <SkillColorPicker
+              color={skillColor}
+              onChange={onSkillColorChange}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Neural map & aspect progress chart */}
       <div className="p-6 rounded-[14px] relative overflow-hidden" style={{
         background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",

@@ -15,12 +15,21 @@ import {
   CompactDisc,
   PenTablet,
   ArrowUp,
+  Apple,
+  Gym,
 } from "iconoir-react";
-import { MOCK_SKILLS, MOCK_WORKOUT_TODAY, MOCK_MEALS_TODAY } from "@/lib/mock";
+import {
+  MOCK_SKILLS,
+  MOCK_WORKOUT_TODAY,
+  MOCK_MEALS_TODAY,
+  MOCK_DAILY_PLAN,
+  MOCK_CATEGORY_PROGRESS,
+  type PlanCategory,
+} from "@/lib/mock";
 import { roundSvg, radarNPolygon } from "@/app/components/radar";
 import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
-import { TAB_SKILL_DETAIL } from "@/app/constants";
+import { TAB_SKILL_DETAIL, TAB_TRAINING, TAB_DIET } from "@/app/constants";
 
 /* ═══════════════════════════════════════════════════════════════
    DESIGN TOKENS — aligned to design-system.md
@@ -62,11 +71,48 @@ export default function DashboardPage({
   setActiveTab,
 }: DashboardPageProps) {
   const { lang } = useLang();
-  const [hoveredSkillId, setHoveredSkillId] = useState<string | undefined>();
-  const mainPlanRadar = useMemo(
-    () => radarNPolygon(MOCK_SKILLS.map((s) => s.completionPercentage)),
-    [],
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | undefined>();
+
+  // Neural map: one axis per unique node in today's plan — skill OR bare category, deduped
+  type PlanNode = { id: string; name: string; color: string; value: number };
+  const planNodes = useMemo((): PlanNode[] => {
+    const seen = new Set<string>();
+    const result: PlanNode[] = [];
+    for (const entry of MOCK_DAILY_PLAN) {
+      const nodeId = entry.skillId ?? entry.category;
+      if (seen.has(nodeId)) continue;
+      seen.add(nodeId);
+      if (entry.skillId) {
+        const skill = MOCK_SKILLS.find((s) => s.id === entry.skillId);
+        if (skill)
+          result.push({ id: skill.id, name: skill.name.toUpperCase(), color: skill.color, value: skill.completionPercentage });
+      } else {
+        const meta = PLAN_CATEGORY_META[entry.category];
+        result.push({ id: entry.category, name: t(lang, meta.tagKey), color: meta.color, value: MOCK_CATEGORY_PROGRESS[entry.category] });
+      }
+    }
+    return result;
+  }, [lang]);
+
+  const mapRadar = useMemo(
+    () => radarNPolygon(planNodes.map((n) => n.value)),
+    [planNodes],
   );
+
+  const navigateToSkill = (skillId: string) => {
+    setSelectedSkillId?.(skillId);
+    setActiveTab?.(TAB_SKILL_DETAIL);
+  };
+
+  const navigateToPlanNode = (nodeId: string) => {
+    if (MOCK_SKILLS.some((s) => s.id === nodeId)) {
+      navigateToSkill(nodeId);
+    } else if (nodeId === "training") {
+      setActiveTab?.(TAB_TRAINING);
+    } else if (nodeId === "diet") {
+      setActiveTab?.(TAB_DIET);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -74,95 +120,68 @@ export default function DashboardPage({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
         {/* DAILY PLAN */}
         <Card className="lg:col-span-2">
-          <SectionLabel color={T.accent}>
+          <SectionLabel>
             {t(lang, "dashboard_plan").toUpperCase()}
           </SectionLabel>
-          <div className="flex flex-col gap-2 mt-5">
-            {/* TODO: [DATA] Plan items should come from mock.ts */}
-            <PlanItem
-              time="07:00"
-              title="Śniadanie"
-              tag="DIETA"
-              tagColor={T.accentViolet}
-              skillId={undefined}
-              hoveredSkillId={hoveredSkillId}
-            />
-            <PlanItem
-              time="09:00"
-              title="CS2 — Aim training (30 min)"
-              tag="CS2"
-              tagColor={T.accentYellow}
-              skillId="skill/cs2"
-              hoveredSkillId={hoveredSkillId}
-            />
-            <PlanItem
-              time="10:00"
-              title="Gitara — Hammer-on practice (15 min)"
-              tag="MUZYKA"
-              tagColor={T.accentViolet}
-              skillId="skill/guitar"
-              hoveredSkillId={hoveredSkillId}
-            />
-            <PlanItem
-              time="12:30"
-              title="Lunch"
-              tag="DIETA"
-              tagColor={T.accentViolet}
-              skillId={undefined}
-              hoveredSkillId={hoveredSkillId}
-            />
-            <PlanItem
-              time="16:00"
-              title="Siłownia — Push A"
-              tag="TRENING"
-              tagColor={T.accentGreen}
-              skillId={undefined}
-              hoveredSkillId={hoveredSkillId}
-            />
-            <PlanItem
-              time="19:00"
-              title="Produkcja — EQ session"
-              tag="MUZYKA"
-              tagColor={T.accentViolet}
-              active
-              skillId="skill/production"
-              hoveredSkillId={hoveredSkillId}
-            />
-            <PlanItem
-              time="21:00"
-              title="Kolacja"
-              tag="DIETA"
-              tagColor={T.accentViolet}
-              skillId={undefined}
-              hoveredSkillId={hoveredSkillId}
-            />
+          <div className="flex flex-col gap-1 mt-5">
+            {MOCK_DAILY_PLAN.map((entry) => (
+              <PlanItem
+                key={entry.id}
+                time={entry.time}
+                title={entry.title}
+                category={entry.category}
+                skillId={entry.skillId}
+                active={entry.active}
+                hoveredNodeId={hoveredNodeId}
+                onSkillClick={navigateToSkill}
+                onHoverNode={setHoveredNodeId}
+              />
+            ))}
           </div>
         </Card>
 
         {/* NEURAL MAP */}
         <Card>
-          <div className="flex items-center gap-2 mb-1">
-            <div
-              className="w-1.5 h-1.5 rounded-full"
-              style={{
-                backgroundColor: T.accent,
-                boxShadow: `0 0 6px ${T.accent}60`,
-              }}
-            />
-            <SectionLabel>
-              {t(lang, "dashboard_neural_map").toUpperCase()}
-            </SectionLabel>
-          </div>
-
+          <SectionLabel>{t(lang, "dashboard_neural_map").toUpperCase()}</SectionLabel>
           <div className="flex-1 flex items-center justify-center relative py-4">
             <svg
               viewBox="0 0 100 100"
-              className="w-full max-w-[260px] overflow-visible"
+              className="w-full max-w-[210px] overflow-visible"
             >
-              {/* Grid rings */}
+              <defs>
+                {/* Per-node neon glow filter */}
+                {planNodes.map((node) => (
+                  <filter
+                    key={node.id}
+                    id={`neon-node-${node.id.replace(/\//g, "-")}`}
+                    x="-120%"
+                    y="-120%"
+                    width="340%"
+                    height="340%"
+                  >
+                    <feGaussianBlur stdDeviation="3" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                ))}
+                {/* Broad soft glow for edge segments */}
+                <filter id="edge-glow" x="-80%" y="-80%" width="260%" height="260%">
+                  <feGaussianBlur stdDeviation="2.2" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              </defs>
+
+              {/* Grid rings — neutral white, barely visible */}
               {[40, 26.7, 13.3].map((r, ri) => {
-                const pts = [0, 60, 120, 180, 240, 300].map((deg) => {
-                  const rad = (deg * Math.PI) / 180;
+                const n = planNodes.length;
+                const pts = Array.from({ length: n }, (_, i) => {
+                  const angle = (i * 360) / n;
+                  const rad = (angle * Math.PI) / 180;
                   return `${roundSvg(50 + r * Math.sin(rad))},${roundSvg(50 - r * Math.cos(rad))}`;
                 });
                 return (
@@ -170,14 +189,17 @@ export default function DashboardPage({
                     key={ri}
                     points={pts.join(" ")}
                     fill="none"
-                    stroke={T.borderSubtle}
+                    stroke="rgba(255,255,255,0.07)"
                     strokeWidth="0.4"
                   />
                 );
               })}
-              {/* Grid spokes */}
-              {[0, 60, 120, 180, 240, 300].map((deg, i) => {
-                const rad = (deg * Math.PI) / 180;
+
+              {/* Grid spokes — lightly tinted in node's color */}
+              {planNodes.map((node, i) => {
+                const n = planNodes.length;
+                const angle = (i * 360) / n;
+                const rad = (angle * Math.PI) / 180;
                 const x = roundSvg(50 + 40 * Math.sin(rad));
                 const y = roundSvg(50 - 40 * Math.cos(rad));
                 return (
@@ -187,127 +209,158 @@ export default function DashboardPage({
                     y1="50"
                     x2={x}
                     y2={y}
-                    stroke={T.borderSubtle}
+                    stroke={node.color}
                     strokeWidth="0.4"
+                    opacity={0.20}
                   />
                 );
               })}
-              {/* Skill sectors — softer fill, cleaner stroke */}
-              {MOCK_SKILLS.map((s, i) => {
-                const next = (i + 1) % MOCK_SKILLS.length;
-                const thisPoint = mainPlanRadar.pts[i];
-                const nextPoint = mainPlanRadar.pts[next];
-                const isActive = hoveredSkillId === s.id;
-                return (
-                  <polygon
-                    key={`sector-${i}`}
-                    points={`50,50 ${thisPoint.x},${thisPoint.y} ${nextPoint.x},${nextPoint.y}`}
-                    fill={isActive ? `${s.color}30` : `${s.color}12`}
-                    stroke={s.color}
-                    strokeWidth={isActive ? "1" : "0.5"}
-                    strokeLinejoin="round"
-                    style={{ transition: "all 0.2s ease" }}
-                  />
-                );
-              })}
-              {/* Labels + dots */}
-              {MOCK_SKILLS.map((s, i) => {
-                const deg = (i * 360) / MOCK_SKILLS.length;
-                const rad = (deg * Math.PI) / 180;
-                const dist = 46;
-                const labelX = roundSvg(50 + dist * Math.sin(rad));
-                const labelY = roundSvg(50 - dist * Math.cos(rad));
-                const dot = mainPlanRadar.pts[i];
-                const isActive = hoveredSkillId === s.id;
+
+              {/* Node sectors — moderate color, not too heavy */}
+              {planNodes.map((node, i) => {
+                const n = planNodes.length;
+                const next = (i + 1) % n;
+                const thisPoint = mapRadar.pts[i];
+                const nextPoint = mapRadar.pts[next];
+                const isActive = hoveredNodeId === node.id;
                 return (
                   <g
-                    key={i}
+                    key={`sector-${node.id}`}
+                    style={{ cursor: "pointer" }}
+                    onMouseEnter={() => setHoveredNodeId(node.id)}
+                    onMouseLeave={() => setHoveredNodeId(undefined)}
+                    onClick={() => navigateToPlanNode(node.id)}
+                  >
+                    <polygon
+                      points={`50,50 ${thisPoint.x},${thisPoint.y} ${nextPoint.x},${nextPoint.y}`}
+                      fill={isActive ? `${node.color}38` : `${node.color}18`}
+                      stroke={node.color}
+                      strokeWidth={isActive ? "0.8" : "0.5"}
+                      strokeLinejoin="round"
+                      opacity={isActive ? 1 : 0.8}
+                      style={{ transition: "all 0.2s ease" }}
+                    />
+                  </g>
+                );
+              })}
+
+              {/* Radar shape — colored edge segments */}
+              {/* Soft glow behind each edge */}
+              {planNodes.map((node, i) => {
+                const next = (i + 1) % planNodes.length;
+                const p1 = mapRadar.pts[i];
+                const p2 = mapRadar.pts[next];
+                return (
+                  <line
+                    key={`glow-${i}`}
+                    x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
+                    stroke={node.color}
+                    strokeWidth="4"
+                    opacity={0.14}
+                    style={{ filter: "blur(3px)" }}
+                    aria-hidden="true"
+                  />
+                );
+              })}
+              {/* Translucent fill */}
+              <polygon
+                points={mapRadar.points}
+                fill="rgba(255,255,255,0.03)"
+                stroke="none"
+              />
+              {/* Sharp colored edge + subtle white overlay for crispness */}
+              {planNodes.map((node, i) => {
+                const next = (i + 1) % planNodes.length;
+                const p1 = mapRadar.pts[i];
+                const p2 = mapRadar.pts[next];
+                return (
+                  <line
+                    key={`edge-${i}`}
+                    x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
+                    stroke={node.color}
+                    strokeWidth="1.0"
+                    opacity={0.85}
+                    filter={`url(#edge-glow)`}
+                  />
+                );
+              })}
+
+              {/* Vertex dots + node labels */}
+              {planNodes.map((node, i) => {
+                const n = planNodes.length;
+                const deg = (i * 360) / n;
+                const rad = (deg * Math.PI) / 180;
+                const labelX = roundSvg(50 + 50 * Math.sin(rad));
+                const labelY = roundSvg(50 - 50 * Math.cos(rad));
+                const dot = mapRadar.pts[i];
+                const isActive = hoveredNodeId === node.id;
+                return (
+                  <g
+                    key={`dot-${node.id}`}
                     style={{ cursor: "pointer", outline: "none" }}
-                    onClick={() => {
-                      setSelectedSkillId?.(s.id);
-                      setActiveTab?.(TAB_SKILL_DETAIL);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        setSelectedSkillId?.(s.id);
-                        setActiveTab?.(TAB_SKILL_DETAIL);
-                      }
-                    }}
-                    onMouseEnter={() => setHoveredSkillId(s.id)}
-                    onMouseLeave={() => setHoveredSkillId(undefined)}
+                    onMouseEnter={() => setHoveredNodeId(node.id)}
+                    onMouseLeave={() => setHoveredNodeId(undefined)}
+                    onClick={() => navigateToPlanNode(node.id)}
                     role="button"
                     tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") navigateToPlanNode(node.id);
+                    }}
                   >
-                    <circle cx={dot.x} cy={dot.y} r="5" fill="transparent" />
-                    {isActive && (
-                      <circle
-                        cx={dot.x}
-                        cy={dot.y}
-                        r="4"
-                        fill="none"
-                        stroke={s.color}
-                        strokeWidth="0.5"
-                        opacity="0.5"
-                      />
-                    )}
+                    {/* Invisible wide hitbox */}
+                    <circle cx={dot.x} cy={dot.y} r="7" fill="transparent" />
+                    {/* Outer corona — only on hover */}
                     <circle
                       cx={dot.x}
                       cy={dot.y}
-                      r={isActive ? "2.2" : "1.4"}
-                      fill={s.color}
+                      r={isActive ? "5.5" : "3.5"}
+                      fill={node.color}
+                      opacity={isActive ? 0.16 : 0.08}
                       style={{ transition: "all 0.2s ease" }}
                     />
+                    {/* Inner glow ring */}
+                    <circle
+                      cx={dot.x}
+                      cy={dot.y}
+                      r={isActive ? "3.5" : "2.2"}
+                      fill={node.color}
+                      opacity={isActive ? 0.28 : 0.14}
+                      style={{ transition: "all 0.2s ease" }}
+                    />
+                    {/* Sharp dot */}
+                    <circle
+                      cx={dot.x}
+                      cy={dot.y}
+                      r={isActive ? "2.2" : "1.6"}
+                      fill={node.color}
+                      style={{ transition: "all 0.2s ease" }}
+                      filter={`url(#neon-node-${node.id.replace(/\//g, "-")})`}
+                    />
+                    {/* Node label — word-wrapped: one word per line */}
                     <text
                       x={labelX}
                       y={labelY}
-                      fill={isActive ? T.textPrimary : T.textSupporting}
+                      fill={isActive ? node.color : T.textSupporting}
                       fontSize="3.2"
                       fontFamily="var(--font-mono)"
                       textAnchor="middle"
-                      dominantBaseline="middle"
-                      letterSpacing="0.08em"
-                      style={{
-                        transition: "fill 0.2s ease",
-                        textTransform: "uppercase",
-                      }}
+                      letterSpacing="0.06em"
+                      style={{ transition: "fill 0.2s ease", userSelect: "none" }}
                     >
-                      {s.name.length > 8 ? (
-                        <>
-                          <tspan x={labelX} dy={-2}>
-                            {s.name.split(" ")[0]}
-                          </tspan>
-                          {s.name.split(" ").length > 1 && (
-                            <tspan x={labelX} dy="4">
-                              {s.name.split(" ").slice(1).join(" ")}
-                            </tspan>
-                          )}
-                        </>
-                      ) : (
-                        s.name
-                      )}
+                      {node.name.split(" ").map((word, wi, arr) => (
+                        <tspan
+                          key={wi}
+                          x={labelX}
+                          dy={wi === 0 ? (arr.length > 1 ? "-1.8" : "0") : "4"}
+                        >
+                          {word}
+                        </tspan>
+                      ))}
                     </text>
                   </g>
                 );
               })}
             </svg>
-          </div>
-
-          {/* Legend */}
-          <div className="mt-4 flex flex-col gap-1.5">
-            {MOCK_SKILLS.map((s) => (
-              <LegendItem
-                key={s.id}
-                color={s.color}
-                label={s.name}
-                value={`${s.completionPercentage}%`}
-                onClick={() => {
-                  setSelectedSkillId?.(s.id);
-                  setActiveTab?.(TAB_SKILL_DETAIL);
-                }}
-              />
-            ))}
-            {/* TODO: [DATA] Training skill should come from mock.ts */}
-            <LegendItem color={T.accentGreen} label="Trening" value="84%" />
           </div>
         </Card>
       </div>
@@ -357,7 +410,7 @@ export default function DashboardPage({
 
       {/* ───── MEAL PLAN ───── */}
       <Card className="mb-10">
-        <SectionLabel color={T.accent}>
+        <SectionLabel>
           {t(lang, "dashboard_diet").toUpperCase()}
         </SectionLabel>
         <div className="flex flex-col gap-2 mt-5">
@@ -392,9 +445,6 @@ export default function DashboardPage({
 
       {/* ───── SKILLS CARDS ───── */}
       <div className="mb-10">
-        <SectionLabel color={T.accent} className="mb-5">
-          {t(lang, "dashboard_skills")}
-        </SectionLabel>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {MOCK_SKILLS.map((s, idx) => {
             const aspects = s.aspects;
@@ -561,46 +611,89 @@ function SectionLabel({
   );
 }
 
-/** Plan timeline item */
+/* Category → accent color + i18n tag key + Iconoir icon */
+const PLAN_CATEGORY_META: Record<
+  PlanCategory,
+  { color: string; tagKey: "plan_cat_diet" | "plan_cat_music" | "plan_cat_training" | "plan_cat_gaming"; Icon: React.ComponentType<{ width?: number; height?: number; strokeWidth?: number; style?: React.CSSProperties }> }
+> = {
+  diet:     { color: T.accentViolet, tagKey: "plan_cat_diet",     Icon: Apple    },
+  music:    { color: T.accentCyan,   tagKey: "plan_cat_music",    Icon: MusicNote },
+  training: { color: T.accentGreen,  tagKey: "plan_cat_training", Icon: Gym      },
+  gaming:   { color: T.accentYellow, tagKey: "plan_cat_gaming",   Icon: Gamepad   },
+};
+
+/** Plan timeline item — sidebar-style hover: only icon + title light up, no bg change */
 function PlanItem({
   time,
   title,
-  tag,
-  tagColor,
-  active = false,
+  category,
   skillId,
-  hoveredSkillId,
+  active = false,
+  hoveredNodeId,
+  onSkillClick,
+  onHoverNode,
 }: {
   time: string;
   title: string;
-  tag: string;
-  tagColor: string;
-  active?: boolean;
+  category: PlanCategory;
   skillId?: string;
-  hoveredSkillId?: string;
+  active?: boolean;
+  hoveredNodeId?: string;
+  onSkillClick?: (skillId: string) => void;
+  onHoverNode?: (nodeId: string | undefined) => void;
 }) {
-  const isHovered = skillId && hoveredSkillId === skillId;
-  const isHighlighted = isHovered || active;
+  const { lang } = useLang();
+  const meta = PLAN_CATEGORY_META[category];
+
+  // Unique node id for this entry — matches the neural map axis
+  const nodeId = skillId ?? category;
+  const skill = skillId ? MOCK_SKILLS.find((s) => s.id === skillId) : undefined;
+  const nodeColor = skill ? skill.color : meta.color;
+  const tagLabel = skill ? skill.name.toUpperCase() : t(lang, meta.tagKey);
+
+  // Sidebar style: lit when this entry’s node is hovered on the map, or the item is active
+  const isLit = active || hoveredNodeId === nodeId;
+
+  const handleTagClick = (e: React.MouseEvent) => {
+    if (skillId && onSkillClick) {
+      e.stopPropagation();
+      onSkillClick(skillId);
+    }
+  };
+
   return (
     <div
       className="flex items-center justify-between py-2 px-3 transition-all duration-150"
       style={{
-        borderLeft: isHighlighted
-          ? `2px solid ${active ? T.accent : tagColor}`
-          : "2px solid transparent",
-        background: isHighlighted ? T.accentGlow : "transparent",
+        borderRadius: "7px",
+        // Active item keeps accent bar + subtle glow; hover has no bg (sidebar style)
+        borderLeft: active ? `2px solid ${T.accent}` : "2px solid transparent",
+        background: active ? T.accentGlow : "transparent",
       }}
+      onMouseEnter={() => onHoverNode?.(nodeId)}
+      onMouseLeave={() => onHoverNode?.(undefined)}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
+        {/* Category icon — turns accent on lit (sidebar style) */}
+        <meta.Icon
+          width={13}
+          height={13}
+          strokeWidth={1.8}
+          style={{
+            color: isLit ? nodeColor : T.textSupporting,
+            flexShrink: 0,
+            transition: "color 0.15s ease",
+          }}
+        />
         <span
-          className="text-[11px] font-mono tabular-nums"
+          className="text-[11px] font-mono tabular-nums w-10 shrink-0"
           style={{ color: active ? T.accent : T.textSupporting }}
         >
           {time}
         </span>
         {active && (
           <div
-            className="w-1.5 h-1.5 rounded-full"
+            className="w-1.5 h-1.5 rounded-full shrink-0"
             style={{
               backgroundColor: T.accent,
               boxShadow: `0 0 6px ${T.accent}80`,
@@ -608,15 +701,16 @@ function PlanItem({
           />
         )}
         <span
-          className="text-[13px] font-sans"
-          style={{ color: active ? T.textPrimary : T.textSecondary }}
+          className="text-[13px] font-sans transition-colors duration-150"
+          style={{ color: isLit ? T.textPrimary : T.textSecondary }}
         >
           {title}
         </span>
       </div>
-      {/* Tag — Orbitron font, no border, top-edge gloss, neon-flicker on hover */}
+      {/* Tag — Orbitron font, no border, top-edge gloss, neon-flicker on hover
+          Clickable when linked to a skill → navigates to skill detail */}
       <span
-        className="tag-neon relative overflow-hidden inline-block"
+        className="tag-neon relative overflow-hidden inline-block shrink-0"
         style={{
           fontFamily: "var(--font-accent)",
           fontSize: "8px",
@@ -625,9 +719,14 @@ function PlanItem({
           textTransform: "uppercase",
           padding: "5px 10px",
           borderRadius: "7px",
-          color: tagColor,
-          background: `${tagColor}1F`,
+          color: nodeColor,
+          background: `${nodeColor}1F`,
+          cursor: skill ? "pointer" : "default",
         }}
+        onClick={handleTagClick}
+        role={skill ? "button" : undefined}
+        tabIndex={skill ? 0 : undefined}
+        onKeyDown={skill && onSkillClick ? (e) => { if (e.key === "Enter") onSkillClick(skillId!); } : undefined}
       >
         {/* Top-edge gloss */}
         <span
@@ -644,7 +743,7 @@ function PlanItem({
             borderRadius: "7px 7px 0 0",
           }}
         />
-        {tag}
+        {tagLabel}
       </span>
     </div>
   );

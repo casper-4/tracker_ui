@@ -1,19 +1,21 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useLang } from "@/lib/language-context";
+import { t } from "@/lib/i18n";
 
-// Preset palette — matches skill colors from copilot-instructions
+// Design system accents + common skill colors
 export const PRESET_COLORS = [
+  "#00FF9F",
+  "#F3E600",
+  "#55EAD4",
+  "#FF2060",
+  "#C840FF",
   "#a855f7",
   "#ec4899",
-  "#06b6d4",
-  "#f59e0b",
+  "#3b82f6",
   "#f97316",
   "#22c55e",
-  "#d946ef",
-  "#facc15",
-  "#3b82f6",
-  "#ef4444",
 ];
 
 // TODO: [UI] add hex validation & conversion helper (support rgb/hsl input → hex output)
@@ -29,6 +31,7 @@ type Props = {
 };
 
 export default function SkillColorPicker({ color, onChange }: Props) {
+  const { lang } = useLang();
   const [isOpen, setIsOpen] = useState(false);
   const [showCustom, setShowCustom] = useState(false);
   const [customHex, setCustomHex] = useState("");
@@ -78,37 +81,66 @@ export default function SkillColorPicker({ color, onChange }: Props) {
       }}
       onMouseLeave={scheduleClose}
     >
-      {/* Color swatch circle */}
+      {/* Trigger button — swatch + hex code */}
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
-        className="w-9 h-9 rounded-full border-2 border-[#333] hover:border-[#555] transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#facc15] hover:scale-110"
-        style={{ backgroundColor: color }}
-      />
+        className="flex items-center gap-2 px-3 py-2 rounded-[7px] border border-white/9 hover:border-white/20 active:scale-[0.96] transition-all cursor-pointer focus:outline-none"
+        style={{ background: "rgba(255,255,255,0.04)" }}
+      >
+        <span
+          className="w-4 h-4 rounded-full shrink-0"
+          style={{
+            backgroundColor: color,
+            boxShadow: `0 0 6px ${color}80`,
+          }}
+        />
+        <span className="w-px h-3 bg-white/10 shrink-0" />
+        <span
+          className="text-[9px] uppercase tracking-[0.15em] font-mono"
+          style={{ color: "rgba(255,255,255,0.3)" }}
+        >
+          {color.toUpperCase()}
+        </span>
+      </button>
 
       {isOpen && (
         <div
-          className="absolute top-full left-0 mt-2 z-50"
+          className="absolute top-full right-0 mt-2 z-50"
           onMouseEnter={() => {
             clearClose();
             setIsOpen(true);
           }}
           onMouseLeave={scheduleClose}
         >
-          <div className="p-3 rounded bg-[#1a1a1a] border border-[#333] shadow-xl w-[180px]">
+          <div
+            className="p-4 rounded-[14px] shadow-xl w-[200px]"
+            style={{
+              background:
+                "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+              border: "1px solid rgba(255,255,255,0.09)",
+              borderTop: "1px solid rgba(255,255,255,0.16)",
+              backdropFilter: "blur(24px)",
+            }}
+          >
             {!showCustom ? (
               <>
-                <div className="grid grid-cols-5 gap-2 mb-3">
+                <p className="text-[9px] text-white/30 uppercase tracking-[0.1em] mb-3">
+                  {t(lang, "skill_color")}
+                </p>
+                <div className="grid grid-cols-5 gap-2.5 mb-3">
                   {PRESET_COLORS.map((preset) => (
                     <button
                       key={preset}
                       type="button"
                       onClick={() => handlePresetSelect(preset)}
-                      className="w-7 h-7 rounded-full border-2 transition-all hover:scale-110 focus:outline-none"
+                      className="w-7 h-7 rounded-full transition-all hover:scale-110 active:scale-95 focus:outline-none"
                       style={{
                         backgroundColor: preset,
-                        borderColor:
-                          preset === color ? "#facc15" : "transparent",
+                        boxShadow:
+                          preset === color
+                            ? `0 0 10px ${preset}99, 0 0 0 2px ${preset}60`
+                            : "none",
                       }}
                     />
                   ))}
@@ -116,13 +148,16 @@ export default function SkillColorPicker({ color, onChange }: Props) {
                 <button
                   type="button"
                   onClick={() => setShowCustom(true)}
-                  className="w-full text-left text-[10px] uppercase tracking-widest text-[#666] hover:text-[#888] py-1 transition-colors"
+                  className="w-full text-left text-[10px] uppercase tracking-[0.08em] text-white/30 hover:text-white/55 border-t border-white/6 pt-2.5 mt-1 transition-colors"
                 >
-                  Custom
+                  {t(lang, "color_custom")}
                 </button>
               </>
             ) : (
               <>
+                <p className="text-[9px] text-white/30 uppercase tracking-[0.1em] mb-3">
+                  {t(lang, "color_custom")}
+                </p>
                 <div className="flex items-center justify-center mb-3">
                   <input
                     type="color"
@@ -132,10 +167,10 @@ export default function SkillColorPicker({ color, onChange }: Props) {
                       onChange(e.target.value);
                       // TODO: [DATA] save skill color to persistence
                     }}
-                    className="w-full h-8 cursor-pointer rounded border border-[#333] bg-transparent"
+                    className="w-full h-8 cursor-pointer rounded-[7px] border border-white/9 bg-transparent"
                   />
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-1.5">
                   <input
                     type="text"
                     value={customHex}
@@ -143,24 +178,24 @@ export default function SkillColorPicker({ color, onChange }: Props) {
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleCustomConfirm();
                     }}
-                    placeholder="#facc15"
+                    placeholder="#F3E600"
                     maxLength={7}
-                    className="flex-1 bg-[#0a0a0a] border border-[#333] text-[11px] font-mono text-[#e0e0e0] placeholder-[#444] px-2 py-1 rounded focus:outline-none focus:border-[#facc15]"
+                    className="flex-1 bg-[#0A0A0A] border border-white/9 text-[11px] font-mono text-white/70 placeholder-white/18 px-2 py-1.5 rounded-[7px] focus:outline-none focus:border-white/30 transition-colors"
                   />
                   <button
                     type="button"
                     onClick={handleCustomConfirm}
-                    className="px-2 py-1 text-[10px] uppercase tracking-widest bg-[#facc15]/10 hover:bg-[#facc15]/20 text-[#facc15] border border-[#facc15]/30 rounded transition-colors"
+                    className="px-3 py-1.5 text-[10px] uppercase tracking-[0.08em] font-bold bg-[#F3E600]/10 hover:bg-[#F3E600]/20 text-[#F3E600] border border-[#F3E600]/30 rounded-[7px] transition-colors active:scale-[0.96]"
                   >
-                    OK
+                    {t(lang, "color_confirm")}
                   </button>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowCustom(false)}
-                  className="mt-2 w-full text-left text-[10px] uppercase tracking-widest text-[#444] hover:text-[#666] transition-colors"
+                  className="mt-2.5 w-full text-left text-[10px] uppercase tracking-[0.08em] text-white/20 hover:text-white/40 transition-colors"
                 >
-                  ← back
+                  {t(lang, "color_back")}
                 </button>
               </>
             )}
@@ -170,3 +205,4 @@ export default function SkillColorPicker({ color, onChange }: Props) {
     </div>
   );
 }
+

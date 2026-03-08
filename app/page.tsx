@@ -68,8 +68,8 @@ export default function TrackerUI() {
     time: string;
   } | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  // 60px collapsed + 16px left-4 + 12px gap  |  224px expanded + 16px + 12px
-  const contentPadding = sidebarCollapsed ? 88 : 252;
+  // 60px collapsed + 40px left-10 + 12px gap  |  240px expanded + 40px + 12px
+  const contentPadding = sidebarCollapsed ? 112 : 292;
 
   const getSkillColor = (id?: string): string => {
     if (!id) return "#666666";

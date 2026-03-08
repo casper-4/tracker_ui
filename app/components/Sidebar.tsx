@@ -30,7 +30,12 @@ import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
 
 const navItems = [
-  { icon: ViewGrid, labelKey: "nav_dashboard" as const, tab: TAB_DASHBOARD, accentColor: "#00FF9F" },
+  {
+    icon: ViewGrid,
+    labelKey: "nav_dashboard" as const,
+    tab: TAB_DASHBOARD,
+    accentColor: "#00FF9F",
+  },
   {
     icon: Brain,
     labelKey: "nav_skills" as const,
@@ -38,11 +43,36 @@ const navItems = [
     accentColor: "#F3E600",
     subMenu: MOCK_SKILLS,
   },
-  { icon: Flash, labelKey: "nav_quests" as const, tab: TAB_QUESTS, accentColor: "#C840FF" },
-  { icon: Calendar, labelKey: "nav_calendar" as const, tab: TAB_CALENDAR, accentColor: "#55EAD4" },
-  { icon: Activity, labelKey: "nav_training" as const, tab: TAB_TRAINING, accentColor: "#F3E600" },
-  { icon: Apple, labelKey: "nav_diet" as const, tab: TAB_DIET, accentColor: "#55EAD4" },
-  { icon: Heart, labelKey: "nav_health" as const, tab: TAB_HEALTH, accentColor: "#FF2060" },
+  {
+    icon: Flash,
+    labelKey: "nav_quests" as const,
+    tab: TAB_QUESTS,
+    accentColor: "#C840FF",
+  },
+  {
+    icon: Calendar,
+    labelKey: "nav_calendar" as const,
+    tab: TAB_CALENDAR,
+    accentColor: "#55EAD4",
+  },
+  {
+    icon: Activity,
+    labelKey: "nav_training" as const,
+    tab: TAB_TRAINING,
+    accentColor: "#F3E600",
+  },
+  {
+    icon: Apple,
+    labelKey: "nav_diet" as const,
+    tab: TAB_DIET,
+    accentColor: "#55EAD4",
+  },
+  {
+    icon: Heart,
+    labelKey: "nav_health" as const,
+    tab: TAB_HEALTH,
+    accentColor: "#FF2060",
+  },
   {
     icon: Settings,
     labelKey: "nav_preferences" as const,
@@ -50,6 +80,43 @@ const navItems = [
     accentColor: "#C840FF",
   },
 ];
+
+function SkillRow({
+  skill,
+  isActive,
+  onClick,
+}: {
+  skill: { id: string; name: string; color: string };
+  isActive: boolean;
+  onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const dotColor = isActive || hovered ? skill.color : "rgba(255,255,255,0.2)";
+  const textColor = isActive ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.35)";
+
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="w-full text-left py-1.5 px-2 rounded-[5px] transition-all flex items-center gap-2"
+    >
+      <span
+        className="shrink-0 w-1.5 h-1.5 rounded-full transition-all"
+        style={{
+          backgroundColor: dotColor,
+          boxShadow: isActive || hovered ? `0 0 6px ${skill.color}99` : "none",
+        }}
+      />
+      <span
+        className="text-[10px] uppercase tracking-widest transition-colors"
+        style={{ color: textColor }}
+      >
+        {skill.name}
+      </span>
+    </button>
+  );
+}
 
 function NavItem({
   icon: Icon,
@@ -66,30 +133,33 @@ function NavItem({
   collapsed?: boolean;
   accentColor?: string;
 }) {
+  const [hovered, setHovered] = useState(false);
+  const iconColor = active || hovered ? accentColor : "rgba(255,255,255,0.35)";
+
   return (
     <button
       onClick={onClick}
       title={collapsed ? label : undefined}
-      style={
-        active
-          ? {
-              color: accentColor,
-              borderColor: accentColor,
-              backgroundColor: `${accentColor}0d`,
-            }
-          : undefined
-      }
-      className={`w-full flex items-center border border-transparent transition-all rounded-[7px] ${
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className={`w-full flex items-center transition-all rounded-[7px] ${
         collapsed ? "justify-center px-0 py-3" : "gap-4 px-4 py-3"
-      } ${
-        active
-          ? ""
-          : "text-white/55 hover:text-white/70 hover:bg-white/[0.04]"
       }`}
     >
-      <Icon width={16} height={16} strokeWidth={1.8} className="shrink-0" />
+      <Icon
+        width={16}
+        height={16}
+        strokeWidth={1.8}
+        className="shrink-0 transition-colors"
+        style={{ color: iconColor }}
+      />
       {!collapsed && (
-        <span className="text-[13px] font-medium uppercase tracking-widest whitespace-nowrap">
+        <span
+          className="text-[13px] font-medium uppercase tracking-widest whitespace-nowrap transition-colors"
+          style={{
+            color: active ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.35)",
+          }}
+        >
           {label}
         </span>
       )}
@@ -124,9 +194,9 @@ const Sidebar = ({
 
   return (
     <motion.aside
-      animate={{ width: collapsed ? 60 : 224 }}
+      animate={{ width: collapsed ? 60 : 240 }}
       transition={{ duration: 0.22, ease: "easeInOut" }}
-      className="fixed left-4 top-4 bottom-4 z-50 flex flex-col justify-between overflow-hidden rounded-2xl"
+      className="fixed left-10 top-1/2 -translate-y-1/2 z-50 flex flex-col overflow-hidden rounded-2xl"
       style={{
         background:
           "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
@@ -138,8 +208,12 @@ const Sidebar = ({
     >
       <div>
         {/* Header / Logo */}
-        <div className={`flex items-center justify-center border-b border-white/[0.07] box-border ${collapsed ? "h-auto py-4" : "h-20 min-h-[5rem]"}`}>
-          <div className={`dot-loader flex gap-[5px] ${collapsed ? "flex-col items-center" : "flex-row items-center"}`}>
+        <div
+          className={`flex items-center justify-center border-b border-white/[0.07] box-border ${collapsed ? "h-auto py-4" : "h-20 min-h-[5rem]"}`}
+        >
+          <div
+            className={`dot-loader flex gap-[5px] ${collapsed ? "flex-col items-center" : "flex-row items-center"}`}
+          >
             <span />
             <span />
             <span />
@@ -150,9 +224,6 @@ const Sidebar = ({
 
         {/* Nav */}
         <div className={`mt-6 ${collapsed ? "px-0" : "px-4"}`}>
-          {!collapsed && (
-            <h2 className="text-[10px] text-white/20 uppercase tracking-[0.08em] mb-4 px-2">{`// NAV`}</h2>
-          )}
           <nav className="flex flex-col gap-1">
             {navItems.map((item) =>
               item.subMenu ? (
@@ -179,11 +250,7 @@ const Sidebar = ({
                         animate={{ opacity: 1, height: "auto", y: 0 }}
                         exit={{ opacity: 0, height: 0, y: -6 }}
                         transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                        style={{
-                          backdropFilter: "blur(24px)",
-                          WebkitBackdropFilter: "blur(24px)",
-                        }}
-                        className="overflow-hidden bg-[#0A0A0A]/80 border border-white/10 ml-4 mt-1 rounded-[7px]"
+                        className="overflow-hidden ml-4 mt-1"
                       >
                         <ul className="py-2 px-2 flex flex-col gap-0.5">
                           {item.subMenu.map((skill) => {
@@ -192,40 +259,14 @@ const Sidebar = ({
                               selectedSkillId === skill.id;
                             return (
                               <li key={skill.id}>
-                                <button
+                                <SkillRow
+                                  skill={skill}
+                                  isActive={isActive}
                                   onClick={() => {
                                     setSelectedSkillId?.(skill.id);
                                     setActiveTab(TAB_SKILL_DETAIL);
                                   }}
-                                  style={
-                                    isActive
-                                      ? { backgroundColor: `${skill.color}0d` }
-                                      : undefined
-                                  }
-                                  className={`group/row w-full text-left py-1.5 px-2 rounded-[5px] transition-all flex items-center gap-2 hover:bg-white/[0.04]`}
-                                >
-                                  {/* dot indicator */}
-                                  <span
-                                    className="shrink-0 w-1.5 h-1.5 rounded-full transition-all"
-                                    style={{
-                                      backgroundColor: skill.color,
-                                      opacity: isActive ? 1 : 0.3,
-                                      boxShadow: isActive
-                                        ? `0 0 6px ${skill.color}99`
-                                        : "none",
-                                    }}
-                                  />
-                                  <span
-                                    className="text-[10px] uppercase tracking-widest transition-colors"
-                                    style={{
-                                      color: isActive
-                                        ? skill.color
-                                        : "rgba(255,255,255,0.55)",
-                                    }}
-                                  >
-                                    {skill.name}
-                                  </span>
-                                </button>
+                                />
                               </li>
                             );
                           })}
@@ -252,7 +293,7 @@ const Sidebar = ({
 
       {/* Footer */}
       <div
-        className={`border-t border-white/[0.07] flex items-center ${
+        className={`border-t border-white/[0.07] flex items-center mt-6 ${
           collapsed ? "justify-center p-4" : "justify-between p-6"
         }`}
       >

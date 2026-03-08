@@ -20,8 +20,13 @@ export const translations = {
     dashboard_training: "Dzisiejszy trening",
     dashboard_diet: "Jadłospis",
     dashboard_skills: "// Umiejętności",
+    plan_cat_diet: "DIETA",
+    plan_cat_music: "MUZYKA",
+    plan_cat_training: "TRENING",
+    plan_cat_gaming: "GAMING",
 
     // Skills
+    skill_add_new: "Dodaj nową umiejętność",
     skill_next_quest: "Next Quest",
     skill_progress: "Progress",
     skill_aspects: "Aspekty",
@@ -32,6 +37,11 @@ export const translations = {
     skill_no_history: "Brak danych historycznych.",
     skill_pinned_hint:
       "Brak przypiętych questów. Użyj ikony pinezki lub przeciągnij tutaj.",
+    skill_color: "Kolor",
+    skill_target: "Cel",
+    color_custom: "Własny",
+    color_confirm: "OK",
+    color_back: "← Wróć",
 
     // Quests
     quests_title: "Questy",
@@ -256,8 +266,13 @@ export const translations = {
     dashboard_training: "Today's Training",
     dashboard_diet: "Meal Plan",
     dashboard_skills: "// Skills",
+    plan_cat_diet: "DIET",
+    plan_cat_music: "MUSIC",
+    plan_cat_training: "TRAINING",
+    plan_cat_gaming: "GAMING",
 
     // Skills
+    skill_add_new: "Add new skill",
     skill_next_quest: "Next Quest",
     skill_progress: "Progress",
     skill_aspects: "Aspects",
@@ -267,6 +282,11 @@ export const translations = {
     skill_no_aspects: "No aspects configured.",
     skill_no_history: "No history data.",
     skill_pinned_hint: "No pinned quests. Use the pin icon or drag here.",
+    skill_color: "Color",
+    skill_target: "Target",
+    color_custom: "Custom",
+    color_confirm: "OK",
+    color_back: "← Back",
 
     // Quests
     quests_title: "Quests",

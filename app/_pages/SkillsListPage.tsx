@@ -14,6 +14,7 @@ import {
   PenTablet,
   Gamepad,
   NavArrowRight,
+  Plus,
 } from "iconoir-react";
 import { MOCK_SKILLS } from "@/lib/mock";
 import type { Skill } from "@/lib/mock";
@@ -61,16 +62,6 @@ export default function SkillsListPage({ setSelectedSkillId, setActiveTab }: Pro
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Page header */}
-      <div className="mb-8">
-        <h1
-          className="text-2xl font-bold leading-none tracking-tight"
-          style={{ color: T.textPrimary }}
-        >
-          {t(lang, "nav_skills")}
-        </h1>
-      </div>
-
       {MOCK_SKILLS.length === 0 ? (
         <p className="text-[13px]" style={{ color: T.textTertiary }}>
           {t(lang, "no_skills")}
@@ -93,6 +84,7 @@ export default function SkillsListPage({ setSelectedSkillId, setActiveTab }: Pro
               />
             );
           })}
+          <AddSkillCard lang={lang} index={MOCK_SKILLS.length} />
         </div>
       )}
     </div>
@@ -148,7 +140,6 @@ function SkillCard({
     targetPercentage,
     nextQuest,
     color,
-    aspects,
   } = skill;
 
   /* staggered reveal; fast transition after reveal */
@@ -313,29 +304,6 @@ function SkillCard({
         </span>
       </div>
 
-      {/* ── Aspects mini row ── */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 mb-5 relative z-10">
-        <span
-          className="text-[10px] uppercase tracking-[0.12em] w-full"
-          style={{ color: T.textSupporting }}
-        >
-          {t(lang, "skill_aspects")}
-        </span>
-        {aspects.map((asp) => (
-          <span
-            key={asp.id}
-            className="flex items-center gap-1 text-[11px]"
-            style={{ color: T.textSecondary }}
-          >
-            <span
-              className="inline-block w-1.5 h-1.5 rounded-full flex-shrink-0"
-              style={{ background: asp.color }}
-            />
-            {asp.name}
-          </span>
-        ))}
-      </div>
-
       {/* ── Next quest ── */}
       <div
         className="relative z-10 pt-3 flex items-start justify-between gap-2"
@@ -358,6 +326,122 @@ function SkillCard({
           strokeWidth={1.8}
           style={{ color: T.textSupporting, flexShrink: 0, marginTop: "2px" }}
         />
+      </div>
+    </div>
+  );
+}
+
+function AddSkillCard({
+  lang,
+  index,
+}: {
+  lang: "pl" | "en";
+  index: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  const revealTransition = `opacity 0.5s ease ${index * 70}ms, transform 0.5s ease ${index * 70}ms`;
+  const interactiveTransition = "transform 0.2s ease";
+
+  const handleClick = () => {
+    // TODO: [UI] open "create new skill" form / modal
+  };
+
+  return (
+    <div
+      ref={ref}
+      role="button"
+      tabIndex={0}
+      onClick={handleClick}
+      onKeyDown={(e) => e.key === "Enter" && handleClick()}
+      className="flex flex-col items-center justify-center cursor-pointer relative overflow-hidden min-h-[200px]"
+      style={{
+        background:
+          "linear-gradient(160deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 60%, rgba(0,0,0,0.2) 100%)",
+        border: "1px dashed rgba(255,255,255,0.12)",
+        borderRadius: "14px",
+        backdropFilter: "blur(24px)",
+        padding: "1.25rem",
+        opacity: visible ? 1 : 0,
+        transform: pressed
+          ? "scale(0.994)"
+          : hovered
+            ? "translateY(-2px)"
+            : visible
+              ? "translateY(0)"
+              : "translateY(18px)",
+        transition: visible ? interactiveTransition : revealTransition,
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => {
+        setHovered(false);
+        setPressed(false);
+        setMousePos(null);
+      }}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+    >
+      {/* Mouse-follow light */}
+      {mousePos && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: `radial-gradient(280px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.02), transparent 70%)`,
+            pointerEvents: "none",
+            borderRadius: "14px",
+          }}
+        />
+      )}
+
+      <div className="flex flex-col items-center gap-3 relative z-10">
+        <div
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: "50%",
+            border: "1px dashed rgba(255,255,255,0.2)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Plus width={20} height={20} strokeWidth={1.8} style={{ color: "rgba(255,255,255,0.3)" }} />
+        </div>
+        <span
+          className="text-[13px] text-center"
+          style={{ color: "rgba(255,255,255,0.3)" }}
+        >
+          {t(lang, "skill_add_new")}
+        </span>
       </div>
     </div>
   );

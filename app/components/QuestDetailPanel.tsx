@@ -587,7 +587,11 @@ export default function QuestDetailPanel({
                           boxShadow: `0 0 6px ${statusColor}90`,
                         }}
                       />
-                      {t(lang, STATUS_OPTIONS.find((o) => o.value === quest.status)!.labelKey)}
+                      {t(
+                        lang,
+                        STATUS_OPTIONS.find((o) => o.value === quest.status)!
+                          .labelKey,
+                      )}
                     </div>
                     <NavArrowDown
                       width={14}
@@ -596,7 +600,9 @@ export default function QuestDetailPanel({
                       style={{
                         opacity: 0.6,
                         transition: "transform 0.15s ease",
-                        transform: statusDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                        transform: statusDropdownOpen
+                          ? "rotate(180deg)"
+                          : "rotate(0deg)",
                       }}
                     />
                   </button>
@@ -628,8 +634,12 @@ export default function QuestDetailPanel({
                               }}
                               className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px] font-semibold transition-all"
                               style={{
-                                color: isSelected ? optColor : "rgba(255,255,255,0.55)",
-                                background: isSelected ? `${optColor}10` : "transparent",
+                                color: isSelected
+                                  ? optColor
+                                  : "rgba(255,255,255,0.55)",
+                                background: isSelected
+                                  ? `${optColor}10`
+                                  : "transparent",
                               }}
                               onMouseEnter={(e) => {
                                 e.currentTarget.style.background = `${optColor}18`;
@@ -649,7 +659,9 @@ export default function QuestDetailPanel({
                                 style={{
                                   background: optColor,
                                   opacity: isSelected ? 1 : 0.4,
-                                  boxShadow: isSelected ? `0 0 6px ${optColor}80` : "none",
+                                  boxShadow: isSelected
+                                    ? `0 0 6px ${optColor}80`
+                                    : "none",
                                 }}
                               />
                               {t(lang, opt.labelKey)}

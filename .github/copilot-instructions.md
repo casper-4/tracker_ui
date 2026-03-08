@@ -1,129 +1,222 @@
-Tracker UI — Copilot Instructions
-You are a senior frontend developer working on Tracker UI (tracker-ui/).
+# Tracker UI — Copilot Instructions
+
+You are a senior frontend developer working on Tracker UI (`tracker-ui/`).
 This is a UI-only playground — no backend, no real persistence, no API calls.
 The goal is to design and iterate on the UI. Data and logic come later.
 
-Project structure
+---
+
+## Project structure
+
+```
 tracker-ui/
-app/
-_pages/ ← full page views (one file per route)
-components/ ← reusable components
-constants.ts ← TAB_\* constants for routing
-page.tsx ← main router (useState-based tab switching)
-layout.tsx ← fonts, LanguageProvider wrapper
-globals.css ← design tokens, custom-scrollbar
-lib/
-mock.ts ← ONLY source of data in this project
-i18n.ts ← ONLY source of UI strings (pl + en)
-language-context.tsx ← useLang() hook + LanguageProvider
-utils.ts ← cn() helper
-components/
-radar.ts ← radarNPolygon, roundSvg SVG helpers
+  app/
+    _pages/          ← full page views (one file per route)
+    components/      ← reusable components
+    constants.ts     ← TAB_* constants for routing
+    page.tsx         ← main router (useState-based tab switching)
+    layout.tsx       ← fonts, LanguageProvider wrapper
+    globals.css      ← design tokens, custom-scrollbar
+  lib/
+    mock.ts          ← ONLY source of data in this project
+    i18n.ts          ← ONLY source of UI strings (pl + en)
+    language-context.tsx ← useLang() hook + LanguageProvider
+    utils.ts         ← cn() helper
+  components/
+    radar.ts         ← radarNPolygon, roundSvg SVG helpers
+  design-system.md   ← visual source of truth ← READ THIS FIRST
+```
 
-Absolute rules — never break these
+---
 
-No persistence — no localStorage, no sessionStorage, no cookies, no fetch, no API calls
-All data from lib/mock.ts — never hardcode data inline in components
-All UI strings from lib/i18n.ts — never hardcode visible text in components
-All code in English — variable names, function names, file names, type names, comments
-No "task" or "Task" anywhere — it's always "quest" / "Quest"
-Preserve visual style — dark theme, #050505 bg, #1f1f1f borders, #facc15 accent, Tailwind only
-No new dependencies — use what's already installed: lucide-react, framer-motion, recharts, clsx, tailwind-merge
+## Absolute rules — never break these
 
-How to handle data
-Adding new properties to mock data
-When a UI element needs data that doesn't exist yet in lib/mock.ts, always add it to the mock first, then use it in the component. Never invent inline data.
-Example — if you need a streak field on a Skill:
-typescript// lib/mock.ts — add to Skill type AND to every skill object
+- **No persistence** — no localStorage, no sessionStorage, no cookies, no fetch, no API calls
+- **All data from `lib/mock.ts`** — never hardcode data inline in components
+- **All UI strings from `lib/i18n.ts`** — never hardcode visible text in components
+- **All code in English** — variable names, function names, file names, type names, comments
+- No "task" or "Task" anywhere — it's always "quest" / "Quest"
+- **No new dependencies** — use what's already installed: `iconoir-react`, `framer-motion`, `recharts`, `clsx`, `tailwind-merge`
+- **Icons: Iconoir only** — never lucide-react, heroicons, or anything else
+
+---
+
+## How to handle data
+
+### Adding new properties to mock data
+
+When a UI element needs data that doesn't exist yet in `lib/mock.ts`, always add it to the mock first, then use it in the component. Never invent inline data.
+
+```typescript
+// lib/mock.ts — add to type AND to every object
 export type Skill = {
-...
-streak: number; // days in a row
+  // ...
+  streak: number; // days in a row
 };
 
 export const MOCK_SKILLS: Skill[] = [
-{ id: "skill/guitar", ..., streak: 12 },
-{ id: "skill/vocals", ..., streak: 4 },
-...
+  { id: "skill/guitar", ..., streak: 12 },
+  { id: "skill/vocals", ..., streak: 4 },
 ];
-Adding new mock entities
-If you need a new data category (e.g. workout history, mood log), add a new exported const to lib/mock.ts with realistic placeholder values. Always type it properly.
-TODO comments
-When you remove logic or leave something for later, always add:
+```
 
-// TODO: [DATA] description — for persistence/data logic to implement later
-// TODO: [UI] description — for UI elements not yet designed
-// TODO: [ELECTRON] description — for Electron IPC calls to add later
+### Adding new mock entities
 
-How to handle UI strings
-All visible text must go through i18n. When you need a new string:
+If you need a new data category (e.g. workout history, mood log), add a new exported `const` to `lib/mock.ts` with realistic placeholder values. Always type it properly.
 
-Add the key to BOTH pl and en objects in lib/i18n.ts
-Use t(lang, "key") in the component
-Get lang from const { lang } = useLang()
+### TODO comments
 
-Example:
-typescript// lib/i18n.ts
+```typescript
+// TODO: [DATA]     — persistence/data logic to implement later
+// TODO: [UI]       — UI elements not yet designed
+// TODO: [ELECTRON] — Electron IPC calls to add later
+```
+
+---
+
+## How to handle UI strings
+
+All visible text must go through i18n:
+
+```typescript
+// lib/i18n.ts
 pl: { training_streak: "Seria dni" }
 en: { training_streak: "Day streak" }
 
 // component
 const { lang } = useLang();
 <span>{t(lang, "training_streak")}</span>
+```
 
-Visual design system
-Colors
-bg-primary: #050505
-bg-card: #0a0a0a
-bg-hover: #0d0d0d
-border: #1f1f1f
-border-hover: #333
-text-muted: #666
-text-secondary:#888
-text-primary: #e0e0e0
-accent: #facc15 (yellow — main accent)
-Skill colors (use these, don't invent new ones)
-Guitar: #a855f7
-Vocals: #ec4899
-Production: #06b6d4
-Songwriting: #f59e0b
-Counter-Strike:#f97316
-Training: #22c55e
-Diet: #d946ef
-Typography
+---
 
-Font sans: Inter Tight (via --font-sans)
-Font mono: JetBrains Mono (via --font-mono)
-Labels/tags: text-[10px] uppercase tracking-widest
-Body: text-sm
-Headings: text-lg font-bold
+## Visual design system
 
-Component patterns
+> Full specification lives in `design-system.md`. Read it before making any visual decisions.
+> Below is a quick reference. If there's a conflict, `design-system.md` wins.
 
-Cards: border border-[#1f1f1f] bg-[#0a0a0a] p-6
-Hover: hover:border-[#333] hover:bg-[#0d0d0d] transition-colors
-Active/selected: border-[#facc15] bg-[#facc15]/5
-Progress bars: h-1 or h-2 with bg-[#1f1f1f] track, colored fill
-Tags/badges: text-[10px] px-1.5 py-0.5 border uppercase tracking-wider
+### Colors
 
-Component conventions
+```
+Backgrounds:
+  --bg-base:     #000000
+  --bg-surface:  #0A0A0A
+  --bg-elevated: #141414
+  --bg-overlay:  #1C1C1C
 
-Every page is a default export in app/\_pages/PageName.tsx
-Every page accepts props via a typed Props object
-Use useLang() at the top of every component that renders text
-Use framer-motion for page transitions (already set up in app/page.tsx)
-Use lucide-react for all icons
-Radar charts use helpers from app/components/radar.ts
+Text:
+  primary:    #FFFFFF           (weight 600+)
+  secondary:  rgba(255,255,255,0.70)
+  tertiary:   rgba(255,255,255,0.55)
+  supporting: rgba(255,255,255,0.30)
+  disabled:   rgba(255,255,255,0.18)
 
-What to focus on
+Accents — ONLY in tags, buttons, bars, charts:
+  green:  #00FF9F   (positive / active / streak)
+  yellow: #F3E600   (warning / energy / goal / PR)
+  cyan:   #55EAD4   (neutral data / trends)
+  red:    #FF2060   (danger / missed / elevated HR)
+  violet: #C840FF   (sleep / recovery / focus)
+```
+
+### Typography
+
+```
+Body:          Geist (monospace stack) — everything
+Tags only:     Orbitron — 8px, weight 700, tracking 0.2em, uppercase
+Metric values: Geist, 36–48px, weight 700, tracking -0.05em
+Section labels: Geist, uppercase, tracking 0.08em, rgba(255,255,255,0.2)
+```
+
+**Orbitron is used ONLY on tags. Nowhere else.**
+
+### Cards / Glass pattern
+
+```css
+background: linear-gradient(
+  160deg,
+  rgba(255, 255, 255, 0.06) 0%,
+  rgba(255, 255, 255, 0.02) 60%,
+  rgba(0, 0, 0, 0.3) 100%
+);
+border: 1px solid rgba(255, 255, 255, 0.09);
+border-top: 1px solid rgba(255, 255, 255, 0.16);
+border-radius: 14px;
+backdrop-filter: blur(24px);
+```
+
+Every card also has:
+
+- A 1px top-edge shine line (::after gradient)
+- A mouse-follow light (`radial-gradient`, opacity 0→1 on hover, follows cursor via JS)
+- Colored glow blob positioned behind content (blur 70px, opacity 0.15)
+- `translateY(-2px)` hover, `scale(0.994)` click
+
+### Tags
+
+No borders. Orbitron font. Top-edge gloss only. Neon-flicker animation on hover (single shot).
+
+### Buttons
+
+Include an Iconoir icon on the left. Hover: brightness overlay. Click: `scale(0.96)`.
+
+### Progress bars
+
+Wrap in `.progress-wrap`. Hover: track thickens 3px→5px, dot grows 6px→9px. Click: fill brightens.
+
+### Icons
+
+**Iconoir only** (`iconoir-react`). Default `strokeWidth={1.8}`. On buttons: `strokeWidth={2.0–2.2}`.
+
+```tsx
+import { Dumbbell, HeartRate } from "iconoir-react";
+<Dumbbell width={16} height={16} strokeWidth={1.8} />;
+```
+
+### Animations
+
+- Scroll reveal: `IntersectionObserver` → `opacity 0 + translateY(18px)` → visible, staggered by index
+- Easing: `ease` or `cubic-bezier(0.4,0,0.2,1)` — no bounces, no springs
+- Transitions: 150–250ms for UI, 600–800ms for data fills
+
+---
+
+## Component conventions
+
+- Every page: default export in `app/_pages/PageName.tsx`
+- Every page accepts props via a typed `Props` object
+- Use `useLang()` at the top of every component that renders text
+- Use `framer-motion` for page transitions (already set up in `app/page.tsx`)
+- Radar charts use helpers from `app/components/radar.ts`
+- Wrap scrollable card lists in a `Reveal` component for scroll animations
+
+---
+
+## What to focus on
+
 When given a UI task:
 
-Build the visual first — layout, spacing, colors, typography
-Use realistic mock data (add to lib/mock.ts if needed)
-Add interactions (hover, click, open/close) with useState
-Don't worry about whether the data makes sense logically — make it look right
-Leave // TODO: [DATA] wherever real data would eventually come from
+1. Read `design-system.md` for relevant patterns
+2. Build visual first — layout, spacing, colors, typography
+3. Use realistic mock data (add to `lib/mock.ts` if needed)
+4. Add interactions (hover, click, open/close) with `useState`
+5. Don't worry about whether data makes sense logically — make it look right
+6. Leave `// TODO: [DATA]` wherever real data would eventually come from
 
-When in doubt about a design decision — go bolder. This is a dark, high-contrast, terminal-inspired OS-like interface. Sharp edges, monospace labels, yellow accents.
+**When in doubt about a design decision — go bolder.**
+This is a dark, high-contrast, premium personal OS. Glass surfaces, neon accents used sparingly, Orbitron only on tags. Think biometric dashboard, not wellness app.
 
-Current pages status
-PageStatusDashboardPage✅ built — mock data, radar, workout, mealsSkillsListPage✅ built — skill cards gridSkillDetailPage✅ built — radar, quest columns, treeQuestsPage✅ built — kanban by statusCalendarPage✅ built — day/week/month, drag-dropTrainingPage🔲 stub — needs full designDietPage🔲 stub — needs full designPreferencesPage🔲 stub — needs full design
+---
+
+## Current pages status
+
+| Page            | Status | Notes                            |
+| --------------- | ------ | -------------------------------- |
+| DashboardPage   | ✅     | mock data, radar, workout, meals |
+| SkillsListPage  | ✅     | skill cards grid                 |
+| SkillDetailPage | ✅     | radar, quest columns, tree       |
+| QuestsPage      | ✅     | kanban by status                 |
+| CalendarPage    | ✅     | day/week/month, drag-drop        |
+| TrainingPage    | 🔲     | stub — needs full design         |
+| DietPage        | 🔲     | stub — needs full design         |
+| PreferencesPage | 🔲     | stub — needs full design         |

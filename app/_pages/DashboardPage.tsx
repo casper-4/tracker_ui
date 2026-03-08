@@ -8,6 +8,27 @@ import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
 import { TAB_SKILL_DETAIL } from "@/app/constants";
 
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS V2 — "Command Center" style
+   (inline until we centralize into a shared file)
+   ═══════════════════════════════════════════════════════════════ */
+const T = {
+  bgRoot: "#050505",
+  bgCard: "#0a0a0a",
+  bgElevated: "#0f0f0f",
+  bgInset: "#080808",
+  borderSubtle: "#141414",
+  borderDefault: "#1f1f1f",
+  borderHover: "#222222",
+  textPrimary: "#d4d4d4",
+  textSecondary: "#888888",
+  textMuted: "#555555",
+  textDisabled: "#333333",
+  accent: "#facc15",
+  accentGlow: "rgba(250,204,21,0.08)",
+  accentCyan: "#00f0ff",
+} as const;
+
 type DashboardPageProps = {
   setSelectedSkillId?: Dispatch<SetStateAction<string | undefined>>;
   setActiveTab?: Dispatch<SetStateAction<string>>;
@@ -26,17 +47,17 @@ export default function DashboardPage({
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Top Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      {/* ───── TOP GRID ───── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
         {/* DAILY PLAN */}
-        <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6 flex flex-col lg:col-span-2">
-          <h3 className="text-[10px] text-[#facc15] uppercase tracking-widest mb-6">
+        <Card className="lg:col-span-2">
+          <SectionLabel color={T.accent}>
             {t(lang, "dashboard_plan").toUpperCase()}
-          </h3>
-          <div className="flex flex-col gap-4 flex-1">
+          </SectionLabel>
+          <div className="flex flex-col gap-2 mt-5">
             <PlanItem
               time="07:00"
-              title="Sniadanie"
+              title="Śniadanie"
               tag="DIETA"
               tagColor="#d946ef"
               skillId={undefined}
@@ -44,7 +65,7 @@ export default function DashboardPage({
             />
             <PlanItem
               time="09:00"
-              title="CS2 -- Aim training (30 min)"
+              title="CS2 — Aim training (30 min)"
               tag="CS2"
               tagColor="#f97316"
               skillId="skill/cs2"
@@ -52,7 +73,7 @@ export default function DashboardPage({
             />
             <PlanItem
               time="10:00"
-              title="Gitara -- Hammer-on practice (15 min)"
+              title="Gitara — Hammer-on practice (15 min)"
               tag="MUZYKA"
               tagColor="#a855f7"
               skillId="skill/guitar"
@@ -68,7 +89,7 @@ export default function DashboardPage({
             />
             <PlanItem
               time="16:00"
-              title="Silownia -- Push A"
+              title="Siłownia — Push A"
               tag="TRENING"
               tagColor="#22c55e"
               skillId={undefined}
@@ -76,7 +97,7 @@ export default function DashboardPage({
             />
             <PlanItem
               time="19:00"
-              title="Produkcja -- EQ session"
+              title="Produkcja — EQ session"
               tag="MUZYKA"
               tagColor="#a855f7"
               active
@@ -92,23 +113,29 @@ export default function DashboardPage({
               hoveredSkillId={hoveredSkillId}
             />
           </div>
-        </div>
+        </Card>
 
         {/* NEURAL MAP */}
-        {/* TODO: [DATA] Neural map elements will be dynamically derived from Daily Plan quests. */}
-        <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6 flex flex-col relative">
+        <Card>
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-2 h-2 rounded-full bg-[#facc15]"></div>
-            <h3 className="text-[10px] text-[#666] uppercase tracking-widest">
+            <div
+              className="w-1.5 h-1.5 rounded-full"
+              style={{
+                backgroundColor: T.accent,
+                boxShadow: `0 0 6px ${T.accent}60`,
+              }}
+            />
+            <SectionLabel>
               {t(lang, "dashboard_neural_map").toUpperCase()}
-            </h3>
+            </SectionLabel>
           </div>
 
-          <div className="flex-1 flex items-center justify-center relative">
+          <div className="flex-1 flex items-center justify-center relative py-4">
             <svg
               viewBox="0 0 100 100"
-              className="w-full max-w-[280px] overflow-visible"
+              className="w-full max-w-[260px] overflow-visible"
             >
+              {/* Grid rings */}
               {[40, 26.7, 13.3].map((r, ri) => {
                 const pts = [0, 60, 120, 180, 240, 300].map((deg) => {
                   const rad = (deg * Math.PI) / 180;
@@ -119,12 +146,12 @@ export default function DashboardPage({
                     key={ri}
                     points={pts.join(" ")}
                     fill="none"
-                    stroke="#1f1f1f"
-                    strokeWidth="0.5"
-                    strokeDasharray="2,2"
+                    stroke={T.borderSubtle}
+                    strokeWidth="0.4"
                   />
                 );
               })}
+              {/* Grid spokes */}
               {[0, 60, 120, 180, 240, 300].map((deg, i) => {
                 const rad = (deg * Math.PI) / 180;
                 const x = roundSvg(50 + 40 * Math.sin(rad));
@@ -136,12 +163,12 @@ export default function DashboardPage({
                     y1="50"
                     x2={x}
                     y2={y}
-                    stroke="#1f1f1f"
-                    strokeWidth="0.5"
-                    strokeDasharray="2,2"
+                    stroke={T.borderSubtle}
+                    strokeWidth="0.4"
                   />
                 );
               })}
+              {/* Skill sectors — softer fill, cleaner stroke */}
               {MOCK_SKILLS.map((s, i) => {
                 const next = (i + 1) % MOCK_SKILLS.length;
                 const thisPoint = mainPlanRadar.pts[i];
@@ -151,14 +178,15 @@ export default function DashboardPage({
                   <polygon
                     key={`sector-${i}`}
                     points={`50,50 ${thisPoint.x},${thisPoint.y} ${nextPoint.x},${nextPoint.y}`}
-                    fill={isActive ? `${s.color}35` : `${s.color}18`}
+                    fill={isActive ? `${s.color}30` : `${s.color}12`}
                     stroke={s.color}
-                    strokeWidth={isActive ? "1.2" : "0.7"}
+                    strokeWidth={isActive ? "1" : "0.5"}
                     strokeLinejoin="round"
-                    style={{ transition: "fill 0.15s ease, stroke-width 0.15s ease" }}
+                    style={{ transition: "all 0.2s ease" }}
                   />
                 );
               })}
+              {/* Labels + dots */}
               {MOCK_SKILLS.map((s, i) => {
                 const deg = (i * 360) / MOCK_SKILLS.length;
                 const rad = (deg * Math.PI) / 180;
@@ -186,9 +214,7 @@ export default function DashboardPage({
                     role="button"
                     tabIndex={0}
                   >
-                    {/* invisible hit target around dot for easier hovering */}
                     <circle cx={dot.x} cy={dot.y} r="5" fill="transparent" />
-                    {/* pulse ring on hover */}
                     {isActive && (
                       <circle
                         cx={dot.x}
@@ -196,27 +222,30 @@ export default function DashboardPage({
                         r="4"
                         fill="none"
                         stroke={s.color}
-                        strokeWidth="0.6"
-                        opacity="0.7"
+                        strokeWidth="0.5"
+                        opacity="0.5"
                       />
                     )}
-                    {/* data dot */}
                     <circle
                       cx={dot.x}
                       cy={dot.y}
-                      r={isActive ? "2.5" : "1.5"}
+                      r={isActive ? "2.2" : "1.4"}
                       fill={s.color}
-                      style={{ transition: "r 0.15s ease" }}
+                      style={{ transition: "all 0.2s ease" }}
                     />
                     <text
                       x={labelX}
                       y={labelY}
-                      fill={isActive ? "#facc15" : s.color}
-                      fontSize="3.75"
+                      fill={isActive ? T.textPrimary : T.textMuted}
+                      fontSize="3.2"
+                      fontFamily="var(--font-mono)"
                       textAnchor="middle"
                       dominantBaseline="middle"
-                      className="uppercase tracking-widest"
-                      style={{ transition: "fill 0.15s ease" }}
+                      letterSpacing="0.08em"
+                      style={{
+                        transition: "fill 0.2s ease",
+                        textTransform: "uppercase",
+                      }}
                     >
                       {s.name.length > 8 ? (
                         <>
@@ -239,7 +268,8 @@ export default function DashboardPage({
             </svg>
           </div>
 
-          <div className="mt-6 flex flex-col gap-1.5">
+          {/* Legend */}
+          <div className="mt-4 flex flex-col gap-1.5">
             {MOCK_SKILLS.map((s) => (
               <LegendItem
                 key={s.id}
@@ -254,50 +284,55 @@ export default function DashboardPage({
             ))}
             <LegendItem color="#22c55e" label="Trening" value="84%" />
           </div>
-        </div>
+        </Card>
       </div>
 
-      {/* TODAY'S TRAINING */}
-      <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6 mb-6">
-        <div className="flex justify-between items-end mb-8">
-          <h3 className="text-[10px] text-[#666] uppercase tracking-widest">
+      {/* ───── TODAY'S TRAINING ───── */}
+      <Card className="mb-8">
+        <div className="flex justify-between items-baseline mb-6">
+          <SectionLabel>
             {t(lang, "dashboard_training").toUpperCase()}
-          </h3>
-          <span className="text-sm text-[#22c55e] font-bold">
+          </SectionLabel>
+          <span className="text-sm font-sans font-semibold text-[#22c55e]">
             {MOCK_WORKOUT_TODAY.name}
           </span>
         </div>
 
-        <div className="w-full">
-          <div className="grid grid-cols-12 text-[10px] text-[#666] uppercase tracking-widest border-b border-[#1f1f1f] pb-3 mb-4">
-            <div className="col-span-4">EXERCISE</div>
-            <div className="col-span-2 text-center">SETS</div>
-            <div className="col-span-2 text-center">REPS</div>
-            <div className="col-span-2 text-right">LAST</div>
-            <div className="col-span-2 text-right">TODAY</div>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            {MOCK_WORKOUT_TODAY.exercises.map((ex) => (
-              <WorkoutRow
-                key={ex.name}
-                name={ex.name}
-                sets={String(ex.sets)}
-                reps={String(ex.reps)}
-                last={ex.lastWeight}
-                today={ex.todayWeight}
-              />
-            ))}
-          </div>
+        {/* Column headers */}
+        <div
+          className="grid grid-cols-12 text-[10px] uppercase tracking-widest pb-3 mb-4"
+          style={{
+            color: T.textMuted,
+            borderBottom: `1px solid ${T.borderSubtle}`,
+          }}
+        >
+          <div className="col-span-4">Exercise</div>
+          <div className="col-span-2 text-center">Sets</div>
+          <div className="col-span-2 text-center">Reps</div>
+          <div className="col-span-2 text-right">Last</div>
+          <div className="col-span-2 text-right">Today</div>
         </div>
-      </div>
 
-      {/* MEAL PLAN */}
-      <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6 mb-10">
-        <h3 className="text-[10px] text-[#facc15] uppercase tracking-widest mb-6">
-          {t(lang, "dashboard_diet").toUpperCase()}
-        </h3>
         <div className="flex flex-col gap-3">
+          {MOCK_WORKOUT_TODAY.exercises.map((ex) => (
+            <WorkoutRow
+              key={ex.name}
+              name={ex.name}
+              sets={String(ex.sets)}
+              reps={String(ex.reps)}
+              last={ex.lastWeight}
+              today={ex.todayWeight}
+            />
+          ))}
+        </div>
+      </Card>
+
+      {/* ───── MEAL PLAN ───── */}
+      <Card className="mb-10">
+        <SectionLabel color={T.accent}>
+          {t(lang, "dashboard_diet").toUpperCase()}
+        </SectionLabel>
+        <div className="flex flex-col gap-2 mt-5">
           {MOCK_MEALS_TODAY.map((meal) => (
             <FoodRow
               key={meal.name}
@@ -308,26 +343,31 @@ export default function DashboardPage({
             />
           ))}
         </div>
-        <div className="mt-4 text-right text-xs">
-          <span className="text-[#666] mr-4">Total:</span>
-          <span className="text-[#a855f7] mr-4">
+        <div
+          className="mt-5 pt-4 text-right text-xs font-mono"
+          style={{ borderTop: `1px solid ${T.borderSubtle}` }}
+        >
+          <span style={{ color: T.textMuted }} className="mr-5">
+            TOTAL
+          </span>
+          <span className="text-[#a855f7] mr-5">
             {MOCK_MEALS_TODAY.reduce((s, m) => s + m.protein, 0)}g P
           </span>
-          <span className="text-[#f97316] mr-4">
+          <span className="text-[#f97316] mr-5">
             {MOCK_MEALS_TODAY.reduce((s, m) => s + m.carbs, 0)}g W
           </span>
-          <span className="text-[#00f0ff]">
+          <span style={{ color: T.accentCyan }}>
             {MOCK_MEALS_TODAY.reduce((s, m) => s + m.kcal, 0)} kcal
           </span>
         </div>
-      </div>
+      </Card>
 
-      {/* SKILLS cards */}
+      {/* ───── SKILLS CARDS ───── */}
       <div className="mb-10">
-        <h3 className="text-[10px] text-[#facc15] uppercase tracking-widest mb-4">
+        <SectionLabel color={T.accent} className="mb-5">
           {t(lang, "dashboard_skills")}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        </SectionLabel>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {MOCK_SKILLS.map((s) => {
             const aspects = s.aspects;
             const radarCurrent =
@@ -357,34 +397,60 @@ export default function DashboardPage({
                 tabIndex={0}
                 onClick={goToSkillDetail}
                 onKeyDown={(e) => e.key === "Enter" && goToSkillDetail()}
-                className="border border-[#1f1f1f] bg-[#0a0a0a] p-6 flex flex-col cursor-pointer hover:border-[#333] hover:bg-[#0d0d0d] transition-colors"
+                className="group flex flex-col cursor-pointer transition-all duration-200"
+                style={{
+                  background: T.bgCard,
+                  border: `1px solid ${T.borderSubtle}`,
+                  padding: "1.25rem",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = T.borderHover;
+                  e.currentTarget.style.background = T.bgElevated;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = T.borderSubtle;
+                  e.currentTarget.style.background = T.bgCard;
+                }}
               >
+                {/* Card header */}
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <Icon className="w-5 h-5" style={{ color: s.color }} />
-                    <h3 className="text-lg font-bold text-white">{s.name}</h3>
+                  <div className="flex items-center gap-2.5">
+                    <Icon
+                      className="w-[18px] h-[18px]"
+                      style={{ color: s.color }}
+                    />
+                    <h3 className="text-[15px] font-sans font-bold text-white leading-none">
+                      {s.name}
+                    </h3>
                   </div>
                   <span
-                    className="font-mono font-bold"
+                    className="text-sm font-mono font-bold tabular-nums"
                     style={{ color: s.color }}
                   >
                     {s.completionPercentage}%
                   </span>
                 </div>
-                <div className="w-full h-2 bg-[#1f1f1f] rounded-full mb-5">
+
+                {/* Progress bar — sharp, no rounding */}
+                <div
+                  className="w-full h-[5px] mb-5"
+                  style={{ background: T.bgInset }}
+                >
                   <div
-                    className="h-full rounded-full transition-all"
+                    className="h-full transition-all"
                     style={{
                       width: `${s.completionPercentage}%`,
                       backgroundColor: s.color,
                     }}
                   />
                 </div>
+
+                {/* Mini radar */}
                 {radarCurrent && radarGoal && (
-                  <div className="flex justify-center mb-6">
+                  <div className="flex justify-center mb-5">
                     <svg
                       viewBox="0 0 100 100"
-                      className="w-full max-w-[200px] overflow-visible"
+                      className="w-full max-w-[180px] overflow-visible"
                     >
                       {[40, 26.7, 13.3].map((maxR, ri) => {
                         const n = aspects.length;
@@ -398,9 +464,8 @@ export default function DashboardPage({
                             key={ri}
                             points={pts.join(" ")}
                             fill="none"
-                            stroke="#1f1f1f"
-                            strokeWidth="0.5"
-                            strokeDasharray="2,2"
+                            stroke={T.borderSubtle}
+                            strokeWidth="0.4"
                           />
                         );
                       })}
@@ -417,9 +482,8 @@ export default function DashboardPage({
                             y1="50"
                             x2={x}
                             y2={y}
-                            stroke="#1f1f1f"
-                            strokeWidth="0.5"
-                            strokeDasharray="2,2"
+                            stroke={T.borderSubtle}
+                            strokeWidth="0.4"
                           />
                         );
                       })}
@@ -427,22 +491,22 @@ export default function DashboardPage({
                         points={radarGoal.points}
                         fill="none"
                         stroke={s.color}
-                        strokeWidth="1"
-                        strokeDasharray="4,3"
-                        opacity={0.6}
+                        strokeWidth="0.6"
+                        strokeDasharray="3,2"
+                        opacity={0.35}
                       />
                       <polygon
                         points={radarCurrent.points}
-                        fill={`${s.color}1a`}
+                        fill={`${s.color}14`}
                         stroke={s.color}
-                        strokeWidth="1.5"
+                        strokeWidth="1"
                       />
                       {radarCurrent.pts.map((p, i) => (
                         <circle
                           key={i}
                           cx={p.x}
                           cy={p.y}
-                          r="1.5"
+                          r="1.3"
                           fill={s.color}
                         />
                       ))}
@@ -458,10 +522,12 @@ export default function DashboardPage({
                             key={i}
                             x={x}
                             y={y}
-                            fill="#888"
-                            fontSize="3"
+                            fill={T.textMuted}
+                            fontSize="2.8"
+                            fontFamily="var(--font-mono)"
                             textAnchor="middle"
-                            className="uppercase tracking-widest"
+                            letterSpacing="0.06em"
+                            style={{ textTransform: "uppercase" }}
                           >
                             {a.name}
                           </text>
@@ -470,15 +536,16 @@ export default function DashboardPage({
                     </svg>
                   </div>
                 )}
-                <div className="flex flex-col gap-3 mt-auto">
+
+                {/* Aspect progress bars */}
+                <div className="flex flex-col gap-2.5 mt-auto">
                   {aspects.map((a) => (
-                    <div key={a.name} className="space-y-1">
-                      <ProgressBar
-                        label={a.name}
-                        value={a.completionPercentage}
-                        color={s.color}
-                      />
-                    </div>
+                    <ProgressBar
+                      key={a.name}
+                      label={a.name}
+                      value={a.completionPercentage}
+                      color={s.color}
+                    />
                   ))}
                 </div>
               </div>
@@ -490,6 +557,53 @@ export default function DashboardPage({
   );
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   SHARED PRIMITIVES — consistent building blocks
+   ═══════════════════════════════════════════════════════════════ */
+
+/** Standard card wrapper */
+function Card({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`flex flex-col ${className}`}
+      style={{
+        background: T.bgCard,
+        border: `1px solid ${T.borderSubtle}`,
+        padding: "1.25rem",
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Section / category label — mono, uppercase, tiny */
+function SectionLabel({
+  children,
+  color,
+  className = "",
+}: {
+  children: React.ReactNode;
+  color?: string;
+  className?: string;
+}) {
+  return (
+    <h3
+      className={`text-[10px] font-mono uppercase tracking-[0.14em] leading-none ${className}`}
+      style={{ color: color ?? T.textMuted }}
+    >
+      {children}
+    </h3>
+  );
+}
+
+/** Plan timeline item */
 function PlanItem({
   time,
   title,
@@ -508,26 +622,47 @@ function PlanItem({
   hoveredSkillId?: string;
 }) {
   const isHovered = skillId && hoveredSkillId === skillId;
+  const isHighlighted = isHovered || active;
   return (
     <div
-      className={`flex items-center justify-between p-2 border transition-all ${isHovered || active ? "border-[#facc15] bg-[#facc15]/5" : "border-transparent hover:border-[#1f1f1f]"}`}
+      className="flex items-center justify-between py-2 px-3 transition-all duration-150"
+      style={{
+        borderLeft: isHighlighted
+          ? `2px solid ${active ? T.accent : tagColor}`
+          : "2px solid transparent",
+        background: isHighlighted ? T.accentGlow : "transparent",
+      }}
     >
       <div className="flex items-center gap-4">
         <span
-          className={`text-xs ${active ? "text-[#facc15]" : "text-[#666]"}`}
+          className="text-[11px] font-mono tabular-nums"
+          style={{ color: active ? T.accent : T.textMuted }}
         >
           {time}
         </span>
         {active && (
-          <div className="w-1.5 h-1.5 rounded-full bg-[#facc15]"></div>
+          <div
+            className="w-1.5 h-1.5 rounded-full"
+            style={{
+              backgroundColor: T.accent,
+              boxShadow: `0 0 6px ${T.accent}80`,
+            }}
+          />
         )}
-        <span className={`text-sm ${active ? "text-white" : "text-[#888]"}`}>
+        <span
+          className="text-[13px] font-sans"
+          style={{ color: active ? T.textPrimary : T.textSecondary }}
+        >
           {title}
         </span>
       </div>
       <span
-        className="text-[10px] px-2 py-0.5 border uppercase tracking-widest"
-        style={{ color: tagColor, borderColor: `${tagColor}40` }}
+        className="text-[9px] font-mono px-2 py-0.5 uppercase tracking-wider"
+        style={{
+          color: tagColor,
+          border: `1px solid ${tagColor}30`,
+          background: `${tagColor}08`,
+        }}
       >
         {tag}
       </span>
@@ -535,6 +670,7 @@ function PlanItem({
   );
 }
 
+/** Radar / skill legend row */
 function LegendItem({
   color,
   label,
@@ -552,20 +688,25 @@ function LegendItem({
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
       onKeyDown={onClick ? (e) => e.key === "Enter" && onClick() : undefined}
-      className={`flex items-center justify-between text-xs ${onClick ? "cursor-pointer hover:opacity-80" : ""}`}
+      className={`flex items-center justify-between text-[11px] py-0.5 ${onClick ? "cursor-pointer hover:opacity-80" : ""}`}
     >
       <div className="flex items-center gap-2">
         <div
           className="w-1.5 h-1.5 rounded-full"
           style={{ backgroundColor: color }}
-        ></div>
-        <span className="text-[#888]">{label}</span>
+        />
+        <span className="font-sans" style={{ color: T.textSecondary }}>
+          {label}
+        </span>
       </div>
-      <span style={{ color }}>{value}</span>
+      <span className="font-mono font-medium tabular-nums" style={{ color }}>
+        {value}
+      </span>
     </div>
   );
 }
 
+/** Workout table row */
 function WorkoutRow({
   name,
   sets,
@@ -580,18 +721,36 @@ function WorkoutRow({
   today: string;
 }) {
   return (
-    <div className="grid grid-cols-12 items-center text-sm">
-      <div className="col-span-4 text-[#ccc] pr-2">{name}</div>
-      <div className="col-span-2 text-center text-[#666]">{sets}</div>
-      <div className="col-span-2 text-center text-[#666]">{reps}</div>
-      <div className="col-span-2 text-right text-[#666]">{last}</div>
-      <div className="col-span-2 text-right text-[#22c55e] flex items-center justify-end gap-1 font-medium">
+    <div className="grid grid-cols-12 items-center text-[13px]">
+      <div className="col-span-4 font-sans" style={{ color: T.textPrimary }}>
+        {name}
+      </div>
+      <div
+        className="col-span-2 text-center font-mono tabular-nums"
+        style={{ color: T.textMuted }}
+      >
+        {sets}
+      </div>
+      <div
+        className="col-span-2 text-center font-mono tabular-nums"
+        style={{ color: T.textMuted }}
+      >
+        {reps}
+      </div>
+      <div
+        className="col-span-2 text-right font-mono tabular-nums"
+        style={{ color: T.textMuted }}
+      >
+        {last}
+      </div>
+      <div className="col-span-2 text-right font-mono tabular-nums font-medium text-[#22c55e] flex items-center justify-end gap-1">
         {today} <ArrowUp className="w-3 h-3" />
       </div>
     </div>
   );
 }
 
+/** Meal row */
 function FoodRow({
   name,
   p,
@@ -604,17 +763,35 @@ function FoodRow({
   kcal: string;
 }) {
   return (
-    <div className="flex items-center justify-between p-4 border border-[#1f1f1f] bg-[#050505]">
-      <span className="text-sm text-[#888]">{name}</span>
-      <div className="flex items-center gap-4 text-xs">
+    <div
+      className="flex items-center justify-between py-3 px-4 transition-colors duration-150"
+      style={{
+        background: T.bgInset,
+        borderLeft: `2px solid ${T.borderSubtle}`,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderLeftColor = "#d946ef40";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderLeftColor = T.borderSubtle;
+      }}
+    >
+      <span
+        className="text-[13px] font-sans"
+        style={{ color: T.textSecondary }}
+      >
+        {name}
+      </span>
+      <div className="flex items-center gap-5 text-[11px] font-mono tabular-nums">
         <span className="text-[#a855f7]">{p}</span>
         <span className="text-[#f97316]">{w}</span>
-        <span className="text-[#666]">{kcal} kcal</span>
+        <span style={{ color: T.textMuted }}>{kcal} kcal</span>
       </div>
     </div>
   );
 }
 
+/** Aspect completion bar */
 function ProgressBar({
   label,
   value,
@@ -625,15 +802,20 @@ function ProgressBar({
   color: string;
 }) {
   return (
-    <div className="flex items-center justify-between text-[10px] uppercase tracking-widest">
-      <span className="text-[#888] w-1/3 truncate pr-2">{label}</span>
-      <div className="flex-1 h-1 bg-[#1f1f1f] rounded-full mx-4">
+    <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider">
+      <span className="font-mono w-1/3 truncate" style={{ color: T.textMuted }}>
+        {label}
+      </span>
+      <div className="flex-1 h-[3px]" style={{ background: T.bgInset }}>
         <div
-          className="h-full rounded-full"
+          className="h-full transition-all"
           style={{ width: `${value}%`, backgroundColor: color }}
         />
       </div>
-      <span style={{ color }} className="w-8 text-right">
+      <span
+        className="font-mono font-medium w-8 text-right tabular-nums"
+        style={{ color }}
+      >
         {value}%
       </span>
     </div>

@@ -12,7 +12,7 @@ import DietPage from "@/app/_pages/DietPage";
 import HealthPage from "@/app/_pages/HealthPage";
 import PreferencesPage from "@/app/_pages/PreferencesPage";
 import Sidebar from "@/app/components/Sidebar";
-import TopBar from "@/app/components/TopBar";
+// import TopBar from "@/app/components/TopBar";
 import QuestDetailPanel from "@/app/components/QuestDetailPanel";
 import { MOCK_QUESTS, MOCK_SKILLS } from "@/lib/mock";
 import type { Quest, QuestStatus, NamedMeal, MealSlotId } from "@/lib/mock";
@@ -67,6 +67,9 @@ export default function TrackerUI() {
     slot: MealSlotId;
     time: string;
   } | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // 60px collapsed + 16px left-4 + 12px gap  |  224px expanded + 16px + 12px
+  const contentPadding = sidebarCollapsed ? 88 : 252;
 
   const getSkillColor = (id?: string): string => {
     if (!id) return "#666666";
@@ -241,23 +244,29 @@ export default function TrackerUI() {
   }, [activeTab, selectedSkillId, questStatuses]);
 
   return (
-    <div className="flex w-full h-screen bg-[#050505] text-[#e0e0e0] font-mono overflow-hidden">
+    <div className="flex w-full h-screen bg-black text-white font-mono overflow-hidden">
       <Sidebar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         selectedSkillId={selectedSkillId}
         setSelectedSkillId={setSelectedSkillId}
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
       />
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <TopBar
+      <motion.div
+        className="flex-1 flex flex-col min-w-0"
+        animate={{ paddingLeft: contentPadding }}
+        transition={{ duration: 0.22, ease: "easeInOut" }}
+      >
+        {/* <TopBar
           activeTab={activeTab}
           selectedSkillId={selectedSkillId}
           skillColor={getSkillColor(selectedSkillId)}
           onSkillColorChange={(c) =>
             selectedSkillId && setSkillColor(selectedSkillId, c)
           }
-        />
+        /> */}
         <div className="flex-1 flex min-h-0">
           <main
             className={`flex-1 min-w-0 custom-scrollbar p-6 lg:p-10 xl:p-16 ${activeTab === TAB_CALENDAR || activeTab === TAB_DIET ? "overflow-hidden flex flex-col" : "overflow-y-auto"}`}
@@ -288,7 +297,7 @@ export default function TrackerUI() {
             )}
           </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

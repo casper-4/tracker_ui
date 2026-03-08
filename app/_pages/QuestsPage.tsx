@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useRef } from "react";
 import { MOCK_QUESTS, MOCK_SKILLS } from "@/lib/mock";
 import type { Quest, QuestStatus } from "@/lib/mock";
-import { RefreshCw } from "lucide-react";
+import { Refresh } from "iconoir-react";
 import QuestsChart from "@/app/components/QuestsChart";
 import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
@@ -218,24 +218,33 @@ function QuestColumn({
         e.preventDefault();
         onDrop();
       }}
-      className={`p-4 flex flex-col min-h-[280px] transition-colors ${
-        isOver
-          ? "bg-[#facc15]/5 border border-dashed border-[#facc15]/50"
+      style={{
+        background: isOver
+          ? "linear-gradient(160deg, rgba(243,230,0,0.07) 0%, rgba(243,230,0,0.02) 60%, rgba(0,0,0,0.3) 100%)"
+          : "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+        border: isOver
+          ? "1px dashed rgba(243,230,0,0.45)"
           : isDragging
-            ? "border border-dashed border-[#333] bg-[#0a0a0a]"
-            : "border border-[#1f1f1f] bg-[#0a0a0a]"
-      }`}
+          ? "1px dashed rgba(255,255,255,0.12)"
+          : "1px solid rgba(255,255,255,0.09)",
+        borderTop: isOver
+          ? "1px dashed rgba(243,230,0,0.45)"
+          : "1px solid rgba(255,255,255,0.16)",
+        borderRadius: 14,
+        backdropFilter: "blur(24px)",
+      }}
+      className="p-4 flex flex-col min-h-[280px] transition-all duration-200 relative"
     >
-      <h2 className="text-[10px] text-[#888] uppercase tracking-widest mb-3 flex items-center justify-between gap-2">
+      <h2 className="text-[10px] text-white/30 uppercase tracking-[0.08em] mb-3 flex items-center justify-between gap-2">
         <span>{title}</span>
-        <span className="font-mono text-[#666] tabular-nums">
+        <span className="font-mono text-white/20 tabular-nums text-[11px]">
           {quests.length}
         </span>
       </h2>
       {quests.length === 0 ? (
-        <p className="text-[#555] text-xs flex-1">
+        <p className="text-white/30 text-xs flex-1">
           {isOver ? (
-            <span className="text-[#facc15]/60">{dropHereLabel}</span>
+            <span className="text-[#F3E600]/60">{dropHereLabel}</span>
           ) : (
             emptyLabel
           )}
@@ -243,8 +252,9 @@ function QuestColumn({
       ) : (
         <ul className="flex flex-col gap-2 flex-1">
           {isOver && (
-            <li className="h-9 rounded border border-dashed border-[#facc15]/40 bg-[#facc15]/5 flex items-center justify-center">
-              <span className="text-[10px] text-[#facc15]/60 uppercase tracking-widest">
+            <li className="h-9 rounded-lg border border-dashed border-[#F3E600]/40 bg-[#F3E600]/5 flex items-center justify-center">
+              <span className="text-[10px] text-[#F3E600]/60 uppercase tracking-[0.2em]"
+                style={{ fontFamily: "Orbitron, sans-serif" }}>
                 {dropHereLabel}
               </span>
             </li>
@@ -288,35 +298,85 @@ function QuestCard({
 }: QuestCardProps) {
   const { lang } = useLang();
   const firstColor = subSkillLabels[0]?.color ?? "#666";
+  const cardRef = useRef<HTMLButtonElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    if (cardRef.current) {
+      cardRef.current.style.setProperty("--mx", `${x}px`);
+      cardRef.current.style.setProperty("--my", `${y}px`);
+      cardRef.current.style.setProperty("--mo", "1");
+    }
+  };
+  const handleMouseLeave = () => {
+    if (cardRef.current) cardRef.current.style.setProperty("--mo", "0");
+  };
+
   return (
     <li
       draggable
-      onDragStart={(e) => {
-        e.stopPropagation();
-        onDragStart();
-      }}
+      onDragStart={(e) => { e.stopPropagation(); onDragStart(); }}
       onDragEnd={onDragEnd}
       className="cursor-grab active:cursor-grabbing"
     >
       <button
+        ref={cardRef}
         type="button"
         onClick={onClick}
-        className="w-full text-left p-3 border border-[#1f1f1f] bg-[#050505] rounded hover:border-[#333] hover:bg-[#0d0d0d] transition-colors group cursor-pointer"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className="w-full text-left p-3 rounded-[14px] transition-all duration-150 group cursor-pointer relative overflow-hidden
+          hover:-translate-y-0.5 active:scale-[0.994]"
+        style={{
+          background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+          border: "1px solid rgba(255,255,255,0.09)",
+          borderTop: "1px solid rgba(255,255,255,0.16)",
+          backdropFilter: "blur(24px)",
+        }}
       >
-        <p className="text-sm font-medium text-white mb-2 line-clamp-2 group-hover:text-[#facc15]/90">
+        {/* Mouse-follow light */}
+        <div
+          className="pointer-events-none absolute inset-0 rounded-[14px] transition-opacity duration-200"
+          style={{
+            background: "radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.025), transparent)",
+            opacity: "var(--mo, 0)",
+          }}
+        />
+        {/* Colored glow blob */}
+        <div
+          className="pointer-events-none absolute -top-4 -left-4 w-16 h-16 rounded-full"
+          style={{
+            background: firstColor,
+            filter: "blur(70px)",
+            opacity: 0.15,
+          }}
+        />
+        <p className="text-[14px] font-semibold text-white mb-2.5 line-clamp-2 group-hover:text-white relative z-10">
           {quest.name}
         </p>
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5 relative z-10">
           <span
-            className="text-[10px] px-1.5 py-0.5 rounded border uppercase tracking-wider"
-            style={{ borderColor: firstColor, color: firstColor }}
+            className="tag-neon text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
+            style={{
+              fontFamily: "Orbitron, sans-serif",
+              background: `${firstColor}20`,
+              color: firstColor,
+            }}
           >
             {skillName}
           </span>
           {subSkillLabels.map((ss) => (
             <span
               key={ss.name}
-              className="text-[10px] px-1.5 py-0.5 rounded bg-[#1a1a1a] text-[#999] uppercase tracking-wider"
+              className="tag-neon text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
+              style={{
+                fontFamily: "Orbitron, sans-serif",
+                background: "rgba(255,255,255,0.07)",
+                color: "rgba(255,255,255,0.5)",
+              }}
               title={ss.skillName}
             >
               {ss.name}
@@ -324,10 +384,14 @@ function QuestCard({
           ))}
           {quest.isRecurring && (
             <span
-              className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded border uppercase tracking-wider"
-              style={{ borderColor: firstColor, color: firstColor }}
+              className="tag-neon flex items-center gap-1 text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
+              style={{
+                fontFamily: "Orbitron, sans-serif",
+                background: "rgba(85,234,212,0.12)",
+                color: "#55EAD4",
+              }}
             >
-              <RefreshCw size={9} />
+              <Refresh width={9} height={9} strokeWidth={2.2} />
               {t(lang, "quest_recurring_label")}
             </span>
           )}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, LayoutList, Calendar } from "lucide-react";
+import { NavArrowLeft, NavArrowRight, List, Calendar } from "iconoir-react";
 import { MOCK_QUESTS, MOCK_SKILLS } from "@/lib/mock";
 import type { Quest } from "@/lib/mock";
 import { useLang } from "@/lib/language-context";
@@ -11,6 +11,16 @@ import { t } from "@/lib/i18n";
 
 type MultiDaySpan = 7 | 14 | 30;
 type QuestOverride = Partial<Pick<Quest, "status" | "plannedDateTime">>;
+
+const WD_KEYS = [
+  "calendar_wd_sun",
+  "calendar_wd_mon",
+  "calendar_wd_tue",
+  "calendar_wd_wed",
+  "calendar_wd_thu",
+  "calendar_wd_fri",
+  "calendar_wd_sat",
+] as const;
 
 function getStartOfDay(d: Date): Date {
   const out = new Date(d);
@@ -50,16 +60,6 @@ function useNow(): Date {
   }, []);
   return now;
 }
-
-const WEEKDAY_SHORT: Record<number, string> = {
-  0: "Nd",
-  1: "Pn",
-  2: "Wt",
-  3: "Śr",
-  4: "Cz",
-  5: "Pt",
-  6: "So",
-};
 
 type CalendarPageProps = {
   onQuestSelect: (id: string) => void;
@@ -185,7 +185,7 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
       <header className="mb-4 shrink-0">
         <div className="flex flex-wrap items-center gap-4">
           {/* Span switcher */}
-          <div className="flex items-center gap-1 border border-[#1f1f1f] rounded overflow-hidden">
+          <div className="flex items-center gap-1 border border-[rgba(255,255,255,0.09)] rounded-[7px] overflow-hidden">
             {([7, 14, 30] as MultiDaySpan[]).map((s) => (
               <button
                 key={s}
@@ -193,8 +193,8 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
                 onClick={() => handleSpanChange(s)}
                 className={`px-3 py-1.5 text-xs uppercase tracking-wider transition-colors ${
                   span === s
-                    ? "bg-[#facc15] text-black font-bold"
-                    : "bg-[#0a0a0a] text-[#888] hover:text-white hover:bg-[#1a1a1a]"
+                    ? "bg-[#F3E600] text-black font-bold"
+                    : "bg-[#0a0a0a] text-[rgba(255,255,255,0.55)] hover:text-white hover:bg-[#141414]"
                 }`}
               >
                 {spanLabels[s]}
@@ -207,27 +207,27 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
             <button
               type="button"
               onClick={goPrev}
-              className="p-1.5 rounded border border-[#1f1f1f] text-[#888] hover:text-white hover:bg-[#1a1a1a] transition-colors"
+              className="p-1.5 rounded-[7px] border border-[rgba(255,255,255,0.09)] text-[rgba(255,255,255,0.55)] hover:text-white hover:bg-[#141414] transition-colors active:scale-95"
               aria-label="Previous"
             >
-              <ChevronLeft size={18} />
+              <NavArrowLeft width={18} height={18} strokeWidth={2.0} />
             </button>
             <button
               type="button"
               onClick={goToday}
-              className="px-3 py-1.5 text-xs border border-[#1f1f1f] rounded text-[#888] hover:text-white hover:bg-[#1a1a1a] transition-colors"
+              className="px-3 py-1.5 text-xs border border-[rgba(255,255,255,0.09)] rounded-[7px] text-[rgba(255,255,255,0.55)] hover:text-white hover:bg-[#141414] transition-colors active:scale-95"
             >
               {t(lang, "calendar_today")}
             </button>
             <button
               type="button"
               onClick={goNext}
-              className="p-1.5 rounded border border-[#1f1f1f] text-[#888] hover:text-white hover:bg-[#1a1a1a] transition-colors"
+              className="p-1.5 rounded-[7px] border border-[rgba(255,255,255,0.09)] text-[rgba(255,255,255,0.55)] hover:text-white hover:bg-[#141414] transition-colors active:scale-95"
               aria-label="Next"
             >
-              <ChevronRight size={18} />
+              <NavArrowRight width={18} height={18} strokeWidth={2.0} />
             </button>
-            <span className="text-sm text-[#aaa] font-mono tracking-wider">
+            <span className="text-sm text-[rgba(255,255,255,0.55)] font-mono tracking-wider">
               {navLabel}
             </span>
           </div>
@@ -238,11 +238,19 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
       <div className="flex flex-1 min-h-0 gap-3">
         {/* ── Col 1: Pinned quests ── */}
         <aside
-          className={`w-52 shrink-0 border rounded flex flex-col overflow-hidden transition-colors ${
+          className={`w-52 shrink-0 rounded-[14px] flex flex-col overflow-hidden transition-colors backdrop-blur-2xl ${
             pinnedDragOver
-              ? "border-dashed border-[#facc15]/50 bg-[#facc15]/5"
-              : "border-[#1f1f1f] bg-[#0a0a0a]"
+              ? "border border-dashed border-[#F3E600]/50"
+              : ""
           }`}
+          style={pinnedDragOver ? {
+            background: "rgba(243,230,0,0.04)",
+            border: "1px dashed rgba(243,230,0,0.5)",
+          } : {
+            background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+            border: "1px solid rgba(255,255,255,0.09)",
+            borderTop: "1px solid rgba(255,255,255,0.16)",
+          }}
           onDragOver={(e) => {
             e.preventDefault();
             e.dataTransfer.dropEffect = "move";
@@ -257,15 +265,15 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
             handleDropOnPinned();
           }}
         >
-          <h2 className="text-[10px] text-[#888] uppercase tracking-widest px-3 h-[60px] border-b border-[#1f1f1f] flex items-center gap-2 shrink-0">
-            <LayoutList size={12} />
+          <h2 className="text-[10px] text-[rgba(255,255,255,0.30)] uppercase tracking-widest px-3 h-[60px] border-b border-[rgba(255,255,255,0.09)] flex items-center gap-2 shrink-0">
+            <List width={12} height={12} strokeWidth={1.8} />
             {t(lang, "calendar_pinned")}
           </h2>
           <ul className="p-2 overflow-y-auto custom-scrollbar flex-1 space-y-1.5">
             {pinnedQuests.length === 0 ? (
               <li className="text-[#555] text-xs p-2">
                 {pinnedDragOver ? (
-                  <span className="text-[#facc15]/60">
+                  <span className="text-[#F3E600]/60">
                     {t(lang, "drop_here")}
                   </span>
                 ) : (
@@ -327,9 +335,16 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
         </aside>
 
         {/* ── Col 2: Narrow daily view (always today) ── */}
-        <aside className="w-52 shrink-0 border border-[#1f1f1f] bg-[#0a0a0a] rounded flex flex-col overflow-hidden">
-          <div className="shrink-0 px-3 h-[60px] border-b border-[#1f1f1f] flex items-center gap-2">
-            <Calendar size={12} className="text-[#facc15]" />
+        <aside
+          className="w-52 shrink-0 rounded-[14px] flex flex-col overflow-hidden backdrop-blur-2xl"
+          style={{
+            background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+            border: "1px solid rgba(255,255,255,0.09)",
+            borderTop: "1px solid rgba(255,255,255,0.16)",
+          }}
+        >
+          <div className="shrink-0 px-3 h-[60px] border-b border-[rgba(255,255,255,0.09)] flex items-center gap-2">
+            <Calendar width={12} height={12} strokeWidth={1.8} className="text-[#F3E600]" />
             <div>
               <p className="text-xs text-white font-mono mt-0.5">
                 {today
@@ -359,7 +374,14 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
         </aside>
 
         {/* ── Col 3: Wide multi-day calendar ── */}
-        <main className="flex-1 min-w-0 border border-[#1f1f1f] bg-[#0a0a0a] rounded overflow-auto custom-scrollbar">
+        <main
+          className="flex-1 min-w-0 rounded-[14px] overflow-auto custom-scrollbar backdrop-blur-2xl"
+          style={{
+            background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+            border: "1px solid rgba(255,255,255,0.09)",
+            borderTop: "1px solid rgba(255,255,255,0.16)",
+          }}
+        >
           {span <= 14 ? (
             <MultiDayHourlyView
               startDate={rangeStart}
@@ -374,6 +396,7 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
               draggedQuestId={draggedQuestId}
               onChipDragStart={setDraggedQuestId}
               onChipDragEnd={handleChipDragEnd}
+              lang={lang}
             />
           ) : (
             <MultiDayGridView
@@ -383,6 +406,7 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
               skillById={skillById}
               onQuestClick={onQuestSelect}
               today={today}
+              lang={lang}
             />
           )}
         </main>
@@ -457,7 +481,7 @@ function NarrowDayView({
           ))}
         </div>
         {/* Slots */}
-        <div className="flex-1 border-l border-[#1f1f1f]">
+        <div className="flex-1 border-l border-[rgba(255,255,255,0.09)]">
           {HOURS.map((hour) => {
             const isTarget =
               dropTarget?.hour !== undefined &&
@@ -467,8 +491,8 @@ function NarrowDayView({
               <div
                 key={hour}
                 ref={hour === 7 ? sevenAmRef : undefined}
-                className={`h-10 border-b border-[#1f1f1f] flex flex-col transition-colors relative ${
-                  isTarget ? "bg-[#facc15]/10" : ""
+                className={`h-10 border-b border-[rgba(255,255,255,0.06)] flex flex-col transition-colors relative ${
+                  isTarget ? "bg-[#F3E600]/10" : ""
                 }`}
                 onDragOver={(e) => {
                   e.preventDefault();
@@ -487,8 +511,8 @@ function NarrowDayView({
                     style={{ top: `${(now.getMinutes() / 60) * 100}%` }}
                   >
                     <div className="relative flex items-center">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#facc15] shrink-0 -ml-[3px]" />
-                      <div className="flex-1 h-px bg-[#facc15] opacity-80" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#F3E600] shrink-0 -ml-[3px]" />
+                      <div className="flex-1 h-px bg-[#F3E600] opacity-80" />
                     </div>
                   </div>
                 )}
@@ -532,6 +556,7 @@ type MultiDayHourlyViewProps = {
   draggedQuestId: string | null;
   onChipDragStart: (id: string) => void;
   onChipDragEnd: () => void;
+  lang: import("@/lib/i18n").Language;
 };
 
 function MultiDayHourlyView({
@@ -547,6 +572,7 @@ function MultiDayHourlyView({
   draggedQuestId,
   onChipDragStart,
   onChipDragEnd,
+  lang,
 }: MultiDayHourlyViewProps) {
   const sevenAmRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -577,33 +603,33 @@ function MultiDayHourlyView({
   return (
     <div className={`pb-3 ${days > 7 ? "min-w-[700px]" : "min-w-[440px]"}`}>
       {/* Day headers — sticky inside the scrollable main */}
-      <div className="sticky top-0 z-10 bg-[#0a0a0a] px-3">
-        <div className="flex border-b border-[#1f1f1f] h-[60px]">
+      <div className="sticky top-0 z-10 px-3" style={{ background: "rgba(10,10,10,0.9)", backdropFilter: "blur(12px)" }}>
+        <div className="flex border-b border-[rgba(255,255,255,0.09)] h-[60px]">
           <div className={`${hourColW} shrink-0`} />
           {dayList.map((d) => {
             const isToday = sameDay(d, today);
             return (
               <div
                 key={d.getTime()}
-                className="flex-1 min-w-0 text-center py-2 border-l border-[#1f1f1f]"
+                className="flex-1 min-w-0 text-center py-2 border-l border-[rgba(255,255,255,0.06)]"
               >
                 <span
                   className={`text-[9px] uppercase tracking-widest block ${
-                    isToday ? "text-[#facc15]" : "text-[#555]"
+                    isToday ? "text-[#F3E600]" : "text-[rgba(255,255,255,0.30)]"
                   }`}
                 >
-                  {WEEKDAY_SHORT[d.getDay()]}
+                  {t(lang, WD_KEYS[d.getDay()])}
                 </span>
                 <span
                   className={`font-mono font-bold block leading-tight ${
                     days <= 7 ? "text-sm" : "text-xs"
-                  } ${isToday ? "text-[#facc15]" : "text-[#ccc]"}`}
+                  } ${isToday ? "text-[#F3E600]" : "text-[rgba(255,255,255,0.70)]"}`}
                 >
                   {d.getDate()}
                 </span>
                 {days <= 7 && (
-                  <span className="text-[9px] text-[#444] block">
-                    {d.toLocaleDateString("pl-PL", { month: "short" })}
+                  <span className="text-[9px] text-[rgba(255,255,255,0.18)] block">
+                    {d.toLocaleDateString(lang === "pl" ? "pl-PL" : "en-GB", { month: "short" })}
                   </span>
                 )}
               </div>
@@ -615,26 +641,26 @@ function MultiDayHourlyView({
       {/* Hourly grid */}
       <div className="flex px-3">
         <div
-          className={`${hourColW} shrink-0 text-[9px] text-[#444] font-mono`}
+          className={`${hourColW} shrink-0 text-[9px] text-[rgba(255,255,255,0.18)] font-mono`}
         >
           {HOURS.map((h) => (
             <div
               key={h}
               className={`${rowH} flex items-start pt-0.5 justify-end pr-1`}
             >
-              {h.toString().padStart(2, "0")}
+              {h.toString().padStart(2, "00")}
             </div>
           ))}
         </div>
 
-        <div className="flex-1 flex border-l border-[#1f1f1f]">
+        <div className="flex-1 flex border-l border-[rgba(255,255,255,0.09)]">
           {dayList.map((day, dayIndex) => {
             const isToday = sameDay(day, today);
             return (
               <div
                 key={day.getTime()}
-                className={`flex-1 min-w-0 flex flex-col border-l first:border-l-0 border-[#1f1f1f] ${
-                  isToday ? "bg-[#facc15]/[0.03]" : ""
+                className={`flex-1 min-w-0 flex flex-col border-l first:border-l-0 border-[rgba(255,255,255,0.06)] ${
+                  isToday ? "bg-[#F3E600]/[0.03]" : ""
                 }`}
               >
                 {HOURS.map((hour) => {
@@ -651,8 +677,8 @@ function MultiDayHourlyView({
                       ref={
                         dayIndex === 0 && hour === 7 ? sevenAmRef : undefined
                       }
-                      className={`${rowH} border-b border-[#1f1f1f] flex flex-col transition-colors relative ${
-                        isTarget ? "bg-[#facc15]/10" : ""
+                      className={`${rowH} border-b border-[rgba(255,255,255,0.06)] flex flex-col transition-colors relative ${
+                        isTarget ? "bg-[#F3E600]/10" : ""
                       }`}
                       onDragOver={(e) => {
                         e.preventDefault();
@@ -671,8 +697,8 @@ function MultiDayHourlyView({
                           style={{ top: `${(now.getMinutes() / 60) * 100}%` }}
                         >
                           <div className="relative flex items-center">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#facc15] shrink-0 -ml-[3px]" />
-                            <div className="flex-1 h-px bg-[#facc15] opacity-80" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#F3E600] shrink-0 -ml-[3px]" />
+                            <div className="flex-1 h-px bg-[#F3E600] opacity-80" />
                           </div>
                         </div>
                       )}
@@ -713,6 +739,7 @@ type MultiDayGridViewProps = {
   skillById: Record<string, { color: string }>;
   onQuestClick: (id: string) => void;
   today: Date;
+  lang: import("@/lib/i18n").Language;
 };
 
 function MultiDayGridView({
@@ -722,6 +749,7 @@ function MultiDayGridView({
   skillById,
   onQuestClick,
   today,
+  lang,
 }: MultiDayGridViewProps) {
   const dayList = useMemo(
     () => Array.from({ length: days }, (_, i) => addDays(startDate, i)),
@@ -749,16 +777,24 @@ function MultiDayGridView({
     for (let i = 0; i < cols - remainder; i++) paddedCells.push(null);
   }
 
-  const weekdayLabels = ["Pn", "Wt", "Śr", "Cz", "Pt", "So", "Nd"];
+  const weekdayLabels = [
+    t(lang, "calendar_wd_mon"),
+    t(lang, "calendar_wd_tue"),
+    t(lang, "calendar_wd_wed"),
+    t(lang, "calendar_wd_thu"),
+    t(lang, "calendar_wd_fri"),
+    t(lang, "calendar_wd_sat"),
+    t(lang, "calendar_wd_sun"),
+  ];
 
   return (
     <div className="p-3">
       {/* Weekday header */}
-      <div className="grid grid-cols-7 border-b border-[#1f1f1f] mb-1">
+      <div className="grid grid-cols-7 border-b border-[rgba(255,255,255,0.09)] mb-1">
         {weekdayLabels.map((label) => (
           <div
             key={label}
-            className="py-2 text-center text-[10px] text-[#555] uppercase tracking-widest"
+            className="py-2 text-center text-[10px] text-[rgba(255,255,255,0.30)] uppercase tracking-widest"
           >
             {label}
           </div>
@@ -766,7 +802,7 @@ function MultiDayGridView({
       </div>
 
       {/* Day cells */}
-      <div className="grid grid-cols-7 gap-px bg-[#1f1f1f] border border-[#1f1f1f] rounded overflow-hidden">
+      <div className="grid grid-cols-7 gap-px bg-[rgba(255,255,255,0.06)] border border-[rgba(255,255,255,0.09)] rounded-[7px] overflow-hidden">
         {paddedCells.map((d, i) => {
           if (!d) {
             return (
@@ -780,12 +816,12 @@ function MultiDayGridView({
             <div
               key={key}
               className={`min-h-[90px] p-1.5 flex flex-col transition-colors ${
-                isToday ? "bg-[#facc15]/[0.06]" : "bg-[#0a0a0a]"
+                isToday ? "bg-[#F3E600]/[0.06]" : "bg-[#0a0a0a]"
               }`}
             >
               <span
                 className={`text-xs font-mono font-bold leading-none mb-1 ${
-                  isToday ? "text-[#facc15]" : "text-[#444]"
+                  isToday ? "text-[#F3E600]" : "text-[rgba(255,255,255,0.18)]"
                 }`}
               >
                 {d.getDate()}

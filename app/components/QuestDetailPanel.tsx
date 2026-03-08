@@ -2,7 +2,16 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Pencil, Camera, Video, Paperclip, RefreshCw } from "lucide-react";
+import {
+  Xmark,
+  EditPencil,
+  Camera,
+  VideoCamera,
+  Attachment,
+  Refresh,
+  Check,
+  NavArrowDown,
+} from "iconoir-react";
 import type { Quest, QuestStatus } from "@/lib/mock";
 import { MOCK_STATUS_COLORS } from "@/lib/mock";
 import { useLang } from "@/lib/language-context";
@@ -72,6 +81,7 @@ export default function QuestDetailPanel({
   const [isEditingActual, setIsEditingActual] = useState(false);
   const [editComment, setEditComment] = useState(initialQuest.comment ?? "");
   const [historyExpanded, setHistoryExpanded] = useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
 
   useEffect(() => {
     setQuest(initialQuest);
@@ -87,9 +97,8 @@ export default function QuestDetailPanel({
     setHistoryExpanded(false);
   }, [initialQuest.id]);
 
-  const handleStatusChange = useCallback(
-    (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const value = e.target.value as QuestStatus;
+  const handleStatusChangeValue = useCallback(
+    (value: QuestStatus) => {
       const entry = { status: value, timestamp: Date.now() };
       const updated: Quest = {
         ...quest,
@@ -146,6 +155,17 @@ export default function QuestDetailPanel({
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
+  useEffect(() => {
+    if (!statusDropdownOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest("[data-status-dropdown]")) {
+        setStatusDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [statusDropdownOpen]);
+
   const statusColor = MOCK_STATUS_COLORS[quest.status];
 
   return (
@@ -154,62 +174,131 @@ export default function QuestDetailPanel({
       animate={{ width: PANEL_WIDTH, opacity: 1 }}
       exit={{ width: 0, opacity: 0 }}
       transition={{ duration: 0.28, ease: [0.25, 0, 0, 1] }}
-      className="h-full bg-[#0a0a0a] flex flex-col overflow-hidden shrink-0"
-      style={{
-        borderLeftWidth: 4,
-        borderLeftStyle: "solid",
-        borderLeftColor: skillColor,
-        minWidth: 0,
-        transition: "border-color 0.2s ease",
-      }}
+      className="h-full flex flex-col overflow-hidden shrink-0 py-3 pr-3 pl-2"
+      style={{ minWidth: 0 }}
       role="complementary"
       aria-label={t(lang, "quest_detail_title")}
     >
-      <div className="flex flex-col h-full" style={{ width: PANEL_WIDTH }}>
+      <div
+        className="flex flex-col h-full w-full relative overflow-hidden rounded-[14px]"
+        style={{
+          background:
+            "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+          border: "1px solid rgba(255,255,255,0.09)",
+          borderTop: "1px solid rgba(255,255,255,0.16)",
+          borderLeft: `2px solid ${skillColor}`,
+          backdropFilter: "blur(24px)",
+          transition: "border-color 0.2s ease",
+        }}
+      >
+        {/* Colored glow blob */}
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            top: -60,
+            right: -60,
+            width: 220,
+            height: 220,
+            borderRadius: "50%",
+            background: skillColor,
+            filter: "blur(70px)",
+            opacity: 0.12,
+            transition: "background 0.3s ease",
+          }}
+        />
+        {/* Top-edge shine */}
+        <div
+          className="absolute pointer-events-none z-10"
+          style={{
+            top: 0,
+            left: "10%",
+            right: "10%",
+            height: 1,
+            background:
+              "linear-gradient(90deg, transparent, rgba(255,255,255,0.22) 50%, transparent)",
+          }}
+        />
         {/* ── Header ── */}
-        <div className="px-5 pt-4 pb-3 border-b border-[#1f1f1f] shrink-0">
+        <div
+          className="px-5 pt-5 pb-4 shrink-0"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+        >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
+              {/* Skill name — Orbitron tag-style label */}
               <p
-                className="text-[10px] uppercase tracking-widest font-mono mb-1"
-                style={{ color: skillColor }}
+                className="text-[8px] uppercase mb-2"
+                style={{
+                  fontFamily: "var(--font-accent)",
+                  fontWeight: 700,
+                  letterSpacing: "0.2em",
+                  color: skillColor,
+                }}
               >
                 {skillName ?? "—"}
               </p>
-              <h2 className="text-sm font-bold text-white leading-snug">
+              <h2
+                className="text-base font-bold leading-snug text-white"
+                style={{ letterSpacing: "-0.01em" }}
+              >
                 {quest.name}
               </h2>
             </div>
             <div className="flex items-center gap-2 shrink-0 pt-0.5">
+              {/* Recurring toggle — Orbitron tag, no border */}
               <button
                 type="button"
                 onClick={handleToggleRecurring}
-                className="flex items-center gap-1 text-[10px] px-2 py-1 rounded border uppercase tracking-widest transition-all"
+                className="relative overflow-hidden flex items-center gap-1.5 px-2.5 py-1 rounded-[7px] transition-all duration-150 active:scale-95"
                 style={
                   quest.isRecurring
                     ? {
-                        backgroundColor: skillColor + "22",
-                        borderColor: skillColor,
+                        background: `${skillColor}1E`,
                         color: skillColor,
+                        fontFamily: "var(--font-accent)",
+                        fontSize: "8px",
+                        fontWeight: 700,
+                        letterSpacing: "0.2em",
+                        textTransform: "uppercase",
                       }
                     : {
-                        backgroundColor: "transparent",
-                        borderColor: "#333",
-                        color: "#444",
+                        background: "rgba(255,255,255,0.04)",
+                        color: "rgba(255,255,255,0.30)",
+                        fontFamily: "var(--font-accent)",
+                        fontSize: "8px",
+                        fontWeight: 700,
+                        letterSpacing: "0.2em",
+                        textTransform: "uppercase",
                       }
                 }
                 title={t(lang, "quest_recurring_label")}
               >
-                <RefreshCw size={10} />
+                <span
+                  className="absolute inset-x-0 top-0 pointer-events-none"
+                  style={{
+                    height: "50%",
+                    background:
+                      "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%)",
+                  }}
+                />
+                <Refresh width={10} height={10} strokeWidth={2.2} />
                 {t(lang, "quest_recurring_label")}
               </button>
+              {/* Close */}
               <button
                 type="button"
                 onClick={onClose}
-                className="p-1.5 rounded hover:bg-[#1f1f1f] text-[#666] hover:text-white transition-colors"
+                className="p-1.5 rounded-md transition-colors"
+                style={{ color: "rgba(255,255,255,0.30)" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = "rgba(255,255,255,0.70)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = "rgba(255,255,255,0.30)")
+                }
                 aria-label={t(lang, "quest_close")}
               >
-                <X size={16} />
+                <Xmark width={16} height={16} strokeWidth={2.0} />
               </button>
             </div>
           </div>
@@ -225,20 +314,29 @@ export default function QuestDetailPanel({
             transition={{ duration: 0.12 }}
             className="flex-1 overflow-y-auto custom-scrollbar"
           >
-            <div className="px-5 py-4 space-y-5">
-              {/* Gallery — full width grid */}
+            <div className="px-5 py-5 space-y-6">
+              {/* Gallery */}
               <div>
-                <label className="block text-[10px] uppercase tracking-widest text-[#666] mb-2">
-                  {t(lang, "quest_gallery")}
-                </label>
-                {/* TODO: [DATA] render actual attachments thumbnails here */}
-                <div className="grid grid-cols-3 gap-2">
+                <SectionLabel>{t(lang, "quest_gallery")}</SectionLabel>
+                {/* TODO: [DATA] render actual attachment thumbnails here */}
+                <div className="grid grid-cols-3 gap-2 mt-2">
                   {[0, 1, 2, 3, 4, 5].map((i) => (
                     <div
                       key={i}
-                      className="aspect-[20/13] rounded border border-[#1f1f1f] bg-[#0d0d0d] flex items-center justify-center text-[#222]"
+                      className="aspect-[20/13] rounded-[10px] flex items-center justify-center"
+                      style={{
+                        background:
+                          "linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.20) 100%)",
+                        border: "1px solid rgba(255,255,255,0.06)",
+                        borderTop: "1px solid rgba(255,255,255,0.10)",
+                      }}
                     >
-                      <Camera size={18} />
+                      <Camera
+                        width={18}
+                        height={18}
+                        strokeWidth={1.8}
+                        style={{ color: "rgba(255,255,255,0.18)" }}
+                      />
                     </div>
                   ))}
                 </div>
@@ -246,18 +344,23 @@ export default function QuestDetailPanel({
 
               {/* Description */}
               <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-[10px] uppercase tracking-widest text-[#666]">
-                    {t(lang, "quest_description")}
-                  </label>
+                <div className="flex items-center justify-between mb-2">
+                  <SectionLabel>{t(lang, "quest_description")}</SectionLabel>
                   {!isEditing && (
                     <button
                       type="button"
                       onClick={() => setIsEditing(true)}
-                      className="p-1 rounded hover:bg-[#1f1f1f] text-[#555] hover:text-[#888] transition-colors"
+                      className="p-1 rounded transition-colors"
+                      style={{ color: "rgba(255,255,255,0.25)" }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = "rgba(255,255,255,0.55)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color = "rgba(255,255,255,0.25)")
+                      }
                       title={t(lang, "edit")}
                     >
-                      <Pencil size={12} />
+                      <EditPencil width={13} height={13} strokeWidth={1.8} />
                     </button>
                   )}
                 </div>
@@ -267,31 +370,50 @@ export default function QuestDetailPanel({
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
                       rows={4}
-                      className="w-full px-3 py-2 bg-[#111] border border-[#333] rounded text-white text-sm focus:outline-none focus:border-[#555] resize-y"
+                      className="w-full px-3 py-2.5 rounded-[9px] text-[13px] focus:outline-none resize-y transition-all"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        color: "rgba(255,255,255,0.70)",
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.border =
+                          "1px solid rgba(255,255,255,0.22)";
+                        e.currentTarget.style.boxShadow =
+                          "0 0 0 3px rgba(255,255,255,0.04)";
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.border =
+                          "1px solid rgba(255,255,255,0.08)";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}
                       autoFocus
                     />
                     <div className="flex gap-2">
-                      <button
-                        type="button"
+                      <ActionButton
+                        variant="confirm"
                         onClick={handleSaveDescription}
-                        className="px-3 py-1.5 rounded bg-[#333] hover:bg-[#444] text-white text-xs"
                       >
+                        <Check width={13} height={13} strokeWidth={2.2} />
                         {t(lang, "quest_save")}
-                      </button>
-                      <button
-                        type="button"
+                      </ActionButton>
+                      <ActionButton
+                        variant="ghost"
                         onClick={() => {
                           setEditDescription(quest.description);
                           setIsEditing(false);
                         }}
-                        className="px-3 py-1.5 rounded border border-[#333] text-[#888] hover:text-white text-xs"
                       >
+                        <Xmark width={13} height={13} strokeWidth={2.0} />
                         {t(lang, "quest_cancel")}
-                      </button>
+                      </ActionButton>
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-[#aaa] whitespace-pre-wrap leading-relaxed">
+                  <p
+                    className="text-[13px] leading-relaxed whitespace-pre-wrap"
+                    style={{ color: "rgba(255,255,255,0.55)" }}
+                  >
                     {quest.description || "—"}
                   </p>
                 )}
@@ -299,10 +421,11 @@ export default function QuestDetailPanel({
 
               {/* Expected duration */}
               <div>
-                <label className="block text-[10px] uppercase tracking-widest text-[#666] mb-1">
-                  {t(lang, "quest_duration")}
-                </label>
-                <p className="text-sm text-[#aaa] font-mono">
+                <SectionLabel>{t(lang, "quest_duration")}</SectionLabel>
+                <p
+                  className="mt-1 text-[13px] font-mono"
+                  style={{ color: "rgba(255,255,255,0.55)" }}
+                >
                   {formatDuration(quest.duration)}
                 </p>
               </div>
@@ -311,43 +434,71 @@ export default function QuestDetailPanel({
               {quest.status === "completed" && (
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="block text-[10px] uppercase tracking-widest text-[#666]">
+                    <SectionLabel>
                       {t(lang, "quest_actual_duration")}
-                    </label>
+                    </SectionLabel>
                     {!isEditingActual && (
                       <button
                         type="button"
                         onClick={() => setIsEditingActual(true)}
-                        className="p-1 rounded hover:bg-[#1f1f1f] text-[#555] hover:text-[#888] transition-colors"
+                        className="p-1 rounded transition-colors"
+                        style={{ color: "rgba(255,255,255,0.25)" }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color =
+                            "rgba(255,255,255,0.55)")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color =
+                            "rgba(255,255,255,0.25)")
+                        }
                         title={t(lang, "edit")}
                       >
-                        <Pencil size={12} />
+                        <EditPencil width={13} height={13} strokeWidth={1.8} />
                       </button>
                     )}
                   </div>
                   {isEditingActual ? (
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <input
                         type="number"
                         min={1}
                         value={editActualDuration}
                         onChange={(e) => setEditActualDuration(e.target.value)}
-                        className="w-24 px-3 py-1.5 bg-[#111] border border-[#333] rounded text-white text-sm font-mono focus:outline-none focus:border-[#555]"
+                        className="w-20 px-3 py-2 rounded-[9px] text-[13px] font-mono focus:outline-none transition-all"
+                        style={{
+                          background: "rgba(255,255,255,0.04)",
+                          border: "1px solid rgba(255,255,255,0.08)",
+                          color: "rgba(255,255,255,0.70)",
+                        }}
+                        onFocus={(e) => {
+                          e.currentTarget.style.border =
+                            "1px solid rgba(255,255,255,0.22)";
+                          e.currentTarget.style.boxShadow =
+                            "0 0 0 3px rgba(255,255,255,0.04)";
+                        }}
+                        onBlur={(e) => {
+                          e.currentTarget.style.border =
+                            "1px solid rgba(255,255,255,0.08)";
+                          e.currentTarget.style.boxShadow = "none";
+                        }}
                         placeholder="min"
                         autoFocus
                       />
-                      <span className="text-[10px] text-[#555] uppercase tracking-widest">
+                      <span
+                        className="text-[10px] uppercase tracking-widest"
+                        style={{ color: "rgba(255,255,255,0.30)" }}
+                      >
                         min
                       </span>
-                      <button
-                        type="button"
+                      <ActionButton
+                        variant="confirm"
                         onClick={handleSaveActualDuration}
-                        className="px-3 py-1.5 rounded bg-[#333] hover:bg-[#444] text-white text-xs"
                       >
+                        <Check width={13} height={13} strokeWidth={2.2} />
                         {t(lang, "quest_save")}
-                      </button>
-                      <button
-                        type="button"
+                      </ActionButton>
+                      <ActionButton
+                        variant="ghost"
                         onClick={() => {
                           setEditActualDuration(
                             quest.actualDuration != null
@@ -356,19 +507,19 @@ export default function QuestDetailPanel({
                           );
                           setIsEditingActual(false);
                         }}
-                        className="px-2 py-1.5 rounded border border-[#333] text-[#888] hover:text-white text-xs"
                       >
+                        <Xmark width={13} height={13} strokeWidth={2.0} />
                         {t(lang, "quest_cancel")}
-                      </button>
+                      </ActionButton>
                     </div>
                   ) : (
                     <p
-                      className="text-sm font-mono"
+                      className="text-[13px] font-mono mt-1"
                       style={{
                         color:
                           quest.actualDuration != null
                             ? MOCK_STATUS_COLORS.completed
-                            : "#3a3a3a",
+                            : "rgba(255,255,255,0.18)",
                       }}
                     >
                       {quest.actualDuration != null
@@ -381,44 +532,150 @@ export default function QuestDetailPanel({
 
               {/* Comment */}
               <div>
-                <label className="block text-[10px] uppercase tracking-widest text-[#666] mb-1">
-                  {t(lang, "quest_comment")}
-                </label>
+                <SectionLabel>{t(lang, "quest_comment")}</SectionLabel>
                 <textarea
                   value={editComment}
                   onChange={(e) => setEditComment(e.target.value)}
-                  onBlur={handleSaveComment}
                   rows={3}
                   placeholder="—"
-                  className="w-full px-3 py-2 bg-[#111] border border-[#1f1f1f] rounded text-sm text-[#aaa] placeholder-[#333] focus:outline-none focus:border-[#333] resize-y"
+                  className="w-full mt-2 px-3 py-2.5 rounded-[9px] text-[13px] focus:outline-none resize-y transition-all"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    color: "rgba(255,255,255,0.55)",
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.border =
+                      "1px solid rgba(255,255,255,0.22)";
+                    e.currentTarget.style.boxShadow =
+                      "0 0 0 3px rgba(255,255,255,0.04)";
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.border =
+                      "1px solid rgba(255,255,255,0.08)";
+                    e.currentTarget.style.boxShadow = "none";
+                    handleSaveComment();
+                  }}
                 />
               </div>
 
               {/* Status */}
               <div>
-                <label
-                  htmlFor="quest-panel-status"
-                  className="block text-[10px] uppercase tracking-widest text-[#666] mb-1"
+                <p
+                  className="text-[10px] uppercase tracking-[0.08em] font-semibold mb-2"
+                  style={{ color: "rgba(255,255,255,0.30)" }}
                 >
                   {t(lang, "quest_status")}
-                </label>
-                <select
-                  id="quest-panel-status"
-                  value={quest.status}
-                  onChange={handleStatusChange}
-                  className="w-full px-3 py-2 bg-[#111] rounded text-white text-sm focus:outline-none"
-                  style={{ border: `1px solid ${statusColor}55` }}
-                >
-                  {STATUS_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {t(lang, opt.labelKey)}
-                    </option>
-                  ))}
-                </select>
+                </p>
+                {/* Custom status dropdown */}
+                <div className="relative" data-status-dropdown>
+                  <button
+                    type="button"
+                    onClick={() => setStatusDropdownOpen((v) => !v)}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-[9px] text-[13px] font-semibold transition-all"
+                    style={{
+                      background: `${statusColor}14`,
+                      border: `1px solid ${statusColor}44`,
+                      color: statusColor,
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0"
+                        style={{
+                          background: statusColor,
+                          boxShadow: `0 0 6px ${statusColor}90`,
+                        }}
+                      />
+                      {t(lang, STATUS_OPTIONS.find((o) => o.value === quest.status)!.labelKey)}
+                    </div>
+                    <NavArrowDown
+                      width={14}
+                      height={14}
+                      strokeWidth={2.0}
+                      style={{
+                        opacity: 0.6,
+                        transition: "transform 0.15s ease",
+                        transform: statusDropdownOpen ? "rotate(180deg)" : "rotate(0deg)",
+                      }}
+                    />
+                  </button>
+                  <AnimatePresence>
+                    {statusDropdownOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -4 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute left-0 right-0 z-20 mt-1.5 rounded-[10px] overflow-hidden"
+                        style={{
+                          background: "#1C1C1C",
+                          border: "1px solid rgba(255,255,255,0.10)",
+                          backdropFilter: "blur(24px)",
+                          boxShadow: "0 8px 32px rgba(0,0,0,0.7)",
+                        }}
+                      >
+                        {STATUS_OPTIONS.map((opt) => {
+                          const optColor = MOCK_STATUS_COLORS[opt.value];
+                          const isSelected = quest.status === opt.value;
+                          return (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              onClick={() => {
+                                handleStatusChangeValue(opt.value);
+                                setStatusDropdownOpen(false);
+                              }}
+                              className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-left text-[13px] font-semibold transition-all"
+                              style={{
+                                color: isSelected ? optColor : "rgba(255,255,255,0.55)",
+                                background: isSelected ? `${optColor}10` : "transparent",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = `${optColor}18`;
+                                e.currentTarget.style.color = optColor;
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = isSelected
+                                  ? `${optColor}10`
+                                  : "transparent";
+                                e.currentTarget.style.color = isSelected
+                                  ? optColor
+                                  : "rgba(255,255,255,0.55)";
+                              }}
+                            >
+                              <span
+                                className="w-2 h-2 rounded-full shrink-0"
+                                style={{
+                                  background: optColor,
+                                  opacity: isSelected ? 1 : 0.4,
+                                  boxShadow: isSelected ? `0 0 6px ${optColor}80` : "none",
+                                }}
+                              />
+                              {t(lang, opt.labelKey)}
+                              {isSelected && (
+                                <Check
+                                  width={12}
+                                  height={12}
+                                  strokeWidth={2.2}
+                                  className="ml-auto"
+                                  style={{ color: optColor }}
+                                />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
 
-                {/* Historia — always visible */}
-                <div className="mt-3">
-                  <p className="text-[10px] uppercase tracking-widest text-[#3a3a3a] mb-2">
+                {/* Status history */}
+                <div className="mt-4">
+                  <p
+                    className="text-[10px] uppercase tracking-[0.08em] font-semibold mb-2"
+                    style={{ color: "rgba(255,255,255,0.20)" }}
+                  >
                     {t(lang, "quest_history")}
                   </p>
                   {quest.statusChangelog && quest.statusChangelog.length > 0 ? (
@@ -430,7 +687,7 @@ export default function QuestDetailPanel({
                       const hasMore = reversed.length > 3;
                       return (
                         <>
-                          <ul className="space-y-1.5">
+                          <ul className="space-y-2">
                             {visible.map((entry, i) => {
                               const color = MOCK_STATUS_COLORS[entry.status];
                               const labelKey = `status_${entry.status}` as
@@ -445,12 +702,15 @@ export default function QuestDetailPanel({
                                     style={{ backgroundColor: color }}
                                   />
                                   <span
-                                    className="text-[10px] uppercase tracking-wider w-20 shrink-0"
+                                    className="text-[10px] uppercase tracking-wider w-20 shrink-0 font-semibold"
                                     style={{ color }}
                                   >
                                     {t(lang, labelKey)}
                                   </span>
-                                  <span className="font-mono text-[10px] text-[#3a3a3a]">
+                                  <span
+                                    className="font-mono text-[10px]"
+                                    style={{ color: "rgba(255,255,255,0.30)" }}
+                                  >
                                     {formatTimestamp(entry.timestamp)}
                                   </span>
                                 </li>
@@ -461,7 +721,16 @@ export default function QuestDetailPanel({
                             <button
                               type="button"
                               onClick={() => setHistoryExpanded((v) => !v)}
-                              className="mt-2 text-[10px] uppercase tracking-widest text-[#444] hover:text-[#666] transition-colors"
+                              className="mt-2 text-[10px] uppercase tracking-widest transition-colors"
+                              style={{ color: "rgba(255,255,255,0.25)" }}
+                              onMouseEnter={(e) =>
+                                (e.currentTarget.style.color =
+                                  "rgba(255,255,255,0.55)")
+                              }
+                              onMouseLeave={(e) =>
+                                (e.currentTarget.style.color =
+                                  "rgba(255,255,255,0.25)")
+                              }
                             >
                               {historyExpanded
                                 ? `▲ ukryj`
@@ -472,31 +741,51 @@ export default function QuestDetailPanel({
                       );
                     })()
                   ) : (
-                    <p className="text-[10px] font-mono text-[#2a2a2a]">
+                    <p
+                      className="text-[11px] font-mono"
+                      style={{ color: "rgba(255,255,255,0.18)" }}
+                    >
                       {t(lang, "quest_history_empty")}
                     </p>
                   )}
                 </div>
               </div>
 
-              {/* Attachments — below history */}
+              {/* Attachments */}
               <div>
-                <label className="block text-[10px] uppercase tracking-widest text-[#666] mb-2">
-                  {t(lang, "quest_attachments")}
-                </label>
+                <SectionLabel>{t(lang, "quest_attachments")}</SectionLabel>
                 {/* TODO: [DATA] implement file attachment upload/storage */}
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap mt-2">
                   {[
                     { icon: Camera, key: "quest_attach_photo" as const },
-                    { icon: Video, key: "quest_attach_video" as const },
-                    { icon: Paperclip, key: "quest_attach_file" as const },
+                    { icon: VideoCamera, key: "quest_attach_video" as const },
+                    { icon: Attachment, key: "quest_attach_file" as const },
                   ].map(({ icon: Icon, key }) => (
                     <button
                       key={key}
                       type="button"
-                      className="flex items-center gap-1.5 px-3 py-1.5 border border-[#1f1f1f] rounded text-[10px] uppercase tracking-widest text-[#555] hover:border-[#333] hover:text-[#888] transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] text-[11px] font-semibold transition-all active:scale-[0.96]"
+                      style={{
+                        background: "rgba(255,255,255,0.04)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        color: "rgba(255,255,255,0.40)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background =
+                          "rgba(255,255,255,0.07)";
+                        e.currentTarget.style.borderColor =
+                          "rgba(255,255,255,0.13)";
+                        e.currentTarget.style.color = "rgba(255,255,255,0.70)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background =
+                          "rgba(255,255,255,0.04)";
+                        e.currentTarget.style.borderColor =
+                          "rgba(255,255,255,0.08)";
+                        e.currentTarget.style.color = "rgba(255,255,255,0.40)";
+                      }}
                     >
-                      <Icon size={12} />
+                      <Icon width={12} height={12} strokeWidth={2.0} />
                       {t(lang, key)}
                     </button>
                   ))}
@@ -507,9 +796,13 @@ export default function QuestDetailPanel({
         </AnimatePresence>
 
         {/* ── Footer ── */}
-        <div className="px-5 py-3 border-t border-[#151515] shrink-0">
+        <div
+          className="px-5 py-3 shrink-0"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+        >
           <p
-            className="text-[10px] font-mono text-[#2e2e2e] truncate"
+            className="text-[10px] font-mono truncate"
+            style={{ color: "rgba(255,255,255,0.18)" }}
             title={quest.id}
           >
             {quest.id}
@@ -517,5 +810,49 @@ export default function QuestDetailPanel({
         </div>
       </div>
     </motion.div>
+  );
+}
+
+// ── Internal helpers ──────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      className="text-[10px] uppercase tracking-[0.08em] font-semibold"
+      style={{ color: "rgba(255,255,255,0.30)" }}
+    >
+      {children}
+    </p>
+  );
+}
+
+function ActionButton({
+  variant,
+  onClick,
+  children,
+}: {
+  variant: "confirm" | "ghost";
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  const style: React.CSSProperties =
+    variant === "confirm"
+      ? { background: "rgba(0,255,159,0.10)", color: "#00FF9F", border: "none" }
+      : {
+          background: "rgba(255,255,255,0.04)",
+          color: "rgba(255,255,255,0.45)",
+          border: "1px solid rgba(255,255,255,0.08)",
+        };
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-[7px] text-[11px] font-semibold transition-all active:scale-[0.96]"
+      style={style}
+      onMouseEnter={(e) => (e.currentTarget.style.filter = "brightness(1.15)")}
+      onMouseLeave={(e) => (e.currentTarget.style.filter = "")}
+    >
+      {children}
+    </button>
   );
 }

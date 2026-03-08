@@ -3,17 +3,17 @@
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutGrid,
-  Target,
+  ViewGrid,
+  Brain,
   Activity,
   Settings,
-  Diamond,
+  Apple,
   Calendar,
-  Swords,
+  Flash,
   Heart,
-  ChevronsLeft,
-  ChevronsRight,
-} from "lucide-react";
+  SidebarCollapse,
+  SidebarExpand,
+} from "iconoir-react";
 import { MOCK_SKILLS } from "@/lib/mock";
 import {
   TAB_DASHBOARD,
@@ -30,22 +30,24 @@ import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
 
 const navItems = [
-  { icon: LayoutGrid, labelKey: "nav_dashboard" as const, tab: TAB_DASHBOARD },
+  { icon: ViewGrid, labelKey: "nav_dashboard" as const, tab: TAB_DASHBOARD, accentColor: "#00FF9F" },
   {
-    icon: Target,
+    icon: Brain,
     labelKey: "nav_skills" as const,
     tab: TAB_SKILLS,
+    accentColor: "#F3E600",
     subMenu: MOCK_SKILLS,
   },
-  { icon: Swords, labelKey: "nav_quests" as const, tab: TAB_QUESTS },
-  { icon: Calendar, labelKey: "nav_calendar" as const, tab: TAB_CALENDAR },
-  { icon: Activity, labelKey: "nav_training" as const, tab: TAB_TRAINING },
-  { icon: Diamond, labelKey: "nav_diet" as const, tab: TAB_DIET },
-  { icon: Heart, labelKey: "nav_health" as const, tab: TAB_HEALTH },
+  { icon: Flash, labelKey: "nav_quests" as const, tab: TAB_QUESTS, accentColor: "#C840FF" },
+  { icon: Calendar, labelKey: "nav_calendar" as const, tab: TAB_CALENDAR, accentColor: "#55EAD4" },
+  { icon: Activity, labelKey: "nav_training" as const, tab: TAB_TRAINING, accentColor: "#F3E600" },
+  { icon: Apple, labelKey: "nav_diet" as const, tab: TAB_DIET, accentColor: "#55EAD4" },
+  { icon: Heart, labelKey: "nav_health" as const, tab: TAB_HEALTH, accentColor: "#FF2060" },
   {
     icon: Settings,
     labelKey: "nav_preferences" as const,
     tab: TAB_PREFERENCES,
+    accentColor: "#C840FF",
   },
 ];
 
@@ -55,28 +57,39 @@ function NavItem({
   active = false,
   onClick,
   collapsed = false,
+  accentColor = "#F3E600",
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   label: string;
   active?: boolean;
   onClick?: () => void;
   collapsed?: boolean;
+  accentColor?: string;
 }) {
   return (
     <button
       onClick={onClick}
       title={collapsed ? label : undefined}
-      className={`w-full flex items-center border border-transparent transition-all ${
+      style={
+        active
+          ? {
+              color: accentColor,
+              borderColor: accentColor,
+              backgroundColor: `${accentColor}0d`,
+            }
+          : undefined
+      }
+      className={`w-full flex items-center border border-transparent transition-all rounded-[7px] ${
         collapsed ? "justify-center px-0 py-3" : "gap-4 px-4 py-3"
       } ${
         active
-          ? "border-[#facc15] text-[#facc15] bg-[#facc15]/5"
-          : "text-[#888] hover:text-[#ccc] hover:bg-white/5"
+          ? ""
+          : "text-white/55 hover:text-white/70 hover:bg-white/[0.04]"
       }`}
     >
-      <Icon className="w-4 h-4 shrink-0" />
+      <Icon width={16} height={16} strokeWidth={1.8} className="shrink-0" />
       {!collapsed && (
-        <span className="text-xs uppercase tracking-widest whitespace-nowrap">
+        <span className="text-[13px] font-medium uppercase tracking-widest whitespace-nowrap">
           {label}
         </span>
       )}
@@ -89,6 +102,8 @@ type SidebarProps = {
   setActiveTab: Dispatch<SetStateAction<string>>;
   selectedSkillId?: string;
   setSelectedSkillId?: Dispatch<SetStateAction<string | undefined>>;
+  collapsed: boolean;
+  setCollapsed: Dispatch<SetStateAction<boolean>>;
 };
 
 const Sidebar = ({
@@ -96,10 +111,11 @@ const Sidebar = ({
   setActiveTab,
   selectedSkillId,
   setSelectedSkillId,
+  collapsed,
+  setCollapsed,
 }: SidebarProps) => {
   const { lang } = useLang();
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
-  const [collapsed, setCollapsed] = useState(false);
 
   const isSkillsExpanded =
     !collapsed &&
@@ -108,38 +124,34 @@ const Sidebar = ({
 
   return (
     <motion.aside
-      animate={{ width: collapsed ? 64 : 256 }}
+      animate={{ width: collapsed ? 60 : 224 }}
       transition={{ duration: 0.22, ease: "easeInOut" }}
-      className="border-r border-[#1f1f1f] flex flex-col justify-between shrink-0 bg-[#050505] z-20 relative overflow-hidden"
+      className="fixed left-4 top-4 bottom-4 z-50 flex flex-col justify-between overflow-hidden rounded-2xl"
+      style={{
+        background:
+          "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+        border: "1px solid rgba(255,255,255,0.09)",
+        borderTop: "1px solid rgba(255,255,255,0.16)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+      }}
     >
       <div>
         {/* Header / Logo */}
-        <div className="h-[7.5rem] min-h-[7.5rem] p-4 flex items-center border-b border-[#1f1f1f] box-border overflow-hidden">
-          <div
-            className={`flex items-center gap-4 ${collapsed ? "justify-center w-full" : ""}`}
-          >
-            <div className="w-10 h-10 border border-[#facc15] flex items-center justify-center shrink-0">
-              <div className="w-4 h-4 rounded-full border-2 border-[#facc15] flex items-center justify-center">
-                <div className="w-1 h-1 bg-[#facc15] rounded-full"></div>
-              </div>
-            </div>
-            {!collapsed && (
-              <div>
-                <h1 className="text-xl font-sans font-bold tracking-widest text-white leading-none">
-                  Optimize
-                </h1>
-                <p className="text-[10px] text-[#facc15] tracking-widest mt-1">
-                  TRACKER_UI V0.1
-                </p>
-              </div>
-            )}
+        <div className={`flex items-center justify-center border-b border-white/[0.07] box-border ${collapsed ? "h-auto py-4" : "h-20 min-h-[5rem]"}`}>
+          <div className={`dot-loader flex gap-[5px] ${collapsed ? "flex-col items-center" : "flex-row items-center"}`}>
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
           </div>
         </div>
 
         {/* Nav */}
         <div className={`mt-6 ${collapsed ? "px-0" : "px-4"}`}>
           {!collapsed && (
-            <h2 className="text-[10px] text-[#666] uppercase tracking-widest mb-4 px-2">{`// NAV`}</h2>
+            <h2 className="text-[10px] text-white/20 uppercase tracking-[0.08em] mb-4 px-2">{`// NAV`}</h2>
           )}
           <nav className="flex flex-col gap-1">
             {navItems.map((item) =>
@@ -158,16 +170,22 @@ const Sidebar = ({
                     }
                     onClick={() => setActiveTab(item.tab)}
                     collapsed={collapsed}
+                    accentColor={item.accentColor}
                   />
                   <AnimatePresence>
                     {isSkillsExpanded && (
                       <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="overflow-hidden bg-[#0a0a0a] border border-[#1f1f1f] ml-4 mt-1"
+                        initial={{ opacity: 0, height: 0, y: -6 }}
+                        animate={{ opacity: 1, height: "auto", y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -6 }}
+                        transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                        style={{
+                          backdropFilter: "blur(24px)",
+                          WebkitBackdropFilter: "blur(24px)",
+                        }}
+                        className="overflow-hidden bg-[#0A0A0A]/80 border border-white/10 ml-4 mt-1 rounded-[7px]"
                       >
-                        <ul className="py-2 px-2 flex flex-col gap-1">
+                        <ul className="py-2 px-2 flex flex-col gap-0.5">
                           {item.subMenu.map((skill) => {
                             const isActive =
                               activeTab === TAB_SKILL_DETAIL &&
@@ -181,20 +199,32 @@ const Sidebar = ({
                                   }}
                                   style={
                                     isActive
-                                      ? {
-                                          color: skill.color,
-                                          borderLeftColor: skill.color,
-                                          backgroundColor: `${skill.color}0d`,
-                                        }
+                                      ? { backgroundColor: `${skill.color}0d` }
                                       : undefined
                                   }
-                                  className={`w-full text-left text-[10px] py-1.5 px-2 transition-colors uppercase tracking-widest ${
-                                    isActive
-                                      ? "border-l-2 -ml-0.5 pl-2.5"
-                                      : "text-[#888] hover:text-[#ccc]"
-                                  }`}
+                                  className={`group/row w-full text-left py-1.5 px-2 rounded-[5px] transition-all flex items-center gap-2 hover:bg-white/[0.04]`}
                                 >
-                                  {skill.name}
+                                  {/* dot indicator */}
+                                  <span
+                                    className="shrink-0 w-1.5 h-1.5 rounded-full transition-all"
+                                    style={{
+                                      backgroundColor: skill.color,
+                                      opacity: isActive ? 1 : 0.3,
+                                      boxShadow: isActive
+                                        ? `0 0 6px ${skill.color}99`
+                                        : "none",
+                                    }}
+                                  />
+                                  <span
+                                    className="text-[10px] uppercase tracking-widest transition-colors"
+                                    style={{
+                                      color: isActive
+                                        ? skill.color
+                                        : "rgba(255,255,255,0.55)",
+                                    }}
+                                  >
+                                    {skill.name}
+                                  </span>
                                 </button>
                               </li>
                             );
@@ -212,6 +242,7 @@ const Sidebar = ({
                   active={activeTab === item.tab}
                   onClick={() => setActiveTab(item.tab)}
                   collapsed={collapsed}
+                  accentColor={item.accentColor}
                 />
               ),
             )}
@@ -221,24 +252,24 @@ const Sidebar = ({
 
       {/* Footer */}
       <div
-        className={`border-t border-[#1f1f1f] flex items-center ${
+        className={`border-t border-white/[0.07] flex items-center ${
           collapsed ? "justify-center p-4" : "justify-between p-6"
         }`}
       >
         {!collapsed && (
-          <p className="text-[10px] text-[#444] tracking-widest">
+          <p className="text-[10px] text-white/[0.18] tracking-widest">
             BUILD 2026.03.04
           </p>
         )}
         <button
           onClick={() => setCollapsed((v) => !v)}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="text-[#444] hover:text-[#facc15] transition-colors p-1"
+          className="text-white/[0.18] hover:text-[#F3E600] transition-colors p-1"
         >
           {collapsed ? (
-            <ChevronsRight className="w-4 h-4" />
+            <SidebarExpand width={16} height={16} strokeWidth={1.8} />
           ) : (
-            <ChevronsLeft className="w-4 h-4" />
+            <SidebarCollapse width={16} height={16} strokeWidth={1.8} />
           )}
         </button>
       </div>

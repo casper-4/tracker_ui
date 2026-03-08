@@ -27,6 +27,11 @@ export const translations = {
     skill_aspects: "Aspekty",
     skill_structure: "Struktura",
     skill_neural_map: "Neural Map & Aspects",
+    skill_level_prefix: "Lvl",
+    skill_no_aspects: "Brak aspektów.",
+    skill_no_history: "Brak danych historycznych.",
+    skill_pinned_hint:
+      "Brak przypiętych questów. Użyj ikony pinezki lub przeciągnij tutaj.",
 
     // Quests
     quests_title: "Questy",
@@ -88,6 +93,13 @@ export const translations = {
     calendar_14days: "14 dni",
     calendar_30days: "30 dni",
     calendar_daily_header: "Widok dzienny",
+    calendar_wd_sun: "Nd",
+    calendar_wd_mon: "Pn",
+    calendar_wd_tue: "Wt",
+    calendar_wd_wed: "Śr",
+    calendar_wd_thu: "Cz",
+    calendar_wd_fri: "Pt",
+    calendar_wd_sat: "So",
 
     // Training
     training_title: "// TRENING",
@@ -223,6 +235,9 @@ export const translations = {
     pin: "Przypnij",
     unpin: "Odpnij",
     edit: "Edytuj",
+    yes: "Tak",
+    no: "Nie",
+    quest_results: "Wyniki",
   },
   en: {
     // Navigation
@@ -248,6 +263,10 @@ export const translations = {
     skill_aspects: "Aspects",
     skill_structure: "Structure",
     skill_neural_map: "Neural Map & Aspects",
+    skill_level_prefix: "Lvl",
+    skill_no_aspects: "No aspects configured.",
+    skill_no_history: "No history data.",
+    skill_pinned_hint: "No pinned quests. Use the pin icon or drag here.",
 
     // Quests
     quests_title: "Quests",
@@ -308,6 +327,13 @@ export const translations = {
     calendar_14days: "14 days",
     calendar_30days: "30 days",
     calendar_daily_header: "Daily view",
+    calendar_wd_sun: "Sun",
+    calendar_wd_mon: "Mon",
+    calendar_wd_tue: "Tue",
+    calendar_wd_wed: "Wed",
+    calendar_wd_thu: "Thu",
+    calendar_wd_fri: "Fri",
+    calendar_wd_sat: "Sat",
 
     // Training
     training_title: "// TRAINING",
@@ -443,6 +469,9 @@ export const translations = {
     pin: "Pin",
     unpin: "Unpin",
     edit: "Edit",
+    yes: "Yes",
+    no: "No",
+    quest_results: "Results",
   },
 } as const;
 

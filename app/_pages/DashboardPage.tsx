@@ -1,7 +1,21 @@
 "use client";
 
-import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
-import { Music, Crosshair, Mic, Disc, PenTool, ArrowUp } from "lucide-react";
+import {
+  useMemo,
+  useState,
+  useRef,
+  useEffect,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
+import {
+  MusicNote,
+  Gamepad,
+  Microphone,
+  CompactDisc,
+  PenTablet,
+  ArrowUp,
+} from "iconoir-react";
 import { MOCK_SKILLS, MOCK_WORKOUT_TODAY, MOCK_MEALS_TODAY } from "@/lib/mock";
 import { roundSvg, radarNPolygon } from "@/app/components/radar";
 import { useLang } from "@/lib/language-context";
@@ -9,25 +23,34 @@ import { t } from "@/lib/i18n";
 import { TAB_SKILL_DETAIL } from "@/app/constants";
 
 /* ═══════════════════════════════════════════════════════════════
-   DESIGN TOKENS V2 — "Command Center" style
-   (inline until we centralize into a shared file)
+   DESIGN TOKENS — aligned to design-system.md
    ═══════════════════════════════════════════════════════════════ */
 const T = {
-  bgRoot: "#050505",
-  bgCard: "#0a0a0a",
-  bgElevated: "#0f0f0f",
-  bgInset: "#080808",
-  borderSubtle: "#141414",
-  borderDefault: "#1f1f1f",
-  borderHover: "#222222",
-  textPrimary: "#d4d4d4",
-  textSecondary: "#888888",
-  textMuted: "#555555",
-  textDisabled: "#333333",
-  accent: "#facc15",
-  accentGlow: "rgba(250,204,21,0.08)",
-  accentCyan: "#00f0ff",
+  bgBase:         "#000000",
+  bgSurface:      "#0A0A0A",
+  bgElevated:     "#141414",
+  bgOverlay:      "#1C1C1C",
+  borderSubtle:   "rgba(255,255,255,0.06)",
+  borderDefault:  "rgba(255,255,255,0.09)",
+  borderStrong:   "rgba(255,255,255,0.16)",
+  textPrimary:    "#FFFFFF",
+  textSecondary:  "rgba(255,255,255,0.70)",
+  textTertiary:   "rgba(255,255,255,0.55)",
+  textSupporting: "rgba(255,255,255,0.30)",
+  textDisabled:   "rgba(255,255,255,0.18)",
+  accentGreen:    "#00FF9F",
+  accentYellow:   "#F3E600",
+  accentCyan:     "#55EAD4",
+  accentRed:      "#FF2060",
+  accentViolet:   "#C840FF",
+  // semantic shortcut used across this page
+  accent:         "#F3E600",
+  accentGlow:     "rgba(243,230,0,0.08)",
 } as const;
+
+/* ── glass card background ── */
+const GLASS_BG =
+  "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)";
 
 type DashboardPageProps = {
   setSelectedSkillId?: Dispatch<SetStateAction<string | undefined>>;
@@ -55,11 +78,12 @@ export default function DashboardPage({
             {t(lang, "dashboard_plan").toUpperCase()}
           </SectionLabel>
           <div className="flex flex-col gap-2 mt-5">
+            {/* TODO: [DATA] Plan items should come from mock.ts */}
             <PlanItem
               time="07:00"
               title="Śniadanie"
               tag="DIETA"
-              tagColor="#d946ef"
+              tagColor={T.accentViolet}
               skillId={undefined}
               hoveredSkillId={hoveredSkillId}
             />
@@ -67,7 +91,7 @@ export default function DashboardPage({
               time="09:00"
               title="CS2 — Aim training (30 min)"
               tag="CS2"
-              tagColor="#f97316"
+              tagColor={T.accentYellow}
               skillId="skill/cs2"
               hoveredSkillId={hoveredSkillId}
             />
@@ -75,7 +99,7 @@ export default function DashboardPage({
               time="10:00"
               title="Gitara — Hammer-on practice (15 min)"
               tag="MUZYKA"
-              tagColor="#a855f7"
+              tagColor={T.accentViolet}
               skillId="skill/guitar"
               hoveredSkillId={hoveredSkillId}
             />
@@ -83,7 +107,7 @@ export default function DashboardPage({
               time="12:30"
               title="Lunch"
               tag="DIETA"
-              tagColor="#d946ef"
+              tagColor={T.accentViolet}
               skillId={undefined}
               hoveredSkillId={hoveredSkillId}
             />
@@ -91,7 +115,7 @@ export default function DashboardPage({
               time="16:00"
               title="Siłownia — Push A"
               tag="TRENING"
-              tagColor="#22c55e"
+              tagColor={T.accentGreen}
               skillId={undefined}
               hoveredSkillId={hoveredSkillId}
             />
@@ -99,7 +123,7 @@ export default function DashboardPage({
               time="19:00"
               title="Produkcja — EQ session"
               tag="MUZYKA"
-              tagColor="#a855f7"
+              tagColor={T.accentViolet}
               active
               skillId="skill/production"
               hoveredSkillId={hoveredSkillId}
@@ -108,7 +132,7 @@ export default function DashboardPage({
               time="21:00"
               title="Kolacja"
               tag="DIETA"
-              tagColor="#d946ef"
+              tagColor={T.accentViolet}
               skillId={undefined}
               hoveredSkillId={hoveredSkillId}
             />
@@ -236,7 +260,7 @@ export default function DashboardPage({
                     <text
                       x={labelX}
                       y={labelY}
-                      fill={isActive ? T.textPrimary : T.textMuted}
+                      fill={isActive ? T.textPrimary : T.textSupporting}
                       fontSize="3.2"
                       fontFamily="var(--font-mono)"
                       textAnchor="middle"
@@ -282,7 +306,8 @@ export default function DashboardPage({
                 }}
               />
             ))}
-            <LegendItem color="#22c55e" label="Trening" value="84%" />
+            {/* TODO: [DATA] Training skill should come from mock.ts */}
+            <LegendItem color={T.accentGreen} label="Trening" value="84%" />
           </div>
         </Card>
       </div>
@@ -293,7 +318,10 @@ export default function DashboardPage({
           <SectionLabel>
             {t(lang, "dashboard_training").toUpperCase()}
           </SectionLabel>
-          <span className="text-sm font-sans font-semibold text-[#22c55e]">
+          <span
+            className="text-sm font-sans font-semibold"
+            style={{ color: T.accentGreen }}
+          >
             {MOCK_WORKOUT_TODAY.name}
           </span>
         </div>
@@ -302,7 +330,7 @@ export default function DashboardPage({
         <div
           className="grid grid-cols-12 text-[10px] uppercase tracking-widest pb-3 mb-4"
           style={{
-            color: T.textMuted,
+            color: T.textSupporting,
             borderBottom: `1px solid ${T.borderSubtle}`,
           }}
         >
@@ -347,13 +375,13 @@ export default function DashboardPage({
           className="mt-5 pt-4 text-right text-xs font-mono"
           style={{ borderTop: `1px solid ${T.borderSubtle}` }}
         >
-          <span style={{ color: T.textMuted }} className="mr-5">
+          <span style={{ color: T.textSupporting }} className="mr-5">
             TOTAL
           </span>
-          <span className="text-[#a855f7] mr-5">
+          <span style={{ color: T.accentViolet }} className="mr-5">
             {MOCK_MEALS_TODAY.reduce((s, m) => s + m.protein, 0)}g P
           </span>
-          <span className="text-[#f97316] mr-5">
+          <span style={{ color: T.accentYellow }} className="mr-5">
             {MOCK_MEALS_TODAY.reduce((s, m) => s + m.carbs, 0)}g W
           </span>
           <span style={{ color: T.accentCyan }}>
@@ -368,7 +396,7 @@ export default function DashboardPage({
           {t(lang, "dashboard_skills")}
         </SectionLabel>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {MOCK_SKILLS.map((s) => {
+          {MOCK_SKILLS.map((s, idx) => {
             const aspects = s.aspects;
             const radarCurrent =
               aspects.length > 0
@@ -376,179 +404,32 @@ export default function DashboardPage({
                 : null;
             const radarGoal =
               aspects.length > 0 ? radarNPolygon(aspects.map(() => 100)) : null;
+            // Iconoir icons — one per skill type
             const Icon =
               s.id === "skill/guitar"
-                ? Music
+                ? MusicNote
                 : s.id === "skill/vocals"
-                  ? Mic
+                  ? Microphone
                   : s.id === "skill/production"
-                    ? Disc
+                    ? CompactDisc
                     : s.id === "skill/songwriting"
-                      ? PenTool
-                      : Crosshair;
+                      ? PenTablet
+                      : Gamepad; // default: gaming / cs2
             const goToSkillDetail = () => {
               setSelectedSkillId?.(s.id);
               setActiveTab?.(TAB_SKILL_DETAIL);
             };
             return (
-              <div
-                key={s.id}
-                role="button"
-                tabIndex={0}
-                onClick={goToSkillDetail}
-                onKeyDown={(e) => e.key === "Enter" && goToSkillDetail()}
-                className="group flex flex-col cursor-pointer transition-all duration-200"
-                style={{
-                  background: T.bgCard,
-                  border: `1px solid ${T.borderSubtle}`,
-                  padding: "1.25rem",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = T.borderHover;
-                  e.currentTarget.style.background = T.bgElevated;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = T.borderSubtle;
-                  e.currentTarget.style.background = T.bgCard;
-                }}
-              >
-                {/* Card header */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2.5">
-                    <Icon
-                      className="w-[18px] h-[18px]"
-                      style={{ color: s.color }}
-                    />
-                    <h3 className="text-[15px] font-sans font-bold text-white leading-none">
-                      {s.name}
-                    </h3>
-                  </div>
-                  <span
-                    className="text-sm font-mono font-bold tabular-nums"
-                    style={{ color: s.color }}
-                  >
-                    {s.completionPercentage}%
-                  </span>
-                </div>
-
-                {/* Progress bar — sharp, no rounding */}
-                <div
-                  className="w-full h-[5px] mb-5"
-                  style={{ background: T.bgInset }}
-                >
-                  <div
-                    className="h-full transition-all"
-                    style={{
-                      width: `${s.completionPercentage}%`,
-                      backgroundColor: s.color,
-                    }}
-                  />
-                </div>
-
-                {/* Mini radar */}
-                {radarCurrent && radarGoal && (
-                  <div className="flex justify-center mb-5">
-                    <svg
-                      viewBox="0 0 100 100"
-                      className="w-full max-w-[180px] overflow-visible"
-                    >
-                      {[40, 26.7, 13.3].map((maxR, ri) => {
-                        const n = aspects.length;
-                        const pts = Array.from({ length: n }, (_, i) => {
-                          const angle = (i * 360) / n;
-                          const rad = (angle * Math.PI) / 180;
-                          return `${roundSvg(50 + maxR * Math.sin(rad))},${roundSvg(50 - maxR * Math.cos(rad))}`;
-                        });
-                        return (
-                          <polygon
-                            key={ri}
-                            points={pts.join(" ")}
-                            fill="none"
-                            stroke={T.borderSubtle}
-                            strokeWidth="0.4"
-                          />
-                        );
-                      })}
-                      {aspects.map((_, i) => {
-                        const n = aspects.length;
-                        const angle = (i * 360) / n;
-                        const rad = (angle * Math.PI) / 180;
-                        const x = roundSvg(50 + 40 * Math.sin(rad));
-                        const y = roundSvg(50 - 40 * Math.cos(rad));
-                        return (
-                          <line
-                            key={i}
-                            x1="50"
-                            y1="50"
-                            x2={x}
-                            y2={y}
-                            stroke={T.borderSubtle}
-                            strokeWidth="0.4"
-                          />
-                        );
-                      })}
-                      <polygon
-                        points={radarGoal.points}
-                        fill="none"
-                        stroke={s.color}
-                        strokeWidth="0.6"
-                        strokeDasharray="3,2"
-                        opacity={0.35}
-                      />
-                      <polygon
-                        points={radarCurrent.points}
-                        fill={`${s.color}14`}
-                        stroke={s.color}
-                        strokeWidth="1"
-                      />
-                      {radarCurrent.pts.map((p, i) => (
-                        <circle
-                          key={i}
-                          cx={p.x}
-                          cy={p.y}
-                          r="1.3"
-                          fill={s.color}
-                        />
-                      ))}
-                      {aspects.map((a, i) => {
-                        const n = aspects.length;
-                        const angle = (i * 360) / n;
-                        const rad = (angle * Math.PI) / 180;
-                        const dist = 46;
-                        const x = roundSvg(50 + dist * Math.sin(rad));
-                        const y = roundSvg(50 - dist * Math.cos(rad));
-                        return (
-                          <text
-                            key={i}
-                            x={x}
-                            y={y}
-                            fill={T.textMuted}
-                            fontSize="2.8"
-                            fontFamily="var(--font-mono)"
-                            textAnchor="middle"
-                            letterSpacing="0.06em"
-                            style={{ textTransform: "uppercase" }}
-                          >
-                            {a.name}
-                          </text>
-                        );
-                      })}
-                    </svg>
-                  </div>
-                )}
-
-                {/* Aspect progress bars */}
-                <div className="flex flex-col gap-2.5 mt-auto">
-                  {aspects.map((a) => (
-                    <ProgressBar
-                      key={a.name}
-                      label={a.name}
-                      value={a.completionPercentage}
-                      color={s.color}
-                    />
-                  ))}
-                </div>
-              </div>
+              <Reveal key={s.id} delay={idx * 80}>
+                <SkillCard
+                  skill={s}
+                  aspects={aspects}
+                  radarCurrent={radarCurrent}
+                  radarGoal={radarGoal}
+                  Icon={Icon}
+                  onClick={goToSkillDetail}
+                />
+              </Reveal>
             );
           })}
         </div>
@@ -558,26 +439,103 @@ export default function DashboardPage({
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SHARED PRIMITIVES — consistent building blocks
+   PRIMITIVES
    ═══════════════════════════════════════════════════════════════ */
 
-/** Standard card wrapper */
+/**
+ * Glass card — design-system pattern:
+ * gradient bg, bright top border, shine line overlay, mouse-follow light.
+ * Pass role/tabIndex/onClick to make it interactive (enables hover lift + click scale).
+ */
 function Card({
   children,
   className = "",
+  role,
+  tabIndex,
+  onClick,
+  onKeyDown,
 }: {
   children: React.ReactNode;
   className?: string;
+  role?: string;
+  tabIndex?: number;
+  onClick?: () => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+
+  const isInteractive = !!onClick;
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
   return (
     <div
-      className={`flex flex-col ${className}`}
+      ref={ref}
+      role={role}
+      tabIndex={tabIndex}
+      onClick={onClick}
+      onKeyDown={onKeyDown}
+      className={`flex flex-col relative overflow-hidden ${isInteractive ? "cursor-pointer" : ""} ${className}`}
       style={{
-        background: T.bgCard,
-        border: `1px solid ${T.borderSubtle}`,
+        background: GLASS_BG,
+        border: `1px solid ${T.borderDefault}`,
+        borderTop: `1px solid ${T.borderStrong}`,
+        borderRadius: "14px",
+        backdropFilter: "blur(24px)",
         padding: "1.25rem",
+        transform: isInteractive
+          ? pressed
+            ? "scale(0.994)"
+            : hovered
+              ? "translateY(-2px)"
+              : "none"
+          : undefined,
+        transition: "transform 0.2s ease",
       }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => { if (isInteractive) setHovered(true); }}
+      onMouseLeave={() => {
+        setMousePos(null);
+        setHovered(false);
+        setPressed(false);
+      }}
+      onMouseDown={() => { if (isInteractive) setPressed(true); }}
+      onMouseUp={() => { if (isInteractive) setPressed(false); }}
     >
+      {/* Top-edge shine line */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: "10%",
+          right: "10%",
+          height: "1px",
+          background:
+            "linear-gradient(90deg, transparent, rgba(255,255,255,0.22) 50%, transparent)",
+          pointerEvents: "none",
+        }}
+      />
+      {/* Mouse-follow light */}
+      {mousePos && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: `radial-gradient(350px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.025), transparent 70%)`,
+            pointerEvents: "none",
+            borderRadius: "14px",
+          }}
+        />
+      )}
       {children}
     </div>
   );
@@ -596,7 +554,7 @@ function SectionLabel({
   return (
     <h3
       className={`text-[10px] font-mono uppercase tracking-[0.14em] leading-none ${className}`}
-      style={{ color: color ?? T.textMuted }}
+      style={{ color: color ?? T.textSupporting }}
     >
       {children}
     </h3>
@@ -636,7 +594,7 @@ function PlanItem({
       <div className="flex items-center gap-4">
         <span
           className="text-[11px] font-mono tabular-nums"
-          style={{ color: active ? T.accent : T.textMuted }}
+          style={{ color: active ? T.accent : T.textSupporting }}
         >
           {time}
         </span>
@@ -656,14 +614,36 @@ function PlanItem({
           {title}
         </span>
       </div>
+      {/* Tag — Orbitron font, no border, top-edge gloss, neon-flicker on hover */}
       <span
-        className="text-[9px] font-mono px-2 py-0.5 uppercase tracking-wider"
+        className="tag-neon relative overflow-hidden inline-block"
         style={{
+          fontFamily: "var(--font-accent)",
+          fontSize: "8px",
+          fontWeight: 700,
+          letterSpacing: "0.2em",
+          textTransform: "uppercase",
+          padding: "5px 10px",
+          borderRadius: "7px",
           color: tagColor,
-          border: `1px solid ${tagColor}30`,
-          background: `${tagColor}08`,
+          background: `${tagColor}1F`,
         }}
       >
+        {/* Top-edge gloss */}
+        <span
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: "50%",
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%)",
+            pointerEvents: "none",
+            borderRadius: "7px 7px 0 0",
+          }}
+        />
         {tag}
       </span>
     </div>
@@ -721,30 +701,43 @@ function WorkoutRow({
   today: string;
 }) {
   return (
-    <div className="grid grid-cols-12 items-center text-[13px]">
+    <div
+      className="grid grid-cols-12 items-center text-[13px] rounded-md px-2 py-1 transition-colors duration-150"
+      style={{ background: "transparent" }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent";
+      }}
+    >
       <div className="col-span-4 font-sans" style={{ color: T.textPrimary }}>
         {name}
       </div>
       <div
         className="col-span-2 text-center font-mono tabular-nums"
-        style={{ color: T.textMuted }}
+        style={{ color: T.textTertiary }}
       >
         {sets}
       </div>
       <div
         className="col-span-2 text-center font-mono tabular-nums"
-        style={{ color: T.textMuted }}
+        style={{ color: T.textTertiary }}
       >
         {reps}
       </div>
       <div
         className="col-span-2 text-right font-mono tabular-nums"
-        style={{ color: T.textMuted }}
+        style={{ color: T.textSupporting }}
       >
         {last}
       </div>
-      <div className="col-span-2 text-right font-mono tabular-nums font-medium text-[#22c55e] flex items-center justify-end gap-1">
-        {today} <ArrowUp className="w-3 h-3" />
+      <div
+        className="col-span-2 text-right font-mono tabular-nums font-medium flex items-center justify-end gap-1"
+        style={{ color: T.accentGreen }}
+      >
+        {today}{" "}
+        <ArrowUp width={12} height={12} strokeWidth={2.2} />
       </div>
     </div>
   );
@@ -766,14 +759,17 @@ function FoodRow({
     <div
       className="flex items-center justify-between py-3 px-4 transition-colors duration-150"
       style={{
-        background: T.bgInset,
+        background: T.bgElevated,
+        borderRadius: "7px",
         borderLeft: `2px solid ${T.borderSubtle}`,
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderLeftColor = "#d946ef40";
+        e.currentTarget.style.borderLeftColor = `${T.accentViolet}50`;
+        e.currentTarget.style.background = T.bgOverlay;
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.borderLeftColor = T.borderSubtle;
+        e.currentTarget.style.background = T.bgElevated;
       }}
     >
       <span
@@ -783,15 +779,15 @@ function FoodRow({
         {name}
       </span>
       <div className="flex items-center gap-5 text-[11px] font-mono tabular-nums">
-        <span className="text-[#a855f7]">{p}</span>
-        <span className="text-[#f97316]">{w}</span>
-        <span style={{ color: T.textMuted }}>{kcal} kcal</span>
+        <span style={{ color: T.accentViolet }}>{p}</span>
+        <span style={{ color: T.accentYellow }}>{w}</span>
+        <span style={{ color: T.textTertiary }}>{kcal} kcal</span>
       </div>
     </div>
   );
 }
 
-/** Aspect completion bar */
+/** Aspect completion bar — design-system progress-wrap pattern */
 function ProgressBar({
   label,
   value,
@@ -801,15 +797,52 @@ function ProgressBar({
   value: number;
   color: string;
 }) {
+  const [hovered, setHovered] = useState(false);
+
   return (
-    <div className="flex items-center gap-3 text-[10px] uppercase tracking-wider">
-      <span className="font-mono w-1/3 truncate" style={{ color: T.textMuted }}>
+    <div
+      className="progress-wrap flex items-center gap-3 text-[10px] uppercase tracking-wider"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <span
+        className="font-mono w-1/3 truncate"
+        style={{ color: T.textSupporting }}
+      >
         {label}
       </span>
-      <div className="flex-1 h-[3px]" style={{ background: T.bgInset }}>
+      <div
+        className="flex-1 relative"
+        style={{
+          height: hovered ? "5px" : "3px",
+          background: T.bgOverlay,
+          borderRadius: "2px",
+          transition: "height 0.18s ease",
+        }}
+      >
         <div
-          className="h-full transition-all"
-          style={{ width: `${value}%`, backgroundColor: color }}
+          className="progress-fill h-full"
+          style={{
+            width: `${value}%`,
+            background: `linear-gradient(90deg, ${color}28, ${color})`,
+            borderRadius: "2px",
+          }}
+        />
+        {/* Endpoint dot */}
+        <div
+          className="progress-dot"
+          style={{
+            position: "absolute",
+            left: `${value}%`,
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+            width: hovered ? "9px" : "6px",
+            height: hovered ? "9px" : "6px",
+            borderRadius: "50%",
+            background: color,
+            boxShadow: `0 0 6px ${color}90`,
+            transition: "width 0.18s ease, height 0.18s ease",
+          }}
         />
       </div>
       <span
@@ -818,6 +851,290 @@ function ProgressBar({
       >
         {value}%
       </span>
+    </div>
+  );
+}
+
+/** Skill card — glass card, hover lift, click scale, colored glow blob, mouse-follow light */
+function SkillCard({
+  skill: s,
+  aspects,
+  radarCurrent,
+  radarGoal,
+  Icon,
+  onClick,
+}: {
+  skill: (typeof MOCK_SKILLS)[number];
+  aspects: (typeof MOCK_SKILLS)[number]["aspects"];
+  radarCurrent: ReturnType<typeof radarNPolygon> | null;
+  radarGoal: ReturnType<typeof radarNPolygon> | null;
+  Icon: React.ComponentType<{
+    width?: number;
+    height?: number;
+    strokeWidth?: number;
+    style?: React.CSSProperties;
+  }>;
+  onClick: () => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
+  const [hovered, setHovered] = useState(false);
+  const [pressed, setPressed] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = ref.current?.getBoundingClientRect();
+    if (!rect) return;
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  return (
+    <div
+      ref={ref}
+      role="button"
+      tabIndex={0}
+      onClick={onClick}
+      onKeyDown={(e) => e.key === "Enter" && onClick()}
+      className="flex flex-col cursor-pointer relative overflow-hidden"
+      style={{
+        background: GLASS_BG,
+        border: `1px solid ${T.borderDefault}`,
+        borderTop: `1px solid ${T.borderStrong}`,
+        borderRadius: "14px",
+        backdropFilter: "blur(24px)",
+        padding: "1.25rem",
+        transform: pressed ? "scale(0.994)" : hovered ? "translateY(-2px)" : "none",
+        transition: "transform 0.2s ease",
+      }}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => {
+        setHovered(false);
+        setPressed(false);
+        setMousePos(null);
+      }}
+      onMouseDown={() => setPressed(true)}
+      onMouseUp={() => setPressed(false)}
+    >
+      {/* Top-edge shine line */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: "10%",
+          right: "10%",
+          height: "1px",
+          background:
+            "linear-gradient(90deg, transparent, rgba(255,255,255,0.22) 50%, transparent)",
+          pointerEvents: "none",
+        }}
+      />
+      {/* Colored glow blob behind content */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          top: "-40px",
+          right: "-40px",
+          width: "140px",
+          height: "140px",
+          borderRadius: "50%",
+          background: s.color,
+          filter: "blur(70px)",
+          opacity: 0.15,
+          pointerEvents: "none",
+        }}
+      />
+      {/* Mouse-follow light */}
+      {mousePos && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: `radial-gradient(280px circle at ${mousePos.x}px ${mousePos.y}px, rgba(255,255,255,0.025), transparent 70%)`,
+            pointerEvents: "none",
+            borderRadius: "14px",
+          }}
+        />
+      )}
+
+      {/* Card header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
+          <Icon
+            width={18}
+            height={18}
+            strokeWidth={1.8}
+            style={{ color: s.color }}
+          />
+          <h3
+            className="text-[15px] font-sans font-bold leading-none"
+            style={{ color: T.textPrimary }}
+          >
+            {s.name}
+          </h3>
+        </div>
+        <span
+          className="text-sm font-mono font-bold tabular-nums"
+          style={{ color: s.color }}
+        >
+          {s.completionPercentage}%
+        </span>
+      </div>
+
+      {/* Progress — design-system gradient fill */}
+      <div
+        className="w-full h-[3px] mb-5 rounded-sm overflow-hidden"
+        style={{ background: T.bgOverlay }}
+      >
+        <div
+          className="h-full transition-all"
+          style={{
+            width: `${s.completionPercentage}%`,
+            background: `linear-gradient(90deg, ${s.color}28, ${s.color})`,
+          }}
+        />
+      </div>
+
+      {/* Mini radar */}
+      {radarCurrent && radarGoal && (
+        <div className="flex justify-center mb-5">
+          <svg
+            viewBox="0 0 100 100"
+            className="w-full max-w-[180px] overflow-visible"
+          >
+            {[40, 26.7, 13.3].map((maxR, ri) => {
+              const n = aspects.length;
+              const pts = Array.from({ length: n }, (_, i) => {
+                const angle = (i * 360) / n;
+                const rad = (angle * Math.PI) / 180;
+                return `${roundSvg(50 + maxR * Math.sin(rad))},${roundSvg(50 - maxR * Math.cos(rad))}`;
+              });
+              return (
+                <polygon
+                  key={ri}
+                  points={pts.join(" ")}
+                  fill="none"
+                  stroke={T.borderSubtle}
+                  strokeWidth="0.4"
+                />
+              );
+            })}
+            {aspects.map((_, i) => {
+              const n = aspects.length;
+              const angle = (i * 360) / n;
+              const rad = (angle * Math.PI) / 180;
+              const x = roundSvg(50 + 40 * Math.sin(rad));
+              const y = roundSvg(50 - 40 * Math.cos(rad));
+              return (
+                <line
+                  key={i}
+                  x1="50"
+                  y1="50"
+                  x2={x}
+                  y2={y}
+                  stroke={T.borderSubtle}
+                  strokeWidth="0.4"
+                />
+              );
+            })}
+            <polygon
+              points={radarGoal.points}
+              fill="none"
+              stroke={s.color}
+              strokeWidth="0.6"
+              strokeDasharray="3,2"
+              opacity={0.35}
+            />
+            <polygon
+              points={radarCurrent.points}
+              fill={`${s.color}14`}
+              stroke={s.color}
+              strokeWidth="1"
+            />
+            {radarCurrent.pts.map((p, i) => (
+              <circle key={i} cx={p.x} cy={p.y} r="1.3" fill={s.color} />
+            ))}
+            {aspects.map((a, i) => {
+              const n = aspects.length;
+              const angle = (i * 360) / n;
+              const rad = (angle * Math.PI) / 180;
+              const dist = 46;
+              const x = roundSvg(50 + dist * Math.sin(rad));
+              const y = roundSvg(50 - dist * Math.cos(rad));
+              return (
+                <text
+                  key={i}
+                  x={x}
+                  y={y}
+                  fill={T.textSupporting}
+                  fontSize="2.8"
+                  fontFamily="var(--font-mono)"
+                  textAnchor="middle"
+                  letterSpacing="0.06em"
+                  style={{ textTransform: "uppercase" }}
+                >
+                  {a.name}
+                </text>
+              );
+            })}
+          </svg>
+        </div>
+      )}
+
+      {/* Aspect progress bars */}
+      <div className="flex flex-col gap-2.5 mt-auto">
+        {aspects.map((a) => (
+          <ProgressBar
+            key={a.name}
+            label={a.name}
+            value={a.completionPercentage}
+            color={s.color}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** Scroll-reveal wrapper — IntersectionObserver, opacity + translateY, stagger via delay prop */
+function Reveal({
+  children,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.08 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(18px)",
+        transition: `opacity 0.65s cubic-bezier(0.4,0,0.2,1) ${delay}ms, transform 0.65s cubic-bezier(0.4,0,0.2,1) ${delay}ms`,
+      }}
+    >
+      {children}
     </div>
   );
 }

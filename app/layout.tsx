@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Inter_Tight, JetBrains_Mono } from "next/font/google";
+import { Geist_Mono, Orbitron } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/language-context";
 
-const interTight = Inter_Tight({
+// Geist Mono = --font-body per design system (monospace, used everywhere)
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-geist-mono",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const orbitron = Orbitron({
   subsets: ["latin"],
-  variable: "--font-mono",
+  variable: "--font-accent",
+  weight: ["700"],
 });
 
 export const metadata: Metadata = {
@@ -26,10 +28,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${interTight.variable} ${jetbrainsMono.variable} dark`}
+      className={`${geistMono.variable} ${orbitron.variable} dark`}
     >
       <body
-        className="antialiased min-h-screen flex overflow-hidden selection:bg-[#ccff00] selection:text-black"
+        className="antialiased min-h-screen flex overflow-hidden selection:bg-[#00FF9F] selection:text-black"
         suppressHydrationWarning
       >
         <LanguageProvider>{children}</LanguageProvider>

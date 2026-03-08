@@ -1,12 +1,38 @@
 @import "tailwindcss";
 
 :root {
-  --bg-color: #050505;
-  --panel-bg: #0a0a0a;
-  --border-color: #1f1f1f;
-  --text-muted: #666666;
+  /* Backgrounds */
+  --bg-base:     rgba(0,0,0,0.4);
+  --bg-surface:  #0A0A0A;
+  --bg-elevated: #141414;
+  --bg-overlay:  #1C1C1C;
+  --bg-muted:    #242424;
+
+  /* Borders */
+  --border-subtle:  rgba(255,255,255,0.06);
+  --border-default: rgba(255,255,255,0.09);
+  --border-strong:  rgba(255,255,255,0.16);
+
+  /* Text hierarchy */
+  --text-primary:   #FFFFFF;
+  --text-secondary: rgba(255,255,255,0.70);
+  --text-tertiary:  rgba(255,255,255,0.55);
+  --text-supporting:rgba(255,255,255,0.30);
+  --text-disabled:  rgba(255,255,255,0.18);
+
+  /* Accents */
+  --accent-green:  #00FF9F;
+  --accent-yellow: #F3E600;
+  --accent-cyan:   #55EAD4;
+  --accent-red:    #FF2060;
+  --accent-violet: #C840FF;
+
+  /* Legacy aliases kept for backward compat */
+  --bg-color: rgba(0,0,0,0.4);
+  --panel-bg: #0A0A0A;
+  --border-color: rgba(255,255,255,0.09);
+  --text-muted: rgba(255,255,255,0.30);
   --text-main: #e0e0e0;
-  --accent-yellow: #facc15;
 }
 
 body {
@@ -16,7 +42,83 @@ body {
 }
 
 .text-glow-yellow {
-  text-shadow: 0 0 15px rgba(250, 204, 21, 0.6);
+  text-shadow: 0 0 15px rgba(243, 230, 0, 0.6);
+}
+
+/* ── neon-flicker: single-shot on tag hover ── */
+@keyframes neon-flicker {
+  0%   { opacity: 1; }
+  4%   { opacity: 0.55; }
+  8%   { opacity: 1; }
+  38%  { opacity: 0.80; }
+  42%  { opacity: 1; }
+  70%  { opacity: 0.65; }
+  74%  { opacity: 1; }
+  100% { opacity: 1; }
+}
+.tag-neon:hover {
+  animation: neon-flicker 0.45s ease-out forwards;
+  filter: brightness(1.15);
+}
+
+/* Progress bars — design system (.progress-wrap wraps track + dot + value) */
+.progress-wrap .progress-track {
+  height: 3px;
+  transition: height 0.18s ease;
+}
+.progress-wrap:hover .progress-track {
+  height: 5px;
+}
+.progress-wrap .progress-dot {
+  width: 6px;
+  height: 6px;
+  transition: width 0.18s ease, height 0.18s ease;
+}
+.progress-wrap:hover .progress-dot {
+  width: 9px;
+  height: 9px;
+}
+.progress-wrap:active .progress-fill {
+  filter: brightness(1.3);
+}
+
+/* ── dot-loader: 5-dot stepping loader, one accent color each ── */
+.dot-loader span {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: dot-pulse 2.5s linear infinite;
+}
+.dot-loader span:nth-child(1) {
+  background: #00FF9F;
+  animation-delay: 0s;
+  --dot-glow: #00FF9F;
+}
+.dot-loader span:nth-child(2) {
+  background: #F3E600;
+  animation-delay: -2.0s;
+  --dot-glow: #F3E600;
+}
+.dot-loader span:nth-child(3) {
+  background: #55EAD4;
+  animation-delay: -1.5s;
+  --dot-glow: #55EAD4;
+}
+.dot-loader span:nth-child(4) {
+  background: #FF2060;
+  animation-delay: -1.0s;
+  --dot-glow: #FF2060;
+}
+.dot-loader span:nth-child(5) {
+  background: #C840FF;
+  animation-delay: -0.5s;
+  --dot-glow: #C840FF;
+}
+@keyframes dot-pulse {
+  0%               { opacity: 1;    transform: scale(1.35); box-shadow: 0 0 9px 4px var(--dot-glow); }
+  20%, 100%        { opacity: 0.15; transform: scale(1);    box-shadow: none; }
 }
 
 /* Custom scrollbar for the terminal feel */

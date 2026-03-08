@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback, useRef, useEffect } from "react";
-import { Pin, RefreshCw } from "lucide-react";
+import { Pin, PinSolid, Refresh } from "iconoir-react";
 import {
   LineChart,
   Line,
@@ -21,29 +21,28 @@ import { t } from "@/lib/i18n";
 
 const DROPDOWN_CLOSE_DELAY_MS = 150;
 
+type StatusTagStyle = { background: string; color: string };
+
 type StatusTagDropdownProps = {
   dropdownKey: string;
   quest: Quest;
   statusLabels: Record<QuestStatus, string>;
-  statusTagClass: Record<QuestStatus, string>;
+  statusTagStyle: Record<QuestStatus, StatusTagStyle>;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onStatusSelect: (questId: string, status: QuestStatus) => void;
-  size?: "sm" | "xs";
 };
 
 function StatusTagDropdown({
   dropdownKey,
   quest,
   statusLabels,
-  statusTagClass,
+  statusTagStyle,
   isOpen,
   onOpenChange,
   onStatusSelect,
-  size = "sm",
 }: StatusTagDropdownProps) {
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const textClass = size === "xs" ? "text-[10px]" : "text-[10px]";
 
   const clearCloseTimeout = useCallback(() => {
     if (closeTimeoutRef.current) {
@@ -73,7 +72,8 @@ function StatusTagDropdown({
       onClick={(e) => e.stopPropagation()}
     >
       <span
-        className={`${textClass} uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 cursor-pointer ${statusTagClass[quest.status]}`}
+        className="tag-neon text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold shrink-0 cursor-pointer"
+        style={{ fontFamily: "Orbitron, sans-serif", ...statusTagStyle[quest.status] }}
       >
         {statusLabels[quest.status]}
       </span>
@@ -83,12 +83,13 @@ function StatusTagDropdown({
           onMouseEnter={handleEnter}
           onMouseLeave={scheduleClose}
         >
-          <div className="py-1 rounded bg-[#1a1a1a] border border-[#333] shadow-xl min-w-[120px]">
+          <div className="py-1 rounded-[7px] bg-[#1C1C1C] border border-white/10 shadow-xl min-w-[140px]">
             {(Object.keys(statusLabels) as QuestStatus[]).map((s) => (
               <button
                 key={s}
                 type="button"
-                className={`w-full text-left px-3 py-1.5 text-[10px] uppercase hover:bg-[#252525] transition-colors ${s === quest.status ? "bg-[#252525]" : ""} ${statusTagClass[s]}`}
+                className={`w-full text-left px-3 py-1.5 text-[8px] uppercase tracking-[0.2em] font-bold hover:bg-white/5 transition-colors ${s === quest.status ? "bg-white/5" : ""}`}
+                style={{ fontFamily: "Orbitron, sans-serif", ...statusTagStyle[s] }}
                 onClick={(e) => {
                   e.stopPropagation();
                   onStatusSelect(quest.id, s);
@@ -159,11 +160,11 @@ export default function SkillDetailPage({
     completed: t(lang, "status_completed"),
   };
 
-  const statusTagClass: Record<QuestStatus, string> = {
-    open: "bg-[#1f1f1f] text-[#888]",
-    planned: "bg-amber-500/20 text-amber-400",
-    in_progress: "bg-sky-500/20 text-sky-400",
-    completed: "bg-emerald-500/20 text-emerald-400",
+  const statusTagStyle: Record<QuestStatus, StatusTagStyle> = {
+    open: { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" },
+    planned: { background: "rgba(243,230,0,0.12)", color: "#F3E600" },
+    in_progress: { background: "rgba(85,234,212,0.12)", color: "#55EAD4" },
+    completed: { background: "rgba(0,255,159,0.12)", color: "#00FF9F" },
   };
 
   const skill = useMemo(() => {
@@ -234,7 +235,7 @@ export default function SkillDetailPage({
   if (!skill) {
     return (
       <div className="max-w-6xl mx-auto">
-        <p className="text-[#888]">Skill not found.</p>
+        <p className="text-white/30">Skill not found.</p>
       </div>
     );
   }
@@ -305,8 +306,8 @@ export default function SkillDetailPage({
           selectedAspectId === null || e.dataKey === selectedAspectId,
       );
       return (
-        <div className="bg-[#0a0a0a] border border-[#333] p-3 min-w-[140px] shadow-xl">
-          <p className="text-[10px] text-[#555] uppercase tracking-widest mb-2">
+        <div className="p-3 min-w-[140px] shadow-xl rounded-[7px]" style={{ background: "#1C1C1C", border: "1px solid rgba(255,255,255,0.1)" }}>
+          <p className="text-[10px] text-white/30 uppercase tracking-[0.08em] mb-2">
             {dayLabel}
           </p>
           {filtered.map((entry) => {
@@ -321,7 +322,7 @@ export default function SkillDetailPage({
                   className="w-2 h-2 rounded-full shrink-0"
                   style={{ backgroundColor: aspect.color }}
                 />
-                <span className="text-[10px] text-[#888] uppercase tracking-wide flex-1">
+                <span className="text-[10px] text-white/55 uppercase tracking-wide flex-1">
                   {aspect.name}
                 </span>
                 <span
@@ -369,8 +370,13 @@ export default function SkillDetailPage({
   return (
     <div className="max-w-6xl mx-auto">
       {/* Neural map & aspect progress chart */}
-      <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6">
-        <h3 className="text-[10px] text-[#555] uppercase tracking-widest mb-4">
+      <div className="p-6 rounded-[14px] relative overflow-hidden" style={{
+        background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+        border: "1px solid rgba(255,255,255,0.09)",
+        borderTop: "1px solid rgba(255,255,255,0.16)",
+        backdropFilter: "blur(24px)",
+      }}>
+        <h3 className="text-[10px] text-white/20 uppercase tracking-[0.08em] mb-4">
           {t(lang, "skill_neural_map").toUpperCase()}
         </h3>
 
@@ -512,7 +518,7 @@ export default function SkillDetailPage({
                       <text
                         x={lx}
                         y={ly}
-                        fill={isSelected ? "#facc15" : isHovered ? a.color : a.color}
+                        fill={isSelected ? "#F3E600" : a.color}
                         fontSize="3.5"
                         textAnchor="middle"
                         dominantBaseline="middle"
@@ -527,7 +533,7 @@ export default function SkillDetailPage({
                 })}
               </svg>
             ) : (
-              <div className="text-[#666] text-sm">No aspects to display.</div>
+              <div className="text-white/30 text-sm">{t(lang, "skill_no_aspects")}</div>
             )}
           </div>
 
@@ -549,10 +555,10 @@ export default function SkillDetailPage({
                       key={r}
                       type="button"
                       onClick={() => setChartRange(r)}
-                      className={`px-2 py-0.5 text-[10px] uppercase tracking-widest border transition-colors ${
+                      className={`px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] border transition-colors ${
                         chartRange === r
-                          ? "border-[#facc15] text-[#facc15] bg-[#facc15]/5"
-                          : "border-[#1f1f1f] text-[#555] hover:border-[#333] hover:text-[#888]"
+                          ? "border-[#F3E600] text-[#F3E600] bg-[#F3E600]/5"
+                          : "border-white/6 text-white/30 hover:border-white/12 hover:text-white/55"
                       }`}
                     >
                       {label}
@@ -645,16 +651,21 @@ export default function SkillDetailPage({
                 </div>
               </>
             ) : (
-              <div className="text-[#666] text-sm">No history data.</div>
+              <div className="text-white/30 text-sm">{t(lang, "skill_no_history")}</div>
             )}
           </div>
         </div>
       </div>
 
       {/* Quests: In Progress | Planned | Pinned — drag-and-drop between columns */}
-      <section className="mt-6 border border-[#1f1f1f] bg-[#0a0a0a] p-6">
-        <h3 className="text-[10px] text-[#555] uppercase tracking-widest mb-4">
-          Quests
+      <section className="mt-6 p-6 rounded-[14px] relative overflow-hidden" style={{
+        background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+        border: "1px solid rgba(255,255,255,0.09)",
+        borderTop: "1px solid rgba(255,255,255,0.16)",
+        backdropFilter: "blur(24px)",
+      }}>
+        <h3 className="text-[10px] text-white/20 uppercase tracking-[0.08em] mb-4">
+          {t(lang, "quests_title").toUpperCase()}
         </h3>
         <div className="grid grid-cols-3 gap-4">
           {[
@@ -691,28 +702,25 @@ export default function SkillDetailPage({
                   e.preventDefault();
                   handleDrop(key);
                 }}
-                className={`min-h-[80px] rounded-md p-2 transition-colors ${
+                className={`min-h-[80px] rounded-[7px] p-2 transition-colors ${
                   isOver
-                    ? "bg-[#facc15]/5 border border-dashed border-[#facc15]/50"
+                    ? "bg-[#F3E600]/5 border border-dashed border-[#F3E600]/50"
                     : isDragging
-                      ? "border border-dashed border-[#333]"
+                      ? "border border-dashed border-white/12"
                       : "border border-transparent"
                 }`}
               >
-                <h4 className="text-[10px] text-[#888] uppercase tracking-widest mb-2">
+                <h4 className="text-[10px] text-white/30 uppercase tracking-[0.08em] mb-2">
                   {label}
                 </h4>
                 {quests.length === 0 ? (
-                  <p className="text-[#555] text-xs">
+                  <p className="text-white/30 text-xs">
                     {isOver ? (
-                      <span className="text-[#facc15]/60">
+                      <span className="text-[#F3E600]/60">
                         {t(lang, "drop_here")}
                       </span>
                     ) : key === "pinned" ? (
-                      <>
-                        No pinned quests. Use the pin icon in &quot;
-                        {t(lang, "skill_structure")}&quot; or drag here.
-                      </>
+                      t(lang, "skill_pinned_hint")
                     ) : (
                       t(lang, "quests_empty")
                     )}
@@ -720,8 +728,8 @@ export default function SkillDetailPage({
                 ) : (
                   <ul className="flex flex-col gap-1.5">
                     {isOver && (
-                      <li className="h-9 rounded border border-dashed border-[#facc15]/40 bg-[#facc15]/5 flex items-center justify-center">
-                        <span className="text-[10px] text-[#facc15]/60 uppercase tracking-widest">
+                      <li className="h-9 rounded-[7px] border border-dashed border-[#F3E600]/40 bg-[#F3E600]/5 flex items-center justify-center">
+                        <span className="text-[8px] text-[#F3E600]/60 uppercase tracking-[0.2em]" style={{ fontFamily: "Orbitron, sans-serif" }}>
                           {t(lang, "drop_here")}
                         </span>
                       </li>
@@ -750,38 +758,53 @@ export default function SkillDetailPage({
                             setDragOverColumn(null);
                           }}
                           onClick={() => onQuestSelect(quest.id)}
-                          className={`p-3 border border-[#1f1f1f] bg-[#050505] rounded group cursor-grab active:cursor-grabbing hover:border-[#333] hover:bg-[#0d0d0d] transition-colors select-none ${
+                          className={`p-3 rounded-[14px] group cursor-grab active:cursor-grabbing hover:-translate-y-0.5 active:scale-[0.994] transition-all duration-150 select-none relative overflow-hidden ${
                             draggedQuestId === quest.id
                               ? "opacity-40 scale-95"
                               : ""
                           }`}
+                          style={{
+                            background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+                            border: "1px solid rgba(255,255,255,0.09)",
+                            borderTop: "1px solid rgba(255,255,255,0.16)",
+                            backdropFilter: "blur(24px)",
+                          }}
                         >
-                          <p className="text-sm font-medium text-white mb-2 line-clamp-2 group-hover:text-[#facc15]/90">
+                          <p className="text-[14px] font-semibold text-white mb-2 line-clamp-2 group-hover:text-white">
                             {quest.name}
                           </p>
                           <div className="flex flex-wrap items-center gap-1.5">
                             {subSkillLabels.map((ss) => (
                               <span
                                 key={ss.name}
-                                className="text-[10px] px-1.5 py-0.5 rounded bg-[#1a1a1a] text-[#999] uppercase tracking-wider"
+                                className="tag-neon text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
+                                style={{ fontFamily: "Orbitron, sans-serif", background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)" }}
                               >
                                 {ss.name}
                               </span>
                             ))}
                             {quest.isRecurring ? (
                               <span
-                                className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded border uppercase tracking-wider"
+                                className="tag-neon flex items-center gap-1 text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
                                 style={{
-                                  borderColor: skill.color,
+                                  fontFamily: "Orbitron, sans-serif",
+                                  background: `${skill.color}20`,
                                   color: skill.color,
                                 }}
                               >
-                                <RefreshCw size={9} />
+                                <Refresh width={9} height={9} strokeWidth={2.2} />
                                 {t(lang, "quest_recurring_label")}
                               </span>
                             ) : (
-                              <span className="flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded border border-[#2a2a2a] text-[#444] uppercase tracking-wider">
-                                <RefreshCw size={9} />
+                              <span
+                                className="flex items-center gap-1 text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
+                                style={{
+                                  fontFamily: "Orbitron, sans-serif",
+                                  background: "rgba(255,255,255,0.04)",
+                                  color: "rgba(255,255,255,0.18)",
+                                }}
+                              >
+                                <Refresh width={9} height={9} strokeWidth={2.2} />
                                 {t(lang, "quest_recurring_label")}
                               </span>
                             )}
@@ -798,8 +821,13 @@ export default function SkillDetailPage({
       </section>
 
       {/* Tree: aspects → subskills → quests */}
-      <section className="mt-10 border border-[#1f1f1f] bg-[#0a0a0a] p-6">
-        <h3 className="text-[10px] text-[#555] uppercase tracking-widest mb-6">
+      <section className="mt-6 p-6 rounded-[14px] relative overflow-hidden" style={{
+        background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+        border: "1px solid rgba(255,255,255,0.09)",
+        borderTop: "1px solid rgba(255,255,255,0.16)",
+        backdropFilter: "blur(24px)",
+      }}>
+        <h3 className="text-[10px] text-white/20 uppercase tracking-[0.08em] mb-6">
           {t(lang, "skill_structure").toUpperCase()}
         </h3>
         <div className="space-y-6">
@@ -808,20 +836,26 @@ export default function SkillDetailPage({
             return (
               <div key={aspect.id} className="relative">
                 <div
-                  className="flex items-center gap-4 p-3 rounded border border-[#2a2a2a] bg-[#0d0d0d] group/row"
-                  style={{ borderLeftColor: skill.color, borderLeftWidth: 4 }}
+                  className="flex items-center gap-4 p-3 rounded-[7px] relative overflow-hidden group/row"
+                  style={{
+                    background: "rgba(255,255,255,0.04)",
+                    border: "1px solid rgba(255,255,255,0.09)",
+                    borderLeft: `4px solid ${skill.color}`,
+                  }}
                 >
                   <span className="text-sm font-medium text-white uppercase tracking-wide">
                     {aspect.name}
                   </span>
-                  <div className="flex-1 max-w-[120px] h-2 bg-[#1f1f1f] rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${aspect.completionPercentage}%`,
-                        backgroundColor: skill.color,
-                      }}
-                    />
+                  <div className="progress-wrap flex-1 max-w-[120px] flex items-center gap-2">
+                    <div className="progress-track flex-1 bg-[#1a1a1a] rounded-full overflow-hidden">
+                      <div
+                        className="progress-fill h-full rounded-full"
+                        style={{
+                          width: `${aspect.completionPercentage}%`,
+                          background: `linear-gradient(90deg, ${skill.color}40, ${skill.color})`,
+                        }}
+                      />
+                    </div>
                   </div>
                   <span
                     className="text-xs font-mono font-bold"
@@ -850,15 +884,16 @@ export default function SkillDetailPage({
                       return (
                         <div key={subSkill.id} className="relative">
                           <div
-                            className="relative flex items-center gap-2 p-2 rounded border border-[#1f1f1f] bg-[#050505] hover:border-[#333] hover:bg-[#0a0a0a] transition-colors group/row"
+                          className="relative flex items-center gap-2 p-2 rounded-[7px] group/row transition-colors"
+                          style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)" }}
                             id={`subskill-${subSkill.id}`}
                           >
                             <div className="flex-1 min-w-0">
                               <span className="text-sm text-[#e0e0e0] group-hover/row:text-white">
                                 {subSkill.name}
                               </span>
-                              <span className="text-[10px] text-[#666] ml-2">
-                                Lvl {subSkill.level}
+                              <span className="text-[10px] text-white/30 ml-2">
+                                {t(lang, "skill_level_prefix")} {subSkill.level}
                               </span>
                             </div>
                           </div>
@@ -876,13 +911,13 @@ export default function SkillDetailPage({
                                       onQuestSelect(q.id);
                                     }
                                   }}
-                                  className="flex items-center gap-2 py-1.5 text-[12px] text-[#888] border-b border-[#151515] last:border-0 group/row cursor-pointer hover:bg-[#0d0d0d] rounded px-1 -mx-1 transition-colors"
+                                  className="flex items-center gap-2 py-1.5 text-[12px] text-white/55 border-b border-white/6 last:border-0 group/row cursor-pointer hover:bg-white/3 rounded px-1 -mx-1 transition-colors"
                                 >
                                   <span
                                     className="w-1.5 h-1.5 rounded-full shrink-0"
                                     style={{ backgroundColor: skill.color }}
                                   />
-                                  <span className="flex-1 min-w-0 text-[#aaa]">
+                                  <span className="flex-1 min-w-0 text-white/70">
                                     {q.name}
                                   </span>
                                   {(() => {
@@ -892,7 +927,7 @@ export default function SkillDetailPage({
                                         dropdownKey={`tree-${q.id}`}
                                         quest={{ ...q, status }}
                                         statusLabels={statusLabels}
-                                        statusTagClass={statusTagClass}
+                                        statusTagStyle={statusTagStyle}
                                         isOpen={
                                           openStatusDropdownKey ===
                                           `tree-${q.id}`
@@ -903,7 +938,6 @@ export default function SkillDetailPage({
                                           )
                                         }
                                         onStatusSelect={setStatusOverride}
-                                        size="xs"
                                       />
                                     );
                                   })()}
@@ -919,14 +953,14 @@ export default function SkillDetailPage({
                                           e.stopPropagation();
                                           toggleRecurring(q.id, q.isRecurring);
                                         }}
-                                        className={`flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded border uppercase tracking-wider shrink-0 transition-colors ${
+                                        className={`flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-[7px] border uppercase tracking-widest shrink-0 transition-colors ${
                                           recurring
-                                            ? "border-[#555] text-[#aaa] hover:border-[#777]"
-                                            : "border-[#2a2a2a] text-[#444] hover:border-[#444]"
+                                            ? "border-white/20 text-white/55 hover:border-white/40"
+                                            : "border-white/6 text-white/18 hover:border-white/12"
                                         }`}
                                         title={t(lang, "quest_recurring_label")}
                                       >
-                                        <RefreshCw size={9} />
+                                        <Refresh width={9} height={9} strokeWidth={2.2} />
                                       </button>
                                     );
                                   })()}
@@ -949,12 +983,11 @@ export default function SkillDetailPage({
                                         : "#444",
                                     }}
                                   >
-                                    <Pin
-                                      size={12}
-                                      className={
-                                        isPinned(q.id) ? "fill-current" : ""
-                                      }
-                                    />
+                                    {isPinned(q.id) ? (
+                                      <PinSolid width={12} height={12} />
+                                    ) : (
+                                      <Pin width={12} height={12} strokeWidth={1.8} />
+                                    )}
                                   </button>
                                 </div>
                               ))}
@@ -970,8 +1003,8 @@ export default function SkillDetailPage({
           })}
         </div>
         {aspects.length === 0 && (
-          <p className="text-[#666] text-sm">
-            No aspects — add aspects to skill data.
+          <p className="text-white/30 text-sm">
+            {t(lang, "skill_no_aspects")}
           </p>
         )}
       </section>

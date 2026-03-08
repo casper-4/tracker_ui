@@ -10,7 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { X } from "lucide-react";
+import { Xmark } from "iconoir-react";
 import { MOCK_QUESTS } from "@/lib/mock";
 import type { Quest } from "@/lib/mock";
 import { useLang } from "@/lib/language-context";
@@ -46,9 +46,9 @@ type QuestsChartProps = {
 };
 
 const COLORS: Record<QuestStatus, string> = {
-  planned: "#facc15",
-  in_progress: "#60a5fa",
-  completed: "#4ade80",
+  planned: "#F3E600",
+  in_progress: "#55EAD4",
+  completed: "#00FF9F",
 };
 
 // 60 days of smooth mock data — consecutive points differ by at most 1
@@ -139,7 +139,7 @@ const CustomXTick = (
   const words = payload.value.split(" ");
   return (
     <g transform={`translate(${x},${y})`}>
-      <text textAnchor="middle" fill="#666" fontSize={fontSize}>
+      <text textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize={fontSize}>
         {words.map((word, i) => (
           <tspan key={i} x={0} dy={i === 0 ? "1.1em" : "1.3em"}>
             {word}
@@ -375,10 +375,10 @@ export default function QuestsChart({
     <button
       key={mode}
       onClick={() => setRangeMode(mode)}
-      className={`px-2.5 py-1 text-[10px] uppercase tracking-widest border transition-colors ${
+      className={`px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest rounded-md transition-all duration-150 ${
         rangeMode === mode
-          ? "border-[#facc15] text-[#facc15] bg-[#facc15]/5"
-          : "border-[#1f1f1f] text-[#555] hover:border-[#333] hover:text-[#888]"
+          ? "bg-[#F3E600]/10 text-[#F3E600] border border-[#F3E600]/30"
+          : "border border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.3)] hover:border-[rgba(255,255,255,0.16)] hover:text-[rgba(255,255,255,0.55)]"
       }`}
     >
       {label}
@@ -386,10 +386,19 @@ export default function QuestsChart({
   );
 
   return (
-    <div className="mt-8 border border-[#1f1f1f] bg-[#0a0a0a] p-4 sm:p-6">
+    <div
+      className="mt-8 relative p-4 sm:p-6 rounded-[14px] overflow-hidden"
+      style={{
+        background:
+          "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+        border: "1px solid rgba(255,255,255,0.09)",
+        borderTop: "1px solid rgba(255,255,255,0.16)",
+        backdropFilter: "blur(24px)",
+      }}
+    >
       {/* header row */}
       <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
-        <h2 className="text-[10px] text-[#888] uppercase tracking-widest">
+        <h2 className="text-[10px] font-semibold text-[rgba(255,255,255,0.3)] uppercase tracking-[0.08em]">
           Stats
         </h2>
         <div className="flex flex-wrap items-center gap-1">
@@ -397,10 +406,10 @@ export default function QuestsChart({
           {rangeBtn("14", "14d")}
           <button
             onClick={() => setRangeMode("custom")}
-            className={`px-2.5 py-1 text-[10px] uppercase tracking-widest border transition-colors ${
+            className={`px-3 py-1.5 text-[10px] font-semibold uppercase tracking-widest rounded-md transition-all duration-150 ${
               rangeMode === "custom"
-                ? "border-[#facc15] text-[#facc15] bg-[#facc15]/5"
-                : "border-[#1f1f1f] text-[#555] hover:border-[#333] hover:text-[#888]"
+                ? "bg-[#F3E600]/10 text-[#F3E600] border border-[#F3E600]/30"
+                : "border border-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.3)] hover:border-[rgba(255,255,255,0.16)] hover:text-[rgba(255,255,255,0.55)]"
             }`}
           >
             {t(lang, "chart_range_custom")}
@@ -413,9 +422,14 @@ export default function QuestsChart({
                 max={60}
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
-                className="w-12 bg-transparent border border-[#1f1f1f] text-[#e0e0e0] text-[11px] px-2 py-1 text-right focus:outline-none focus:border-[#facc15]/50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="w-12 rounded-md text-[11px] px-2 py-1 text-right focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none transition-all duration-150"
+                style={{
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  color: "rgba(255,255,255,0.7)",
+                }}
               />
-              <span className="text-[10px] text-[#555] uppercase tracking-widest">
+              <span className="text-[10px] text-[rgba(255,255,255,0.3)] uppercase tracking-widest">
                 {t(lang, "chart_days")}
               </span>
             </div>
@@ -434,17 +448,17 @@ export default function QuestsChart({
             margin={{ top: 10, right: isMobile ? 10 : 30, left: 0, bottom: chartMarginBottom }}
             tabIndex={-1}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#1f1f1f" />
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
             <XAxis
               dataKey="dayLabel"
-              stroke="#666"
+              stroke="rgba(255,255,255,0.06)"
               tick={(props) => <CustomXTick {...props} fontSize={xAxisFontSize} />}
               height={xAxisHeight}
               interval={xAxisInterval}
             />
             <YAxis
-              stroke="#666"
-              tick={{ fontSize: isMobile ? 10 : 12, fill: "#666" }}
+              stroke="rgba(255,255,255,0.06)"
+              tick={{ fontSize: isMobile ? 10 : 12, fill: "rgba(255,255,255,0.3)" }}
               width={isMobile ? 24 : 40}
               domain={[0, 7]}
               ticks={[0, 1, 2, 3, 4, 5, 6, 7]}
@@ -492,14 +506,22 @@ export default function QuestsChart({
         {/* ── tooltip ───────────────────────────────────────────────────────── */}
         {tooltip && (
           <div
-            className="absolute z-50 w-64 border border-[#333] bg-[#0a0a0a] shadow-2xl"
-            style={{ left: tooltip.left, top: tooltip.top }}
+            className="absolute z-50 w-64 rounded-[10px] overflow-hidden shadow-2xl"
+            style={{
+              left: tooltip.left,
+              top: tooltip.top,
+              background:
+                "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.4) 100%)",
+              border: "1px solid rgba(255,255,255,0.09)",
+              borderTop: "1px solid rgba(255,255,255,0.16)",
+              backdropFilter: "blur(24px)",
+            }}
             onMouseEnter={cancelClose}
             onMouseLeave={() => !tooltip.pinned && closeTooltip()}
           >
-            <div className="flex items-center justify-between px-3 py-2 border-b border-[#1f1f1f]">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-[rgba(255,255,255,0.07)]">
               <div>
-                <p className="text-[10px] text-[#555] uppercase tracking-widest">
+                <p className="text-[10px] text-[rgba(255,255,255,0.3)] uppercase tracking-widest">
                   {tooltip.date}
                 </p>
                 <p
@@ -511,29 +533,29 @@ export default function QuestsChart({
               </div>
               <button
                 onClick={closeTooltip}
-                className="text-[#444] hover:text-[#999] transition-colors ml-3 flex-shrink-0"
+                className="text-[rgba(255,255,255,0.25)] hover:text-[rgba(255,255,255,0.7)] transition-colors ml-3 flex-shrink-0"
               >
-                <X size={13} />
+                <Xmark width={13} height={13} strokeWidth={2} />
               </button>
             </div>
             <ul className="flex flex-col max-h-48 overflow-y-auto">
               {tooltip.quests.map((quest, qi) => (
                 <li
                   key={`${quest.id}-${qi}`}
-                  className="border-b border-[#1f1f1f] last:border-0"
+                  className="border-b border-[rgba(255,255,255,0.06)] last:border-0"
                 >
                   <button
                     onClick={() => {
                       onQuestClick(quest.id);
                       closeTooltip();
                     }}
-                    className="w-full text-left px-3 py-2 hover:bg-[#0d0d0d] transition-colors group"
+                    className="w-full text-left px-3 py-2 hover:bg-[rgba(255,255,255,0.04)] transition-colors group"
                   >
-                    <p className="text-xs font-medium text-[#e0e0e0] group-hover:text-[#facc15] line-clamp-1">
+                    <p className="text-xs font-medium text-[rgba(255,255,255,0.7)] group-hover:text-[#F3E600] line-clamp-1">
                       {quest.name}
                     </p>
                     {quest.description && (
-                      <p className="text-[10px] text-[#555] mt-0.5 line-clamp-1">
+                      <p className="text-[10px] text-[rgba(255,255,255,0.3)] mt-0.5 line-clamp-1">
                         {quest.description}
                       </p>
                     )}

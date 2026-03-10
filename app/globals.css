@@ -163,6 +163,11 @@ body {
   background: #333;
 }
 
+/* Hidden scrollbar — scrollable but no visible track */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

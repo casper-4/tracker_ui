@@ -196,7 +196,7 @@ const Sidebar = ({
     <motion.aside
       animate={{ width: collapsed ? 60 : 240 }}
       transition={{ duration: 0.22, ease: "easeInOut" }}
-      className="fixed left-10 top-1/2 -translate-y-1/2 z-50 flex flex-col overflow-hidden rounded-2xl"
+      className="fixed left-10 top-6 lg:top-10 xl:top-16 max-h-[calc(100vh-3rem)] lg:max-h-[calc(100vh-5rem)] xl:max-h-[calc(100vh-8rem)] z-50 flex flex-col overflow-hidden rounded-2xl"
       style={{
         background:
           "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
@@ -206,7 +206,7 @@ const Sidebar = ({
         WebkitBackdropFilter: "blur(24px)",
       }}
     >
-      <div>
+      <div className="overflow-y-auto scrollbar-none">
         {/* Header / Logo */}
         <div
           className={`flex items-center justify-center border-b border-white/[0.07] box-border ${collapsed ? "h-auto py-4" : "h-20 min-h-[5rem]"}`}
@@ -293,7 +293,7 @@ const Sidebar = ({
 
       {/* Footer */}
       <div
-        className={`border-t border-white/[0.07] flex items-center mt-6 ${
+        className={`border-t border-white/[0.07] flex items-center ${
           collapsed ? "justify-center p-4" : "justify-between p-6"
         }`}
       >

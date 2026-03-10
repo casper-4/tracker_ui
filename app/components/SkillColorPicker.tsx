@@ -106,7 +106,7 @@ export default function SkillColorPicker({ color, onChange }: Props) {
 
       {isOpen && (
         <div
-          className="absolute top-full right-0 mt-2 z-50"
+          className="absolute top-full right-0 mt-2 z-[200]"
           onMouseEnter={() => {
             clearClose();
             setIsOpen(true);

@@ -384,7 +384,7 @@ export default function SkillDetailPage({
     <div className="max-w-6xl mx-auto">
       {/* ── Skill hero widget ── */}
       <div
-        className="mb-6 p-6 rounded-[14px] relative overflow-hidden"
+        className="mb-6 p-6 rounded-[14px] relative z-10"
         style={{
           background:
             "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
@@ -499,9 +499,19 @@ export default function SkillDetailPage({
             {radar ? (
               <svg
                 viewBox="0 0 100 100"
-                className="w-full max-w-[240px] overflow-visible"
+                className="w-full max-w-[210px] overflow-visible"
               >
-                {/* Concentric grid rings */}
+                <defs>
+                  <filter id="edgeGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2.2" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                </defs>
+
+                {/* Concentric grid rings — barely visible scaffold */}
                 {[40, 26.7, 13.3].map((maxR, ri) => {
                   const n = aspects.length;
                   const pts = Array.from({ length: n }, (_, i) => {
@@ -514,14 +524,14 @@ export default function SkillDetailPage({
                       key={ri}
                       points={pts.join(" ")}
                       fill="none"
-                      stroke="#1f1f1f"
-                      strokeWidth="0.5"
-                      strokeDasharray="2,2"
+                      stroke="rgba(255,255,255,0.07)"
+                      strokeWidth="0.4"
                     />
                   );
                 })}
-                {/* Axis lines from center — dashed */}
-                {aspects.map((_, i) => {
+
+                {/* Axis spokes — per-axis accent color, lightly tinted */}
+                {aspects.map((a, i) => {
                   const n = aspects.length;
                   const angle = (i * 360) / n;
                   const rad = (angle * Math.PI) / 180;
@@ -534,22 +544,24 @@ export default function SkillDetailPage({
                       y1="50"
                       x2={x}
                       y2={y}
-                      stroke="#1f1f1f"
-                      strokeWidth="0.5"
-                      strokeDasharray="2,2"
+                      stroke={a.color}
+                      strokeWidth="0.4"
+                      opacity="0.20"
                     />
                   );
                 })}
-                {/* Goal outline (100%) — dashed */}
+
+                {/* Goal outline (100%) — dashed reference */}
                 {radarGoal && (
                   <polygon
                     points={radarGoal.points}
                     fill="none"
-                    stroke="#333"
-                    strokeWidth="0.6"
+                    stroke="rgba(255,255,255,0.09)"
+                    strokeWidth="0.5"
                     strokeDasharray="3,3"
                   />
                 )}
+
                 {/* Colored sector triangles — one per aspect */}
                 {radar.pts.map((p, i) => {
                   const a = aspects[i];
@@ -561,27 +573,73 @@ export default function SkillDetailPage({
                       key={`sector-${i}`}
                       points={`50,50 ${p.x},${p.y} ${next.x},${next.y}`}
                       fill={isActive ? `${a.color}38` : `${a.color}18`}
-                      stroke={a.color}
-                      strokeWidth={isActive ? "1.2" : "0.7"}
-                      strokeLinejoin="round"
+                      stroke="none"
+                      opacity={isActive ? 1.0 : 0.8}
                       style={{
-                        transition: "fill 0.15s ease, stroke-width 0.15s ease",
+                        transition: "fill 0.2s ease, opacity 0.2s ease",
                       }}
                     />
                   );
                 })}
-                {/* Per-aspect interactive group: hit target + ring + dot + label */}
+
+                {/* Radar shape inner fill — soft white base */}
+                <polygon
+                  points={radar.points}
+                  fill="rgba(255,255,255,0.03)"
+                  stroke="none"
+                />
+
+                {/* Radar shape edges — soft glow lines (blur) */}
+                {radar.pts.map((p, i) => {
+                  const next = radar.pts[(i + 1) % radar.pts.length];
+                  const a = aspects[i];
+                  return (
+                    <line
+                      key={`glow-${i}`}
+                      x1={p.x}
+                      y1={p.y}
+                      x2={next.x}
+                      y2={next.y}
+                      stroke={a.color}
+                      strokeWidth="4"
+                      opacity="0.14"
+                      style={{ filter: "blur(3px)" }}
+                    />
+                  );
+                })}
+
+                {/* Radar shape edges — sharp edge with glow filter */}
+                {radar.pts.map((p, i) => {
+                  const next = radar.pts[(i + 1) % radar.pts.length];
+                  const a = aspects[i];
+                  return (
+                    <line
+                      key={`edge-${i}`}
+                      x1={p.x}
+                      y1={p.y}
+                      x2={next.x}
+                      y2={next.y}
+                      stroke={a.color}
+                      strokeWidth="1.0"
+                      opacity="0.85"
+                      filter="url(#edgeGlow)"
+                    />
+                  );
+                })}
+
+                {/* Per-aspect interactive group: hit target + 3-layer dot + label */}
                 {radar.pts.map((p, i) => {
                   const a = aspects[i];
                   const n = aspects.length;
                   const angle = (i * 360) / n;
                   const rad = (angle * Math.PI) / 180;
-                  const dist = 47;
+                  const dist = 50;
                   const lx = roundSvg(50 + dist * Math.sin(rad));
                   const ly = roundSvg(50 - dist * Math.cos(rad));
                   const isHovered = hoveredAspectId === a.id;
                   const isSelected = selectedAspectId === a.id;
                   const isActive = isHovered || isSelected;
+                  const words = a.name.split(" ");
                   return (
                     <g
                       key={i}
@@ -605,42 +663,62 @@ export default function SkillDetailPage({
                       }}
                     >
                       {/* invisible hit target */}
-                      <circle cx={p.x} cy={p.y} r="5" fill="transparent" />
-                      {/* pulse ring on hover or selection */}
-                      {isActive && (
-                        <circle
-                          cx={p.x}
-                          cy={p.y}
-                          r="4"
-                          fill="none"
-                          stroke={a.color}
-                          strokeWidth="0.6"
-                          opacity="0.7"
-                        />
-                      )}
-                      {/* data dot */}
+                      <circle cx={p.x} cy={p.y} r="6" fill="transparent" />
+
+                      {/* Layer 1: Corona */}
                       <circle
                         cx={p.x}
                         cy={p.y}
-                        r={isActive ? 2.5 : 1.5}
+                        r={isActive ? 5.5 : 3.5}
                         fill={a.color}
-                        style={{ transition: "r 0.15s ease" }}
+                        opacity={isActive ? 0.16 : 0.08}
+                        style={{ transition: "r 0.2s ease, opacity 0.2s ease" }}
                       />
+                      {/* Layer 2: Inner glow */}
+                      <circle
+                        cx={p.x}
+                        cy={p.y}
+                        r={isActive ? 3.5 : 2.2}
+                        fill={a.color}
+                        opacity={isActive ? 0.28 : 0.14}
+                        style={{ transition: "r 0.2s ease, opacity 0.2s ease" }}
+                      />
+                      {/* Layer 3: Sharp dot */}
+                      <circle
+                        cx={p.x}
+                        cy={p.y}
+                        r={isActive ? 2.2 : 1.6}
+                        fill={a.color}
+                        style={{
+                          transition: "r 0.2s ease",
+                          filter: `drop-shadow(0 0 2px ${a.color})`,
+                        }}
+                      />
+
                       {/* label */}
                       <text
                         x={lx}
-                        y={ly}
-                        fill={isSelected ? "#F3E600" : a.color}
-                        fontSize="3.5"
                         textAnchor="middle"
                         dominantBaseline="middle"
-                        opacity={isActive ? 1 : 0.7}
-                        className="uppercase tracking-widest"
                         style={{
-                          transition: "fill 0.15s ease, opacity 0.15s ease",
+                          fontSize: "3.2px",
+                          letterSpacing: "0.06em",
+                          fill: isActive ? a.color : "rgba(255,255,255,0.30)",
+                          fontFamily: "var(--font-body, monospace)",
+                          textTransform: "uppercase",
+                          transition: "fill 0.2s ease",
                         }}
                       >
-                        {a.name}
+                        {words.map((word, wi) => (
+                          <tspan
+                            key={wi}
+                            x={lx}
+                            dy={wi === 0 ? (words.length > 1 ? `${ly - (words.length - 1) * 2}` : String(ly)) : "4"}
+                            y={wi === 0 ? ly : undefined}
+                          >
+                            {word}
+                          </tspan>
+                        ))}
                       </text>
                     </g>
                   );
@@ -671,7 +749,7 @@ export default function SkillDetailPage({
                       key={r}
                       type="button"
                       onClick={() => setChartRange(r)}
-                      className={`px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] border transition-colors ${
+                      className={`px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] rounded-[3px] border transition-colors ${
                         chartRange === r
                           ? "border-[#F3E600] text-[#F3E600] bg-[#F3E600]/5"
                           : "border-white/6 text-white/30 hover:border-white/12 hover:text-white/55"
@@ -687,17 +765,21 @@ export default function SkillDetailPage({
                     data={visibleChartData}
                     margin={{ top: 4, right: 8, left: -16, bottom: 0 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1a1a1a" />
+                    <CartesianGrid
+                      strokeDasharray="0"
+                      stroke="rgba(255,255,255,0.05)"
+                      strokeWidth={0.5}
+                    />
                     <XAxis
                       dataKey="daysAgo"
-                      stroke="#333"
-                      tick={{ fontSize: 10, fill: "#555" }}
+                      stroke="rgba(255,255,255,0.09)"
+                      tick={{ fontSize: 10, fill: "rgba(255,255,255,0.30)" }}
                       tickFormatter={formatXTick}
                       interval={xAxisInterval}
                     />
                     <YAxis
-                      stroke="#333"
-                      tick={{ fontSize: 10, fill: "#555" }}
+                      stroke="rgba(255,255,255,0.09)"
+                      tick={{ fontSize: 10, fill: "rgba(255,255,255,0.30)" }}
                       domain={[0, 100]}
                       ticks={[0, 25, 50, 75, 100]}
                       tickFormatter={(v) => `${v}%`}
@@ -705,7 +787,7 @@ export default function SkillDetailPage({
                     <Tooltip
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       content={renderAspectTooltip as any}
-                      cursor={{ stroke: "#333", strokeWidth: 1 }}
+                      cursor={{ stroke: "rgba(255,255,255,0.09)", strokeWidth: 1 }}
                     />
                     {aspects.map((a) => {
                       const isSelected = selectedAspectId === a.id;
@@ -716,13 +798,14 @@ export default function SkillDetailPage({
                           type="monotone"
                           dataKey={a.id}
                           stroke={a.color}
-                          strokeWidth={isSelected ? 3 : dimmed ? 1 : 2}
+                          strokeWidth={isSelected ? 2.5 : dimmed ? 1 : 1.8}
                           strokeOpacity={dimmed ? 0.2 : 1}
                           dot={false}
                           activeDot={{
                             r: 4,
                             fill: a.color,
                             strokeWidth: 0,
+                            style: { filter: `drop-shadow(0 0 4px ${a.color}90)` },
                           }}
                         />
                       );
@@ -749,12 +832,15 @@ export default function SkillDetailPage({
                       >
                         <span
                           className="w-4 h-px inline-block"
-                          style={{ backgroundColor: a.color }}
+                          style={{
+                            backgroundColor: a.color,
+                            boxShadow: isSelected ? `0 0 4px ${a.color}90` : "none",
+                          }}
                         />
                         <span
-                          className="text-[9px] uppercase tracking-widest"
+                          className="text-[10px] uppercase tracking-[0.06em] transition-colors"
                           style={{
-                            color: isSelected ? a.color : "#666",
+                            color: isSelected ? a.color : "rgba(255,255,255,0.30)",
                           }}
                         >
                           {a.name}

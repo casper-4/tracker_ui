@@ -56,7 +56,7 @@ function StatusTagDropdown({
     clearCloseTimeout();
     closeTimeoutRef.current = setTimeout(
       () => onOpenChange(false),
-      DROPDOWN_CLOSE_DELAY_MS,
+      DROPDOWN_CLOSE_DELAY_MS
     );
   }, [onOpenChange, clearCloseTimeout]);
 
@@ -92,7 +92,9 @@ function StatusTagDropdown({
               <button
                 key={s}
                 type="button"
-                className={`w-full text-left px-3 py-1.5 text-[8px] uppercase tracking-[0.2em] font-bold hover:bg-white/5 transition-colors ${s === quest.status ? "bg-white/5" : ""}`}
+                className={`w-full text-left px-3 py-1.5 text-[8px] uppercase tracking-[0.2em] font-bold hover:bg-white/5 transition-colors ${
+                  s === quest.status ? "bg-white/5" : ""
+                }`}
                 style={{
                   fontFamily: "Orbitron, sans-serif",
                   ...statusTagStyle[s],
@@ -149,7 +151,7 @@ export default function SkillDetailPage({
   const getEffectiveRecurring = useCallback(
     (questId: string, baseValue: boolean): boolean =>
       recurringOverrides[questId] ?? baseValue,
-    [recurringOverrides],
+    [recurringOverrides]
   );
 
   const toggleRecurring = useCallback((questId: string, baseValue: boolean) => {
@@ -194,7 +196,7 @@ export default function SkillDetailPage({
       const quest = MOCK_QUESTS.find((q) => q.id === questId);
       return quest?.status ?? "open";
     },
-    [questStatuses],
+    [questStatuses]
   );
 
   const setStatusOverride = useCallback(
@@ -203,7 +205,7 @@ export default function SkillDetailPage({
       setQuestStatuses((prev) => ({ ...prev, [questId]: status }));
       setOpenStatusDropdownKey(null);
     },
-    [],
+    []
   );
 
   const togglePinned = useCallback((entityId: string) => {
@@ -211,13 +213,13 @@ export default function SkillDetailPage({
     setPinnedIds((prev) =>
       prev.includes(entityId)
         ? prev.filter((id) => id !== entityId)
-        : [...prev, entityId],
+        : [...prev, entityId]
     );
   }, []);
 
   const isPinned = useCallback(
     (entityId: string) => pinnedIds.includes(entityId),
-    [pinnedIds],
+    [pinnedIds]
   );
 
   const handleDrop = useCallback(
@@ -226,7 +228,7 @@ export default function SkillDetailPage({
       if (targetColumn === "pinned") {
         // TODO: [DATA] persistence will go here
         setPinnedIds((prev) =>
-          prev.includes(draggedQuestId) ? prev : [...prev, draggedQuestId],
+          prev.includes(draggedQuestId) ? prev : [...prev, draggedQuestId]
         );
       } else {
         // TODO: [DATA] persistence will go here
@@ -239,7 +241,7 @@ export default function SkillDetailPage({
       setDraggedQuestId(null);
       setDragOverColumn(null);
     },
-    [draggedQuestId],
+    [draggedQuestId]
   );
 
   if (!skill) {
@@ -273,7 +275,7 @@ export default function SkillDetailPage({
 
   const visibleChartData = useMemo(
     () => chartData.slice(-chartRange),
-    [chartData, chartRange],
+    [chartData, chartRange]
   );
 
   const xAxisInterval = useMemo(() => {
@@ -294,7 +296,7 @@ export default function SkillDetailPage({
         day: "numeric",
       });
     },
-    [chartRange, lang],
+    [chartRange, lang]
   );
 
   const renderAspectTooltip = useCallback(
@@ -310,7 +312,7 @@ export default function SkillDetailPage({
           ? t(lang, "chart_today")
           : `${label} ${t(lang, "chart_days_ago")}`;
       const filtered = payload.filter(
-        (e) => selectedAspectId === null || e.dataKey === selectedAspectId,
+        (e) => selectedAspectId === null || e.dataKey === selectedAspectId
       );
       return (
         <div
@@ -350,7 +352,7 @@ export default function SkillDetailPage({
         </div>
       );
     },
-    [aspects, lang, selectedAspectId],
+    [aspects, lang, selectedAspectId]
   );
 
   // Group subskills by aspect for the tree
@@ -358,21 +360,21 @@ export default function SkillDetailPage({
     aspects.map((a) => [
       a.id,
       skill.subSkills.filter((ss) => ss.aspect === a.id),
-    ]),
+    ])
   );
 
   // All quest IDs belonging to this skill
   const questIdsInSkill = new Set(
-    skill.subSkills.flatMap((ss) => (ss.quests || []).map((q) => q.id)),
+    skill.subSkills.flatMap((ss) => (ss.quests || []).map((q) => q.id))
   );
 
   const questsInProgress = MOCK_QUESTS.filter(
     (q) =>
-      questIdsInSkill.has(q.id) && getEffectiveStatus(q.id) === "in_progress",
+      questIdsInSkill.has(q.id) && getEffectiveStatus(q.id) === "in_progress"
   );
 
   const questsPlanned = MOCK_QUESTS.filter(
-    (q) => questIdsInSkill.has(q.id) && getEffectiveStatus(q.id) === "planned",
+    (q) => questIdsInSkill.has(q.id) && getEffectiveStatus(q.id) === "planned"
   );
 
   const pinnedInThisSkill = pinnedIds
@@ -409,7 +411,7 @@ export default function SkillDetailPage({
           {/* Identity */}
           <div className="min-w-[200px]">
             <p className="text-[10px] text-white/30 uppercase tracking-[0.08em] mb-2">
-              // {t(lang, "nav_skills")}
+              {t(lang, "nav_skills")}
             </p>
             <h1
               className="text-4xl font-bold leading-none mb-3 tracking-tight"
@@ -523,7 +525,9 @@ export default function SkillDetailPage({
                   const pts = Array.from({ length: n }, (_, i) => {
                     const angle = (i * 360) / n;
                     const rad = (angle * Math.PI) / 180;
-                    return `${roundSvg(50 + maxR * Math.sin(rad))},${roundSvg(50 - maxR * Math.cos(rad))}`;
+                    return `${roundSvg(50 + maxR * Math.sin(rad))},${roundSvg(
+                      50 - maxR * Math.cos(rad)
+                    )}`;
                   });
                   return (
                     <polygon
@@ -652,7 +656,7 @@ export default function SkillDetailPage({
                       style={{ cursor: "pointer", outline: "none" }}
                       onClick={() =>
                         setSelectedAspectId((prev) =>
-                          prev === a.id ? null : a.id,
+                          prev === a.id ? null : a.id
                         )
                       }
                       onMouseEnter={() => setHoveredAspectId(a.id)}
@@ -663,7 +667,7 @@ export default function SkillDetailPage({
                         if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();
                           setSelectedAspectId((prev) =>
-                            prev === a.id ? null : a.id,
+                            prev === a.id ? null : a.id
                           );
                         }
                       }}
@@ -841,7 +845,7 @@ export default function SkillDetailPage({
                         type="button"
                         onClick={() =>
                           setSelectedAspectId((prev) =>
-                            prev === a.id ? null : a.id,
+                            prev === a.id ? null : a.id
                           )
                         }
                         className="flex items-center gap-1.5 transition-opacity"
@@ -933,8 +937,8 @@ export default function SkillDetailPage({
                   isOver
                     ? "bg-[#F3E600]/5 border border-dashed border-[#F3E600]/50"
                     : isDragging
-                      ? "border border-dashed border-white/12"
-                      : "border border-transparent"
+                    ? "border border-dashed border-white/12"
+                    : "border border-transparent"
                 }`}
               >
                 <h4 className="text-[10px] text-white/30 uppercase tracking-[0.08em] mb-2">
@@ -969,7 +973,7 @@ export default function SkillDetailPage({
                       const statusColor = MOCK_STATUS_COLORS[effStatus];
                       const subSkillLabels = quest.subSkills.map((ss) => {
                         const found = skill.subSkills.find(
-                          (s) => s.id === ss.id,
+                          (s) => s.id === ss.id
                         );
                         return found
                           ? { name: found.name, color: skill.color }
@@ -1118,14 +1122,14 @@ export default function SkillDetailPage({
                       const questsForSubSkill = (subSkill.quests || [])
                         .map((q) => {
                           const found = MOCK_QUESTS.find(
-                            (mq) => mq.id === q.id,
+                            (mq) => mq.id === q.id
                           );
                           return found
                             ? { ...found, percentage: q.percentage }
                             : null;
                         })
                         .filter(
-                          (q): q is Quest & { percentage: number } => q != null,
+                          (q): q is Quest & { percentage: number } => q != null
                         );
 
                       return (
@@ -1184,7 +1188,7 @@ export default function SkillDetailPage({
                                         }
                                         onOpenChange={(open) =>
                                           setOpenStatusDropdownKey(
-                                            open ? `tree-${q.id}` : null,
+                                            open ? `tree-${q.id}` : null
                                           )
                                         }
                                         onStatusSelect={setStatusOverride}
@@ -1194,7 +1198,7 @@ export default function SkillDetailPage({
                                   {(() => {
                                     const recurring = getEffectiveRecurring(
                                       q.id,
-                                      q.isRecurring,
+                                      q.isRecurring
                                     );
                                     return (
                                       <button

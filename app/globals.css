@@ -1,189 +1,419 @@
 @import "tailwindcss";
 
+/* ============================================================
+   TIER 1 — PRIMITIVE TOKENS
+   Raw values only. Never reference these directly in
+   components — always alias through a Tier 2 semantic token.
+   ============================================================ */
+
 :root {
-  /* Backgrounds */
-  --bg-base: rgba(0, 0, 0, 0.4);
-  --bg-surface: #0a0a0a;
-  --bg-elevated: #141414;
-  --bg-overlay: #1c1c1c;
-  --bg-muted: #242424;
+    /* — Backgrounds — */
+    --primitive-black: #000000;
+    --primitive-gray-950: #0a0a0a;
+    --primitive-gray-900: #141414;
+    --primitive-gray-800: #1c1c1c;
+    --primitive-gray-750: #242424;
 
-  /* Borders */
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-default: rgba(255, 255, 255, 0.09);
-  --border-strong: rgba(255, 255, 255, 0.16);
+    /* — White opacity scale — */
+    --primitive-white: #ffffff;
+    --primitive-white-70: rgba(255, 255, 255, 0.7);
+    --primitive-white-55: rgba(255, 255, 255, 0.55);
+    --primitive-white-35: rgba(255, 255, 255, 0.35);
+    --primitive-white-30: rgba(255, 255, 255, 0.3);
+    --primitive-white-18: rgba(255, 255, 255, 0.18);
+    --primitive-white-16: rgba(255, 255, 255, 0.16);
+    --primitive-white-09: rgba(255, 255, 255, 0.09);
+    --primitive-white-08: rgba(255, 255, 255, 0.08);
+    --primitive-white-06: rgba(255, 255, 255, 0.06);
+    --primitive-white-04: rgba(255, 255, 255, 0.04);
+    --primitive-white-03: rgba(255, 255, 255, 0.03);
 
-  /* Text hierarchy */
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --text-tertiary: rgba(255, 255, 255, 0.55);
-  --text-supporting: rgba(255, 255, 255, 0.3);
-  --text-disabled: rgba(255, 255, 255, 0.18);
+    /* — Neon palette — */
+    --primitive-green: #00ff9f;
+    --primitive-yellow: #f3e600;
+    --primitive-cyan: #55ead4;
+    --primitive-red: #ff2060;
+    --primitive-violet: #c840ff;
 
-  /* Accents */
-  --accent-green: #00ff9f;
-  --accent-yellow: #f3e600;
-  --accent-cyan: #55ead4;
-  --accent-red: #ff2060;
-  --accent-violet: #c840ff;
+    /* — Neon alpha variants (tag/badge backgrounds) — */
+    --primitive-green-12: rgba(0, 255, 159, 0.12);
+    --primitive-yellow-12: rgba(243, 230, 0, 0.12);
+    --primitive-cyan-12: rgba(85, 234, 212, 0.12);
+    --primitive-red-12: rgba(255, 32, 96, 0.12);
+    --primitive-violet-12: rgba(200, 64, 255, 0.12);
 
-  /* Legacy aliases kept for backward compat */
-  --bg-color: rgba(0, 0, 0, 0.4);
-  --panel-bg: #0a0a0a;
-  --border-color: rgba(255, 255, 255, 0.09);
-  --text-muted: rgba(255, 255, 255, 0.3);
-  --text-main: #e0e0e0;
-}
+    /* — Spacing scale (8pt grid) — */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
 
-body {
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  font-family: var(--font-mono);
-}
+    /* — Border radius scale — */
+    --radius-2xs: 3px;
+    --radius-xs: 5px;
+    --radius-sm: 7px;
+    --radius-md: 9px;
+    --radius-lg: 12px;
+    --radius-xl: 14px;
+    --radius-2xl: 20px;
 
-.text-glow-yellow {
-  text-shadow: 0 0 15px rgba(243, 230, 0, 0.6);
-}
-
-/* ── neon-flicker: single-shot on tag hover ── */
-@keyframes neon-flicker {
-  0% {
-    opacity: 1;
-  }
-  4% {
-    opacity: 0.55;
-  }
-  8% {
-    opacity: 1;
-  }
-  38% {
-    opacity: 0.8;
-  }
-  42% {
-    opacity: 1;
-  }
-  70% {
-    opacity: 0.65;
-  }
-  74% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-.tag-neon:hover {
-  animation: neon-flicker 0.45s ease-out forwards;
-  filter: brightness(1.15);
+    /* — Type scale — */
+    --text-2xs: 10px;
+    --text-xs: 11px;
+    --text-sm: 13px;
+    --text-md: 14px;
+    --text-lg: 16px;
+    --text-xl: 20px;
+    --text-2xl: 24px;
+    --text-display: 40px;
 }
 
-/* Progress bars — design system (.progress-wrap wraps track + dot + value) */
-.progress-wrap .progress-track {
-  height: 3px;
-  transition: height 0.18s ease;
-}
-.progress-wrap:hover .progress-track {
-  height: 5px;
-}
-.progress-wrap .progress-dot {
-  width: 6px;
-  height: 6px;
-  transition:
-    width 0.18s ease,
-    height 0.18s ease;
-}
-.progress-wrap:hover .progress-dot {
-  width: 9px;
-  height: 9px;
-}
-.progress-wrap:active .progress-fill {
-  filter: brightness(1.3);
+/* ============================================================
+   TIER 2 — SEMANTIC TOKENS
+   Role-based aliases. Answer "what is this FOR?" not
+   "what does it look like?". Use these everywhere in
+   component tokens (Tier 3) and inline styles.
+   ============================================================ */
+
+:root {
+    /* — Backgrounds — */
+    --color-bg-base: var(--primitive-black);
+    --color-bg-surface: var(--primitive-gray-950);
+    --color-bg-elevated: var(--primitive-gray-900);
+    --color-bg-overlay: var(--primitive-gray-800);
+    --color-bg-muted: var(--primitive-gray-750);
+
+    /* — Foreground (text & icon fills) — */
+    --color-fg-primary: var(--primitive-white);
+    --color-fg-secondary: var(--primitive-white-70);
+    --color-fg-tertiary: var(--primitive-white-55);
+    --color-fg-subtle: var(--primitive-white-30);
+    --color-fg-disabled: var(--primitive-white-18);
+    --color-fg-nav-idle: var(--primitive-white-35);
+
+    /* — Borders — */
+    --color-border-subtle: var(--primitive-white-06);
+    --color-border-default: var(--primitive-white-09);
+    --color-border-strong: var(--primitive-white-16);
+
+    /* — Semantic accent roles — */
+    --color-success: var(
+        --primitive-green
+    ); /* positive / active / streak / completed */
+    --color-warning: var(
+        --primitive-yellow
+    ); /* goal / energy / PR / caution           */
+    --color-data: var(
+        --primitive-cyan
+    ); /* neutral data / trends / cardio         */
+    --color-danger: var(
+        --primitive-red
+    ); /* danger / missed / elevated HR          */
+    --color-focus: var(
+        --primitive-violet
+    ); /* sleep / recovery / mental focus        */
+
+    /* — Semantic accent alpha (tag/badge backgrounds) — */
+    --color-success-subtle: var(--primitive-green-12);
+    --color-warning-subtle: var(--primitive-yellow-12);
+    --color-data-subtle: var(--primitive-cyan-12);
+    --color-danger-subtle: var(--primitive-red-12);
+    --color-focus-subtle: var(--primitive-violet-12);
+
+    /* — Typography — */
+    --font-body: "Geist", ui-monospace, "SF Mono", monospace;
+    --font-accent: "Orbitron", sans-serif;
+    --font-mono: var(--font-geist-mono, var(--font-body));
+
+    /* — Structural shadows (depth cues) — */
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.7);
+
+    /* — Neon glows (accent emphasis, not depth) — */
+    --shadow-success: 0 0 20px rgba(0, 255, 159, 0.25);
+    --shadow-warning: 0 0 20px rgba(243, 230, 0, 0.25);
+    --shadow-data: 0 0 20px rgba(85, 234, 212, 0.25);
+    --shadow-danger: 0 0 20px rgba(255, 32, 96, 0.25);
+    --shadow-focus: 0 0 20px rgba(200, 64, 255, 0.25);
 }
 
-/* ── dot-loader: 5-dot stepping loader, one accent color each ── */
-.dot-loader span {
-  display: block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  opacity: 0.15;
-  animation: dot-pulse 2.5s linear infinite;
-}
-.dot-loader span:nth-child(1) {
-  background: #00ff9f;
-  animation-delay: 0s;
-  --dot-glow: #00ff9f;
-}
-.dot-loader span:nth-child(2) {
-  background: #f3e600;
-  animation-delay: -2s;
-  --dot-glow: #f3e600;
-}
-.dot-loader span:nth-child(3) {
-  background: #55ead4;
-  animation-delay: -1.5s;
-  --dot-glow: #55ead4;
-}
-.dot-loader span:nth-child(4) {
-  background: #ff2060;
-  animation-delay: -1s;
-  --dot-glow: #ff2060;
-}
-.dot-loader span:nth-child(5) {
-  background: #c840ff;
-  animation-delay: -0.5s;
-  --dot-glow: #c840ff;
-}
-@keyframes dot-pulse {
-  0% {
-    opacity: 1;
-    transform: scale(1.35);
-    box-shadow: 0 0 9px 4px var(--dot-glow);
-  }
-  20%,
-  100% {
-    opacity: 0.15;
-    transform: scale(1);
-    box-shadow: none;
-  }
+/* ============================================================
+   TIER 3 — COMPONENT TOKENS
+   Consumed by specific components only. Always reference
+   Tier 2 semantic tokens — never Tier 1 primitives directly.
+   ============================================================ */
+
+:root {
+    /* — Glass card — */
+    --card-bg: linear-gradient(
+        160deg,
+        rgba(255, 255, 255, 0.06) 0%,
+        rgba(255, 255, 255, 0.02) 60%,
+        rgba(0, 0, 0, 0.3) 100%
+    );
+    --card-border: var(--color-border-default);
+    --card-border-top: var(--color-border-strong);
+    --card-radius: var(--radius-xl);
+    --card-backdrop: blur(24px);
+    --card-padding: var(--space-6);
+
+    /* — Tag — */
+    --tag-radius: var(--radius-sm);
+    --tag-font-size: var(--text-2xs);
+    --tag-font-family: var(--font-accent);
+    --tag-letter-spacing: 0.2em;
+    --tag-padding: 5px 10px;
+
+    /* — Button — */
+    --btn-radius: var(--radius-sm);
+    --btn-font-size: var(--text-sm);
+    --btn-font-weight: 600;
+    --btn-padding: 9px 18px;
+    --btn-gap: var(--space-2);
+
+    /* — Input — */
+    --input-bg: var(--primitive-white-04);
+    --input-bg-hover: var(--primitive-white-06);
+    --input-border: var(--primitive-white-08);
+    --input-border-hover: rgba(255, 255, 255, 0.14);
+    --input-border-focus: rgba(255, 255, 255, 0.22);
+    --input-radius: var(--radius-md);
+    --input-padding: 10px 14px 10px 36px;
+
+    /* — Progress bar — */
+    --progress-track-height: 3px;
+    --progress-track-height-hover: 5px;
+    --progress-dot-size: 6px;
+    --progress-dot-size-hover: 9px;
+
+    /* — Interactive states — */
+    --state-hover-bg: var(--primitive-white-04);
+    --state-focus-ring: 0 0 0 3px rgba(255, 255, 255, 0.06);
+    --state-disabled-opacity: 0.35;
+    --state-card-hover-y: -2px;
+    --state-btn-press-scale: 0.96;
+
+    /* — Navigation — */
+    --nav-icon-idle: var(--color-fg-nav-idle);
+    --nav-label-idle: var(--color-fg-nav-idle);
+    --nav-label-active: var(--color-fg-primary);
+    --nav-transition: 150ms;
 }
 
-/* Custom scrollbar for the terminal feel */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #1f1f1f;
-  border-radius: 3px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #333;
+/* ============================================================
+   BACKWARD COMPAT — do not remove until components are
+   migrated to Tier 2/3 tokens directly.
+   ============================================================ */
+
+:root {
+    /* Flat names still consumed by existing component inline styles */
+    --bg-base: var(--color-bg-base);
+    --bg-surface: var(--color-bg-surface);
+    --bg-elevated: var(--color-bg-elevated);
+    --bg-overlay: var(--color-bg-overlay);
+    --bg-muted: var(--color-bg-muted);
+
+    --border-subtle: var(--color-border-subtle);
+    --border-default: var(--color-border-default);
+    --border-strong: var(--color-border-strong);
+
+    --text-primary: var(--color-fg-primary);
+    --text-secondary: var(--color-fg-secondary);
+    --text-tertiary: var(--color-fg-tertiary);
+    --text-supporting: var(--color-fg-subtle);
+    --text-disabled: var(--color-fg-disabled);
+
+    --accent-green: var(--color-success);
+    --accent-yellow: var(--color-warning);
+    --accent-cyan: var(--color-data);
+    --accent-red: var(--color-danger);
+    --accent-violet: var(--color-focus);
+
+    /* Deprecated — scheduled for removal after component audit */
+    --bg-color: var(--color-bg-base);
+    --panel-bg: var(--color-bg-surface);
+    --border-color: var(--color-border-default);
+    --text-muted: var(--color-fg-subtle);
+    --text-main: var(--color-fg-secondary);
 }
 
-/* Hidden scrollbar — scrollable but no visible track */
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-}
+/* ============================================================
+   TAILWIND THEME BRIDGE
+   Exposes semantic tokens to Tailwind's theme engine.
+   ============================================================ */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+    --color-background: var(--color-bg-base);
+    --color-foreground: var(--color-fg-primary);
+    --font-sans: var(--font-geist-mono);
+    --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    background: var(--color-bg-base);
+    color: var(--color-fg-secondary);
+    font-family: var(--font-mono);
+}
+
+/* ============================================================
+   COMPONENT UTILITIES
+   ============================================================ */
+
+/* Text glow helpers */
+.text-glow-yellow {
+    text-shadow: 0 0 15px rgba(243, 230, 0, 0.6);
+}
+.text-glow-green {
+    text-shadow: 0 0 15px rgba(0, 255, 159, 0.6);
+}
+.text-glow-cyan {
+    text-shadow: 0 0 15px rgba(85, 234, 212, 0.6);
+}
+.text-glow-red {
+    text-shadow: 0 0 15px rgba(255, 32, 96, 0.6);
+}
+.text-glow-violet {
+    text-shadow: 0 0 15px rgba(200, 64, 255, 0.6);
+}
+
+/* Progress bars */
+.progress-wrap .progress-track {
+    height: var(--progress-track-height);
+    transition: height 0.18s ease;
+}
+.progress-wrap:hover .progress-track {
+    height: var(--progress-track-height-hover);
+}
+.progress-wrap .progress-dot {
+    width: var(--progress-dot-size);
+    height: var(--progress-dot-size);
+    transition:
+        width 0.18s ease,
+        height 0.18s ease;
+}
+.progress-wrap:hover .progress-dot {
+    width: var(--progress-dot-size-hover);
+    height: var(--progress-dot-size-hover);
+}
+.progress-wrap:active .progress-fill {
+    filter: brightness(1.3);
+}
+
+/* Tag neon flicker — single-shot on hover */
+.tag-neon:hover {
+    animation: neon-flicker 0.45s ease-out forwards;
+    filter: brightness(1.15);
+}
+
+/* Dot loader */
+.dot-loader span {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    opacity: 0.15;
+    animation: dot-pulse 2.5s linear infinite;
+}
+.dot-loader span:nth-child(1) {
+    background: var(--color-success);
+    animation-delay: 0s;
+    --dot-glow: var(--primitive-green);
+}
+.dot-loader span:nth-child(2) {
+    background: var(--color-warning);
+    animation-delay: -2s;
+    --dot-glow: var(--primitive-yellow);
+}
+.dot-loader span:nth-child(3) {
+    background: var(--color-data);
+    animation-delay: -1.5s;
+    --dot-glow: var(--primitive-cyan);
+}
+.dot-loader span:nth-child(4) {
+    background: var(--color-danger);
+    animation-delay: -1s;
+    --dot-glow: var(--primitive-red);
+}
+.dot-loader span:nth-child(5) {
+    background: var(--color-focus);
+    animation-delay: -0.5s;
+    --dot-glow: var(--primitive-violet);
+}
+
+/* ============================================================
+   SCROLLBARS
+   ============================================================ */
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--color-bg-elevated);
+    border-radius: var(--radius-2xs);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-bg-overlay);
+}
+
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes neon-flicker {
+    0% {
+        opacity: 1;
+    }
+    4% {
+        opacity: 0.55;
+    }
+    8% {
+        opacity: 1;
+    }
+    38% {
+        opacity: 0.8;
+    }
+    42% {
+        opacity: 1;
+    }
+    70% {
+        opacity: 0.65;
+    }
+    74% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes dot-pulse {
+    0% {
+        opacity: 1;
+        transform: scale(1.35);
+        box-shadow: 0 0 9px 4px var(--dot-glow);
+    }
+    20%,
+    100% {
+        opacity: 0.15;
+        transform: scale(1);
+        box-shadow: none;
+    }
 }

@@ -130,7 +130,12 @@ function cycleSlice(arr: Quest[], count: number): Quest[] {
 const CustomXTick = (
   props: Record<string, unknown> & { fontSize?: number },
 ) => {
-  const { x, y, payload, fontSize = 11 } = props as {
+  const {
+    x,
+    y,
+    payload,
+    fontSize = 11,
+  } = props as {
     x: number;
     y: number;
     payload: { value: string };
@@ -139,7 +144,11 @@ const CustomXTick = (
   const words = payload.value.split(" ");
   return (
     <g transform={`translate(${x},${y})`}>
-      <text textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize={fontSize}>
+      <text
+        textAnchor="middle"
+        fill="rgba(255,255,255,0.3)"
+        fontSize={fontSize}
+      >
         {words.map((word, i) => (
           <tspan key={i} x={0} dy={i === 0 ? "1.1em" : "1.3em"}>
             {word}
@@ -235,8 +244,7 @@ export default function QuestsChart({
       const w = containerRef.current?.clientWidth ?? 800;
       const h = containerRef.current?.clientHeight ?? 500;
       const gap = 10;
-      const left =
-        cx + gap + DROPDOWN_W > w ? cx - gap - DROPDOWN_W : cx + gap;
+      const left = cx + gap + DROPDOWN_W > w ? cx - gap - DROPDOWN_W : cx + gap;
       const top = cy + DROPDOWN_H > h ? cy - DROPDOWN_H : cy;
       return { left, top };
     },
@@ -318,50 +326,49 @@ export default function QuestsChart({
   // ── dot renderer factory ────────────────────────────────────────────────────
 
   const makeDot = useCallback(
-    (status: QuestStatus) =>
-      (props: Record<string, unknown>) => {
-        const { cx, cy, payload } = props as {
-          cx: number;
-          cy: number;
-          payload: ChartDataPoint;
-        };
-        const key = `${payload.date}-${status}`;
-        const hasQuests = payload.questsBy[status].length > 0;
-        return (
-          <circle
-            key={key}
-            cx={cx}
-            cy={cy}
-            r={5}
-            fill={COLORS[status]}
-            style={{ cursor: hasQuests ? "pointer" : "default", outline: "none" }}
-            onMouseEnter={() =>
-              hasQuests &&
-              openTooltip(
+    (status: QuestStatus) => (props: Record<string, unknown>) => {
+      const { cx, cy, payload } = props as {
+        cx: number;
+        cy: number;
+        payload: ChartDataPoint;
+      };
+      const key = `${payload.date}-${status}`;
+      const hasQuests = payload.questsBy[status].length > 0;
+      return (
+        <circle
+          key={key}
+          cx={cx}
+          cy={cy}
+          r={5}
+          fill={COLORS[status]}
+          style={{ cursor: hasQuests ? "pointer" : "default", outline: "none" }}
+          onMouseEnter={() =>
+            hasQuests &&
+            openTooltip(
+              key,
+              payload.date,
+              status,
+              payload.questsBy[status],
+              cx,
+              cy,
+            )
+          }
+          onMouseLeave={scheduleClose}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (hasQuests)
+              togglePin(
                 key,
                 payload.date,
                 status,
                 payload.questsBy[status],
                 cx,
                 cy,
-              )
-            }
-            onMouseLeave={scheduleClose}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (hasQuests)
-                togglePin(
-                  key,
-                  payload.date,
-                  status,
-                  payload.questsBy[status],
-                  cx,
-                  cy,
-                );
-            }}
-          />
-        );
-      },
+              );
+          }}
+        />
+      );
+    },
     [openTooltip, scheduleClose, togglePin],
   );
 
@@ -445,20 +452,33 @@ export default function QuestsChart({
         <ResponsiveContainer width="100%" height={chartHeight}>
           <LineChart
             data={chartData}
-            margin={{ top: 10, right: isMobile ? 10 : 30, left: 0, bottom: chartMarginBottom }}
+            margin={{
+              top: 10,
+              right: isMobile ? 10 : 30,
+              left: 0,
+              bottom: chartMarginBottom,
+            }}
             tabIndex={-1}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="rgba(255,255,255,0.06)"
+            />
             <XAxis
               dataKey="dayLabel"
               stroke="rgba(255,255,255,0.06)"
-              tick={(props) => <CustomXTick {...props} fontSize={xAxisFontSize} />}
+              tick={(props) => (
+                <CustomXTick {...props} fontSize={xAxisFontSize} />
+              )}
               height={xAxisHeight}
               interval={xAxisInterval}
             />
             <YAxis
               stroke="rgba(255,255,255,0.06)"
-              tick={{ fontSize: isMobile ? 10 : 12, fill: "rgba(255,255,255,0.3)" }}
+              tick={{
+                fontSize: isMobile ? 10 : 12,
+                fill: "rgba(255,255,255,0.3)",
+              }}
               width={isMobile ? 24 : 40}
               domain={[0, 7]}
               ticks={[0, 1, 2, 3, 4, 5, 6, 7]}

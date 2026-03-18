@@ -225,8 +225,8 @@ function QuestColumn({
         border: isOver
           ? "1px dashed rgba(243,230,0,0.45)"
           : isDragging
-          ? "1px dashed rgba(255,255,255,0.12)"
-          : "1px solid rgba(255,255,255,0.09)",
+            ? "1px dashed rgba(255,255,255,0.12)"
+            : "1px solid rgba(255,255,255,0.09)",
         borderTop: isOver
           ? "1px dashed rgba(243,230,0,0.45)"
           : "1px solid rgba(255,255,255,0.16)",
@@ -253,8 +253,10 @@ function QuestColumn({
         <ul className="flex flex-col gap-2 flex-1">
           {isOver && (
             <li className="h-9 rounded-lg border border-dashed border-[#F3E600]/40 bg-[#F3E600]/5 flex items-center justify-center">
-              <span className="text-[10px] text-[#F3E600]/60 uppercase tracking-[0.2em]"
-                style={{ fontFamily: "Orbitron, sans-serif" }}>
+              <span
+                className="text-[10px] text-[#F3E600]/60 uppercase tracking-[0.2em]"
+                style={{ fontFamily: "Orbitron, sans-serif" }}
+              >
                 {dropHereLabel}
               </span>
             </li>
@@ -318,7 +320,10 @@ function QuestCard({
   return (
     <li
       draggable
-      onDragStart={(e) => { e.stopPropagation(); onDragStart(); }}
+      onDragStart={(e) => {
+        e.stopPropagation();
+        onDragStart();
+      }}
       onDragEnd={onDragEnd}
       className="cursor-grab active:cursor-grabbing"
     >
@@ -331,7 +336,8 @@ function QuestCard({
         className="w-full text-left p-3 rounded-[14px] transition-all duration-150 group cursor-pointer relative overflow-hidden
           hover:-translate-y-0.5 active:scale-[0.994]"
         style={{
-          background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+          background:
+            "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
           border: "1px solid rgba(255,255,255,0.09)",
           borderTop: "1px solid rgba(255,255,255,0.16)",
           backdropFilter: "blur(24px)",
@@ -341,7 +347,8 @@ function QuestCard({
         <div
           className="pointer-events-none absolute inset-0 rounded-[14px] transition-opacity duration-200"
           style={{
-            background: "radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.025), transparent)",
+            background:
+              "radial-gradient(180px circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.025), transparent)",
             opacity: "var(--mo, 0)",
           }}
         />

@@ -2,7 +2,16 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Coffee, Utensils, Apple, Moon, Plus, Trash2, Search, X } from "lucide-react";
+import {
+  Coffee,
+  Utensils,
+  Apple,
+  Moon,
+  Plus,
+  Trash2,
+  Search,
+  X,
+} from "lucide-react";
 import {
   MOCK_DIET_WEEK,
   MOCK_FOOD_DB,
@@ -49,17 +58,30 @@ function getHoursBetween(t1: string, t2: string): string[] {
   const h1 = parseInt(t1.split(":")[0], 10);
   const h2 = parseInt(t2.split(":")[0], 10);
   const out: string[] = [];
-  for (let h = h1 + 1; h < h2; h++) out.push(`${String(h).padStart(2, "0")}:00`);
+  for (let h = h1 + 1; h < h2; h++)
+    out.push(`${String(h).padStart(2, "0")}:00`);
   return out;
 }
 
 const WEEK_DATES = MOCK_DIET_WEEK.map((d) => d.date);
 
 const DAY_LABELS: Record<string, string> = {
-  "0": "Nd", "1": "Pn", "2": "Wt", "3": "Śr", "4": "Cz", "5": "Pt", "6": "Sb",
+  "0": "Nd",
+  "1": "Pn",
+  "2": "Wt",
+  "3": "Śr",
+  "4": "Cz",
+  "5": "Pt",
+  "6": "Sb",
 };
 const DAY_LABELS_EN: Record<string, string> = {
-  "0": "Su", "1": "Mo", "2": "Tu", "3": "We", "4": "Th", "5": "Fr", "6": "Sa",
+  "0": "Su",
+  "1": "Mo",
+  "2": "Tu",
+  "3": "We",
+  "4": "Th",
+  "5": "Fr",
+  "6": "Sa",
 };
 function shortDay(dateStr: string, lang: string) {
   const idx = String(new Date(dateStr + "T12:00:00").getDay());
@@ -92,7 +114,13 @@ const CAT_COLORS: Record<FoodCategory, string> = {
 
 // ─── GhostCard ────────────────────────────────────────────────────────────────
 
-function GhostCard({ meal, slotColor }: { meal: NamedMeal; slotColor: string }) {
+function GhostCard({
+  meal,
+  slotColor,
+}: {
+  meal: NamedMeal;
+  slotColor: string;
+}) {
   return (
     <div
       className="border border-[#141414] bg-[#080808] rounded-sm p-3 flex flex-col items-center justify-center gap-2 h-full min-h-[130px]"
@@ -109,9 +137,15 @@ function GhostCard({ meal, slotColor }: { meal: NamedMeal; slotColor: string }) 
 // ─── MainMealCard ─────────────────────────────────────────────────────────────
 
 function MainMealCard({
-  slot, time, meal, slotColor,
+  slot,
+  time,
+  meal,
+  slotColor,
 }: {
-  slot: MealSlotId; time: string; meal: NamedMeal; slotColor: string;
+  slot: MealSlotId;
+  time: string;
+  meal: NamedMeal;
+  slotColor: string;
 }) {
   const macros = useMemo(() => computeMealMacros(meal.ingredients), [meal]);
   return (
@@ -121,13 +155,20 @@ function MainMealCard({
     >
       <div className="flex items-center gap-2 px-4 pt-3 pb-1">
         <span style={{ color: slotColor }}>{SLOT_ICONS[slot]}</span>
-        <span className="text-[9px] uppercase tracking-[0.15em] font-mono" style={{ color: slotColor }}>
+        <span
+          className="text-[9px] uppercase tracking-[0.15em] font-mono"
+          style={{ color: slotColor }}
+        >
           {slot}
         </span>
         <span className="text-[9px] font-mono text-[#2a2a2a]">{time}</span>
         <div className="ml-auto flex items-center gap-2.5">
-          <span className="text-[10px] font-mono text-[#facc15] tabular-nums">{Math.round(macros.kcal)} kcal</span>
-          <span className="text-[10px] font-mono text-[#ec4899] tabular-nums">{Math.round(macros.protein)}g P</span>
+          <span className="text-[10px] font-mono text-[#facc15] tabular-nums">
+            {Math.round(macros.kcal)} kcal
+          </span>
+          <span className="text-[10px] font-mono text-[#ec4899] tabular-nums">
+            {Math.round(macros.protein)}g P
+          </span>
         </div>
       </div>
       <div className="flex items-start gap-3 px-4 pb-2">
@@ -138,8 +179,12 @@ function MainMealCard({
           {meal.emoji}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-bold text-[#e0e0e0] leading-snug">{meal.name}</p>
-          <p className="text-[10px] text-[#444] leading-relaxed line-clamp-1 mt-0.5">{meal.description}</p>
+          <p className="text-sm font-bold text-[#e0e0e0] leading-snug">
+            {meal.name}
+          </p>
+          <p className="text-[10px] text-[#444] leading-relaxed line-clamp-1 mt-0.5">
+            {meal.description}
+          </p>
         </div>
       </div>
       <div className="flex flex-wrap gap-1 px-4 pb-3">
@@ -148,8 +193,11 @@ function MainMealCard({
           if (!food) return null;
           const c = CAT_COLORS[food.category as FoodCategory] ?? "#888";
           return (
-            <span key={ing.foodId} className="text-[8px] px-1.5 py-0.5 rounded border uppercase tracking-widest font-mono"
-              style={{ color: c, borderColor: c + "44", background: c + "11" }}>
+            <span
+              key={ing.foodId}
+              className="text-[8px] px-1.5 py-0.5 rounded border uppercase tracking-widest font-mono"
+              style={{ color: c, borderColor: c + "44", background: c + "11" }}
+            >
               {food.name}
             </span>
           );
@@ -162,9 +210,13 @@ function MainMealCard({
 // ─── MealSearchBar ────────────────────────────────────────────────────────────
 
 function MealSearchBar({
-  slot, currentMealId, onSelect,
+  slot,
+  currentMealId,
+  onSelect,
 }: {
-  slot: MealSlotId; currentMealId: string; onSelect: (id: string) => void;
+  slot: MealSlotId;
+  currentMealId: string;
+  onSelect: (id: string) => void;
 }) {
   const { lang } = useLang();
   const [query, setQuery] = useState("");
@@ -176,7 +228,8 @@ function MealSearchBar({
         (m) =>
           m.suitableFor.includes(slot) &&
           m.id !== currentMealId &&
-          (query.trim() === "" || m.name.toLowerCase().includes(query.toLowerCase())),
+          (query.trim() === "" ||
+            m.name.toLowerCase().includes(query.toLowerCase())),
       ).slice(0, 5),
     [slot, currentMealId, query],
   );
@@ -188,14 +241,23 @@ function MealSearchBar({
         <input
           type="text"
           value={query}
-          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setOpen(true);
+          }}
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           placeholder={t(lang, "diet_swap_search")}
           className="flex-1 bg-transparent text-xs text-[#555] placeholder-[#1e1e1e] focus:outline-none"
         />
         {query && (
-          <button onClick={() => { setQuery(""); setOpen(false); }} className="text-[#333] hover:text-[#555] transition-colors">
+          <button
+            onClick={() => {
+              setQuery("");
+              setOpen(false);
+            }}
+            className="text-[#333] hover:text-[#555] transition-colors"
+          >
             <X size={10} />
           </button>
         )}
@@ -207,13 +269,23 @@ function MealSearchBar({
             return (
               <button
                 key={meal.id}
-                onMouseDown={() => { onSelect(meal.id); setQuery(""); setOpen(false); }}
+                onMouseDown={() => {
+                  onSelect(meal.id);
+                  setQuery("");
+                  setOpen(false);
+                }}
                 className="w-full flex items-center gap-2 px-3 py-2 hover:bg-[#111] transition-colors text-left border-b border-[#0d0d0d] last:border-0"
               >
                 <span className="text-base shrink-0">{meal.emoji}</span>
-                <span className="text-xs text-[#aaa] flex-1 truncate">{meal.name}</span>
-                <span className="text-[9px] font-mono text-[#facc15] tabular-nums shrink-0">{Math.round(m.kcal)} kcal</span>
-                <span className="text-[9px] font-mono text-[#ec4899] tabular-nums shrink-0 ml-1">{Math.round(m.protein)}g P</span>
+                <span className="text-xs text-[#aaa] flex-1 truncate">
+                  {meal.name}
+                </span>
+                <span className="text-[9px] font-mono text-[#facc15] tabular-nums shrink-0">
+                  {Math.round(m.kcal)} kcal
+                </span>
+                <span className="text-[9px] font-mono text-[#ec4899] tabular-nums shrink-0 ml-1">
+                  {Math.round(m.protein)}g P
+                </span>
               </button>
             );
           })}
@@ -226,8 +298,12 @@ function MealSearchBar({
 // ─── MealCarousel ─────────────────────────────────────────────────────────────
 
 function MealCarousel({
-  slot, mealId, time, dateKey,
-  onOpen, onMealChange,
+  slot,
+  mealId,
+  time,
+  dateKey,
+  onOpen,
+  onMealChange,
 }: {
   slot: MealSlotId;
   mealId: string;
@@ -237,7 +313,10 @@ function MealCarousel({
   onMealChange: (newMealId: string) => void;
 }) {
   const slotColor = SLOT_COLORS[slot];
-  const alts = useMemo(() => MOCK_NAMED_MEALS.filter((m) => m.suitableFor.includes(slot)), [slot]);
+  const alts = useMemo(
+    () => MOCK_NAMED_MEALS.filter((m) => m.suitableFor.includes(slot)),
+    [slot],
+  );
 
   const [idx, setIdx] = useState(() => {
     const found = alts.findIndex((m) => m.id === mealId);
@@ -248,7 +327,7 @@ function MealCarousel({
   useEffect(() => {
     const found = alts.findIndex((m) => m.id === mealId);
     if (found >= 0) setIdx(found);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mealId, dateKey]);
 
   function go(delta: number) {
@@ -280,7 +359,12 @@ function MealCarousel({
           onClick={() => onOpen(current)}
           className="flex-1 min-w-0 text-left"
         >
-          <MainMealCard slot={slot} time={time} meal={current} slotColor={slotColor} />
+          <MainMealCard
+            slot={slot}
+            time={time}
+            meal={current}
+            slotColor={slotColor}
+          />
         </button>
 
         {/* Next ghost */}
@@ -299,7 +383,10 @@ function MealCarousel({
         currentMealId={current.id}
         onSelect={(newId) => {
           const newIdx = alts.findIndex((m) => m.id === newId);
-          if (newIdx >= 0) { setIdx(newIdx); onMealChange(newId); }
+          if (newIdx >= 0) {
+            setIdx(newIdx);
+            onMealChange(newId);
+          }
         }}
       />
     </div>
@@ -309,7 +396,8 @@ function MealCarousel({
 // ─── AddMealModal ─────────────────────────────────────────────────────────────
 
 function AddMealModal({
-  onAdd, onClose,
+  onAdd,
+  onClose,
 }: {
   onAdd: (slot: MealSlotId, time: string, mealId: string) => void;
   onClose: () => void;
@@ -342,26 +430,30 @@ function AddMealModal({
 
         {/* Slot selector */}
         <div className="grid grid-cols-2 gap-1.5">
-          {(["breakfast", "lunch", "snack", "dinner"] as MealSlotId[]).map((s) => {
-            const labelKey = `diet_slot_${s}` as Parameters<typeof t>[1];
-            return (
-              <button
-                key={s}
-                onClick={() => setSlot(s)}
-                className={cn(
-                  "py-2 text-[9px] uppercase tracking-widest font-mono border rounded-sm transition-colors flex items-center justify-center gap-1.5",
-                  slot === s
-                    ? "border-[#facc15]/40 text-[#facc15] bg-[#facc15]/5"
-                    : "border-[#1a1a1a] text-[#444] hover:text-[#666] hover:border-[#222]",
-                )}
-              >
-                <span style={{ color: slot === s ? SLOT_COLORS[s] : undefined }}>
-                  {SLOT_ICONS[s]}
-                </span>
-                {t(lang, labelKey)}
-              </button>
-            );
-          })}
+          {(["breakfast", "lunch", "snack", "dinner"] as MealSlotId[]).map(
+            (s) => {
+              const labelKey = `diet_slot_${s}` as Parameters<typeof t>[1];
+              return (
+                <button
+                  key={s}
+                  onClick={() => setSlot(s)}
+                  className={cn(
+                    "py-2 text-[9px] uppercase tracking-widest font-mono border rounded-sm transition-colors flex items-center justify-center gap-1.5",
+                    slot === s
+                      ? "border-[#facc15]/40 text-[#facc15] bg-[#facc15]/5"
+                      : "border-[#1a1a1a] text-[#444] hover:text-[#666] hover:border-[#222]",
+                  )}
+                >
+                  <span
+                    style={{ color: slot === s ? SLOT_COLORS[s] : undefined }}
+                  >
+                    {SLOT_ICONS[s]}
+                  </span>
+                  {t(lang, labelKey)}
+                </button>
+              );
+            },
+          )}
         </div>
 
         {/* Time */}
@@ -387,7 +479,12 @@ function AddMealModal({
 
         <div className="flex gap-2 pt-1">
           <button
-            onClick={() => { if (firstMeal) { onAdd(slot, time, firstMeal.id); onClose(); } }}
+            onClick={() => {
+              if (firstMeal) {
+                onAdd(slot, time, firstMeal.id);
+                onClose();
+              }
+            }}
             className="flex-1 py-2 bg-[#facc15]/10 border border-[#facc15]/25 text-[#facc15] text-[9px] uppercase tracking-widest font-mono rounded-sm hover:bg-[#facc15]/15 transition-colors"
           >
             {t(lang, "diet_add_meal")}
@@ -407,7 +504,11 @@ function AddMealModal({
 // ─── DietPage ─────────────────────────────────────────────────────────────────
 
 type Props = {
-  onMealSelect?: (info: { meal: NamedMeal; slot: MealSlotId; time: string }) => void;
+  onMealSelect?: (info: {
+    meal: NamedMeal;
+    slot: MealSlotId;
+    time: string;
+  }) => void;
 };
 
 export default function DietPage({ onMealSelect }: Props) {
@@ -433,7 +534,9 @@ export default function DietPage({ onMealSelect }: Props) {
   }, [activeDayData]);
 
   const dayTotals = useMemo(() => {
-    const all = sortedMeals.flatMap((m) => MEAL_MAP[m.mealId]?.ingredients ?? []);
+    const all = sortedMeals.flatMap(
+      (m) => MEAL_MAP[m.mealId]?.ingredients ?? [],
+    );
     return computeMealMacros(all);
   }, [sortedMeals]);
 
@@ -446,12 +549,15 @@ export default function DietPage({ onMealSelect }: Props) {
   // Build timeline items: intersperse intermediate hour markers between meals
   const timelineItems = useMemo(() => {
     type Item =
-      | { type: "meal"; meal: typeof sortedMeals[0] }
+      | { type: "meal"; meal: (typeof sortedMeals)[0] }
       | { type: "hour"; time: string };
     const items: Item[] = [];
     for (let i = 0; i < sortedMeals.length; i++) {
       if (i > 0) {
-        const hours = getHoursBetween(sortedMeals[i - 1].time, sortedMeals[i].time);
+        const hours = getHoursBetween(
+          sortedMeals[i - 1].time,
+          sortedMeals[i].time,
+        );
         // show at most 4 intermediate ticks, spaced evenly
         const step = hours.length <= 4 ? 1 : Math.ceil(hours.length / 4);
         for (let j = 0; j < hours.length; j += step) {
@@ -468,7 +574,12 @@ export default function DietPage({ onMealSelect }: Props) {
       prev.map((day) =>
         day.date !== activeDate
           ? day
-          : { ...day, meals: day.meals.map((m, i) => (i === originalIdx ? { ...m, mealId: newMealId } : m)) },
+          : {
+              ...day,
+              meals: day.meals.map((m, i) =>
+                i === originalIdx ? { ...m, mealId: newMealId } : m,
+              ),
+            },
       ),
     );
     // TODO: [DATA] persist change
@@ -493,7 +604,9 @@ export default function DietPage({ onMealSelect }: Props) {
           ? day
           : {
               ...day,
-              meals: [...day.meals, newSlot].sort((a, b) => a.time.localeCompare(b.time)),
+              meals: [...day.meals, newSlot].sort((a, b) =>
+                a.time.localeCompare(b.time),
+              ),
             },
       ),
     );
@@ -504,14 +617,16 @@ export default function DietPage({ onMealSelect }: Props) {
     <div className="flex flex-col h-full overflow-hidden">
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         <div className="max-w-[860px] mx-auto py-5 space-y-5">
-
           {/* ── Day selector ── */}
           <div className="flex justify-center">
             <div className="flex gap-1 border border-[#1f1f1f] bg-[#0a0a0a] p-1 rounded-sm">
               {WEEK_DATES.map((date) => {
                 const isActive = date === activeDate;
                 const isToday = date === TODAY;
-                const pct = Math.min(((dayKcalMap[date] ?? 0) / goals.kcal) * 100, 100);
+                const pct = Math.min(
+                  ((dayKcalMap[date] ?? 0) / goals.kcal) * 100,
+                  100,
+                );
                 return (
                   <button
                     key={date}
@@ -523,16 +638,38 @@ export default function DietPage({ onMealSelect }: Props) {
                         : "hover:bg-[#0d0d0d] border border-transparent",
                     )}
                   >
-                    <span className={cn("text-[9px] uppercase tracking-widest font-mono", isActive ? "text-[#facc15]" : "text-[#555]")}>
+                    <span
+                      className={cn(
+                        "text-[9px] uppercase tracking-widest font-mono",
+                        isActive ? "text-[#facc15]" : "text-[#555]",
+                      )}
+                    >
                       {shortDay(date, lang)}
                     </span>
-                    <span className={cn("text-sm font-bold font-mono mt-0.5", isActive ? "text-[#facc15]" : isToday ? "text-[#e0e0e0]" : "text-[#444]")}>
+                    <span
+                      className={cn(
+                        "text-sm font-bold font-mono mt-0.5",
+                        isActive
+                          ? "text-[#facc15]"
+                          : isToday
+                            ? "text-[#e0e0e0]"
+                            : "text-[#444]",
+                      )}
+                    >
                       {dayNum(date)}
                     </span>
                     <div className="w-full h-0.5 bg-[#1a1a1a] rounded-full mt-1.5 overflow-hidden">
-                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: isActive ? "#facc15" : "#333" }} />
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${pct}%`,
+                          background: isActive ? "#facc15" : "#333",
+                        }}
+                      />
                     </div>
-                    {isToday && !isActive && <span className="w-1 h-1 rounded-full bg-[#facc15]/60 mt-1" />}
+                    {isToday && !isActive && (
+                      <span className="w-1 h-1 rounded-full bg-[#facc15]/60 mt-1" />
+                    )}
                   </button>
                 );
               })}
@@ -541,13 +678,23 @@ export default function DietPage({ onMealSelect }: Props) {
 
           {/* ── Daily summary ── */}
           <div className="flex items-center justify-center gap-3 text-[10px] font-mono flex-wrap">
-            <span className="text-[#facc15]">{Math.round(dayTotals.kcal)} kcal</span>
+            <span className="text-[#facc15]">
+              {Math.round(dayTotals.kcal)} kcal
+            </span>
             <span className="text-[#1c1c1c]">·</span>
-            <span className="text-[#ec4899]">{Math.round(dayTotals.protein)}g {t(lang, "diet_protein").toLowerCase()}</span>
+            <span className="text-[#ec4899]">
+              {Math.round(dayTotals.protein)}g{" "}
+              {t(lang, "diet_protein").toLowerCase()}
+            </span>
             <span className="text-[#1c1c1c]">·</span>
-            <span className="text-[#f59e0b]">{Math.round(dayTotals.carbs)}g {t(lang, "diet_carbs").toLowerCase()}</span>
+            <span className="text-[#f59e0b]">
+              {Math.round(dayTotals.carbs)}g{" "}
+              {t(lang, "diet_carbs").toLowerCase()}
+            </span>
             <span className="text-[#1c1c1c]">·</span>
-            <span className="text-[#2a2a2a]">/ {goals.kcal} kcal {t(lang, "diet_target").toLowerCase()}</span>
+            <span className="text-[#2a2a2a]">
+              / {goals.kcal} kcal {t(lang, "diet_target").toLowerCase()}
+            </span>
           </div>
 
           {/* ── Timeline + Meals ── */}
@@ -573,9 +720,14 @@ export default function DietPage({ onMealSelect }: Props) {
               {timelineItems.map((item, i) => {
                 if (item.type === "hour") {
                   return (
-                    <div key={`h-${item.time}-${i}`} className="flex items-center h-7">
+                    <div
+                      key={`h-${item.time}-${i}`}
+                      className="flex items-center h-7"
+                    >
                       <div className="w-[66px] text-right pr-3 shrink-0">
-                        <span className="text-[7px] font-mono text-[#181818]">{item.time}</span>
+                        <span className="text-[7px] font-mono text-[#181818]">
+                          {item.time}
+                        </span>
                       </div>
                       <div className="w-1 h-1 rounded-full bg-[#141414] relative z-10" />
                     </div>
@@ -594,7 +746,9 @@ export default function DietPage({ onMealSelect }: Props) {
                   >
                     {/* Timeline: time + dot */}
                     <div className="w-[66px] shrink-0 flex items-center justify-end gap-2 pt-[18px]">
-                      <span className="text-[9px] font-mono text-[#444]">{mealSlot.time}</span>
+                      <span className="text-[9px] font-mono text-[#444]">
+                        {mealSlot.time}
+                      </span>
                       <div
                         className="w-2.5 h-2.5 rounded-full border-2 bg-[#050505] relative z-10 shrink-0"
                         style={{ borderColor: slotColor }}
@@ -609,9 +763,15 @@ export default function DietPage({ onMealSelect }: Props) {
                         time={mealSlot.time}
                         dateKey={activeDate}
                         onOpen={(m) =>
-                          onMealSelect?.({ meal: m, slot: mealSlot.slot, time: mealSlot.time })
+                          onMealSelect?.({
+                            meal: m,
+                            slot: mealSlot.slot,
+                            time: mealSlot.time,
+                          })
                         }
-                        onMealChange={(newId) => handleMealChange(mealSlot.originalIdx, newId)}
+                        onMealChange={(newId) =>
+                          handleMealChange(mealSlot.originalIdx, newId)
+                        }
                       />
                     </div>
 
@@ -639,7 +799,6 @@ export default function DietPage({ onMealSelect }: Props) {
               </div>
             </motion.div>
           </AnimatePresence>
-
         </div>
       </div>
 

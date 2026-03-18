@@ -72,12 +72,11 @@ export default function MealDetailPanel({ meal, slot, time, onClose }: Props) {
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  const slotLabelKey =
-    `diet_slot_${slot}` as
-      | "diet_slot_breakfast"
-      | "diet_slot_lunch"
-      | "diet_slot_snack"
-      | "diet_slot_dinner";
+  const slotLabelKey = `diet_slot_${slot}` as
+    | "diet_slot_breakfast"
+    | "diet_slot_lunch"
+    | "diet_slot_snack"
+    | "diet_slot_dinner";
 
   return (
     <motion.div
@@ -164,13 +163,32 @@ export default function MealDetailPanel({ meal, slot, time, onClose }: Props) {
                 </div>
                 <div className="border-t border-[#1a1a1a] px-4 py-3 space-y-2">
                   {[
-                    { label: t(lang, "diet_carbs"), value: macros.carbs, color: "#f59e0b" },
-                    { label: t(lang, "diet_fat"), value: macros.fat, color: "#a855f7" },
+                    {
+                      label: t(lang, "diet_carbs"),
+                      value: macros.carbs,
+                      color: "#f59e0b",
+                    },
+                    {
+                      label: t(lang, "diet_fat"),
+                      value: macros.fat,
+                      color: "#a855f7",
+                    },
                   ].map(({ label, value, color }) => (
-                    <div key={label} className="flex items-center justify-between py-1 border-b border-[#111] last:border-0">
-                      <span className="text-[10px] uppercase tracking-widest text-[#555] font-mono">{label}</span>
-                      <span className="font-mono text-sm font-bold" style={{ color }}>
-                        {Math.round(value)}<span className="text-[10px] text-[#444] ml-0.5">g</span>
+                    <div
+                      key={label}
+                      className="flex items-center justify-between py-1 border-b border-[#111] last:border-0"
+                    >
+                      <span className="text-[10px] uppercase tracking-widest text-[#555] font-mono">
+                        {label}
+                      </span>
+                      <span
+                        className="font-mono text-sm font-bold"
+                        style={{ color }}
+                      >
+                        {Math.round(value)}
+                        <span className="text-[10px] text-[#444] ml-0.5">
+                          g
+                        </span>
                       </span>
                     </div>
                   ))}
@@ -181,17 +199,51 @@ export default function MealDetailPanel({ meal, slot, time, onClose }: Props) {
               {macros.kcal > 0 && (
                 <div className="space-y-1.5">
                   <div className="h-2 bg-[#111] rounded-full overflow-hidden flex">
-                    <div style={{ width: `${((macros.protein * 4) / macros.kcal) * 100}%`, background: "#ec4899" }} className="h-full" />
-                    <div style={{ width: `${((macros.carbs * 4) / macros.kcal) * 100}%`, background: "#f59e0b" }} className="h-full" />
-                    <div style={{ width: `${((macros.fat * 9) / macros.kcal) * 100}%`, background: "#a855f7" }} className="h-full" />
+                    <div
+                      style={{
+                        width: `${((macros.protein * 4) / macros.kcal) * 100}%`,
+                        background: "#ec4899",
+                      }}
+                      className="h-full"
+                    />
+                    <div
+                      style={{
+                        width: `${((macros.carbs * 4) / macros.kcal) * 100}%`,
+                        background: "#f59e0b",
+                      }}
+                      className="h-full"
+                    />
+                    <div
+                      style={{
+                        width: `${((macros.fat * 9) / macros.kcal) * 100}%`,
+                        background: "#a855f7",
+                      }}
+                      className="h-full"
+                    />
                   </div>
                   <div className="flex gap-3">
                     {[
-                      { label: t(lang, "diet_protein"), pct: (macros.protein * 4) / macros.kcal, color: "#ec4899" },
-                      { label: t(lang, "diet_carbs"), pct: (macros.carbs * 4) / macros.kcal, color: "#f59e0b" },
-                      { label: t(lang, "diet_fat"), pct: (macros.fat * 9) / macros.kcal, color: "#a855f7" },
+                      {
+                        label: t(lang, "diet_protein"),
+                        pct: (macros.protein * 4) / macros.kcal,
+                        color: "#ec4899",
+                      },
+                      {
+                        label: t(lang, "diet_carbs"),
+                        pct: (macros.carbs * 4) / macros.kcal,
+                        color: "#f59e0b",
+                      },
+                      {
+                        label: t(lang, "diet_fat"),
+                        pct: (macros.fat * 9) / macros.kcal,
+                        color: "#a855f7",
+                      },
                     ].map(({ label, pct, color }) => (
-                      <span key={label} className="text-[9px] font-mono uppercase tracking-widest" style={{ color }}>
+                      <span
+                        key={label}
+                        className="text-[9px] font-mono uppercase tracking-widest"
+                        style={{ color }}
+                      >
                         {Math.round(pct * 100)}%
                       </span>
                     ))}
@@ -210,21 +262,40 @@ export default function MealDetailPanel({ meal, slot, time, onClose }: Props) {
                     if (!food) return null;
                     const kcal = (food.kcalPer100g * ing.grams) / 100;
                     const protein = (food.proteinPer100g * ing.grams) / 100;
-                    const catColor = CAT_COLORS[food.category as FoodCategory] ?? "#888";
+                    const catColor =
+                      CAT_COLORS[food.category as FoodCategory] ?? "#888";
                     return (
-                      <div key={i} className="flex items-center gap-3 px-3 py-2.5 border-b border-[#111] last:border-0 hover:bg-[#0d0d0d] transition-colors">
-                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: catColor }} />
-                        <span className="text-xs text-[#ccc] flex-1 truncate">{food.name}</span>
+                      <div
+                        key={i}
+                        className="flex items-center gap-3 px-3 py-2.5 border-b border-[#111] last:border-0 hover:bg-[#0d0d0d] transition-colors"
+                      >
+                        <span
+                          className="w-1.5 h-1.5 rounded-full shrink-0"
+                          style={{ background: catColor }}
+                        />
+                        <span className="text-xs text-[#ccc] flex-1 truncate">
+                          {food.name}
+                        </span>
                         <span
                           className="text-[9px] px-1.5 py-0.5 rounded border uppercase tracking-wider font-mono shrink-0"
-                          style={{ color: catColor, borderColor: catColor + "44", background: catColor + "11" }}
+                          style={{
+                            color: catColor,
+                            borderColor: catColor + "44",
+                            background: catColor + "11",
+                          }}
                         >
                           {food.category}
                         </span>
-                        <span className="text-[10px] font-mono text-[#555] w-10 text-right shrink-0">{ing.grams}g</span>
+                        <span className="text-[10px] font-mono text-[#555] w-10 text-right shrink-0">
+                          {ing.grams}g
+                        </span>
                         <div className="text-right shrink-0 w-20">
-                          <span className="text-[10px] font-mono text-[#888] block">{Math.round(kcal)} kcal</span>
-                          <span className="text-[9px] font-mono text-[#ec4899]">{Math.round(protein)}g P</span>
+                          <span className="text-[10px] font-mono text-[#888] block">
+                            {Math.round(kcal)} kcal
+                          </span>
+                          <span className="text-[9px] font-mono text-[#ec4899]">
+                            {Math.round(protein)}g P
+                          </span>
                         </div>
                       </div>
                     );
@@ -237,7 +308,10 @@ export default function MealDetailPanel({ meal, slot, time, onClose }: Props) {
 
         {/* ── Footer ── */}
         <div className="px-5 py-3 border-t border-[#151515] shrink-0">
-          <p className="text-[10px] font-mono text-[#2a2a2a] truncate" title={meal.id}>
+          <p
+            className="text-[10px] font-mono text-[#2a2a2a] truncate"
+            title={meal.id}
+          >
             {meal.id}
           </p>
         </div>

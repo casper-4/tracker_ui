@@ -239,18 +239,21 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
         {/* ── Col 1: Pinned quests ── */}
         <aside
           className={`w-52 shrink-0 rounded-[14px] flex flex-col overflow-hidden transition-colors backdrop-blur-2xl ${
-            pinnedDragOver
-              ? "border border-dashed border-[#F3E600]/50"
-              : ""
+            pinnedDragOver ? "border border-dashed border-[#F3E600]/50" : ""
           }`}
-          style={pinnedDragOver ? {
-            background: "rgba(243,230,0,0.04)",
-            border: "1px dashed rgba(243,230,0,0.5)",
-          } : {
-            background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
-            border: "1px solid rgba(255,255,255,0.09)",
-            borderTop: "1px solid rgba(255,255,255,0.16)",
-          }}
+          style={
+            pinnedDragOver
+              ? {
+                  background: "rgba(243,230,0,0.04)",
+                  border: "1px dashed rgba(243,230,0,0.5)",
+                }
+              : {
+                  background:
+                    "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+                  border: "1px solid rgba(255,255,255,0.09)",
+                  borderTop: "1px solid rgba(255,255,255,0.16)",
+                }
+          }
           onDragOver={(e) => {
             e.preventDefault();
             e.dataTransfer.dropEffect = "move";
@@ -338,13 +341,19 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
         <aside
           className="w-52 shrink-0 rounded-[14px] flex flex-col overflow-hidden backdrop-blur-2xl"
           style={{
-            background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+            background:
+              "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
             border: "1px solid rgba(255,255,255,0.09)",
             borderTop: "1px solid rgba(255,255,255,0.16)",
           }}
         >
           <div className="shrink-0 px-3 h-[60px] border-b border-[rgba(255,255,255,0.09)] flex items-center gap-2">
-            <Calendar width={12} height={12} strokeWidth={1.8} className="text-[#F3E600]" />
+            <Calendar
+              width={12}
+              height={12}
+              strokeWidth={1.8}
+              className="text-[#F3E600]"
+            />
             <div>
               <p className="text-xs text-white font-mono mt-0.5">
                 {today
@@ -377,7 +386,8 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
         <main
           className="flex-1 min-w-0 rounded-[14px] overflow-auto custom-scrollbar backdrop-blur-2xl"
           style={{
-            background: "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+            background:
+              "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
             border: "1px solid rgba(255,255,255,0.09)",
             borderTop: "1px solid rgba(255,255,255,0.16)",
           }}
@@ -603,7 +613,13 @@ function MultiDayHourlyView({
   return (
     <div className={`pb-3 ${days > 7 ? "min-w-[700px]" : "min-w-[440px]"}`}>
       {/* Day headers — sticky inside the scrollable main */}
-      <div className="sticky top-0 z-10 px-3" style={{ background: "rgba(10,10,10,0.9)", backdropFilter: "blur(12px)" }}>
+      <div
+        className="sticky top-0 z-10 px-3"
+        style={{
+          background: "rgba(10,10,10,0.9)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
         <div className="flex border-b border-[rgba(255,255,255,0.09)] h-[60px]">
           <div className={`${hourColW} shrink-0`} />
           {dayList.map((d) => {
@@ -629,7 +645,9 @@ function MultiDayHourlyView({
                 </span>
                 {days <= 7 && (
                   <span className="text-[9px] text-[rgba(255,255,255,0.18)] block">
-                    {d.toLocaleDateString(lang === "pl" ? "pl-PL" : "en-GB", { month: "short" })}
+                    {d.toLocaleDateString(lang === "pl" ? "pl-PL" : "en-GB", {
+                      month: "short",
+                    })}
                   </span>
                 )}
               </div>

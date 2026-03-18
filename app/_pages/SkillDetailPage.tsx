@@ -502,7 +502,13 @@ export default function SkillDetailPage({
                 className="w-full max-w-[210px] overflow-visible"
               >
                 <defs>
-                  <filter id="edgeGlow" x="-50%" y="-50%" width="200%" height="200%">
+                  <filter
+                    id="edgeGlow"
+                    x="-50%"
+                    y="-50%"
+                    width="200%"
+                    height="200%"
+                  >
                     <feGaussianBlur stdDeviation="2.2" result="blur" />
                     <feMerge>
                       <feMergeNode in="blur" />
@@ -713,7 +719,13 @@ export default function SkillDetailPage({
                           <tspan
                             key={wi}
                             x={lx}
-                            dy={wi === 0 ? (words.length > 1 ? `${ly - (words.length - 1) * 2}` : String(ly)) : "4"}
+                            dy={
+                              wi === 0
+                                ? words.length > 1
+                                  ? `${ly - (words.length - 1) * 2}`
+                                  : String(ly)
+                                : "4"
+                            }
                             y={wi === 0 ? ly : undefined}
                           >
                             {word}
@@ -787,7 +799,10 @@ export default function SkillDetailPage({
                     <Tooltip
                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       content={renderAspectTooltip as any}
-                      cursor={{ stroke: "rgba(255,255,255,0.09)", strokeWidth: 1 }}
+                      cursor={{
+                        stroke: "rgba(255,255,255,0.09)",
+                        strokeWidth: 1,
+                      }}
                     />
                     {aspects.map((a) => {
                       const isSelected = selectedAspectId === a.id;
@@ -805,7 +820,9 @@ export default function SkillDetailPage({
                             r: 4,
                             fill: a.color,
                             strokeWidth: 0,
-                            style: { filter: `drop-shadow(0 0 4px ${a.color}90)` },
+                            style: {
+                              filter: `drop-shadow(0 0 4px ${a.color}90)`,
+                            },
                           }}
                         />
                       );
@@ -834,13 +851,17 @@ export default function SkillDetailPage({
                           className="w-4 h-px inline-block"
                           style={{
                             backgroundColor: a.color,
-                            boxShadow: isSelected ? `0 0 4px ${a.color}90` : "none",
+                            boxShadow: isSelected
+                              ? `0 0 4px ${a.color}90`
+                              : "none",
                           }}
                         />
                         <span
                           className="text-[10px] uppercase tracking-[0.06em] transition-colors"
                           style={{
-                            color: isSelected ? a.color : "rgba(255,255,255,0.30)",
+                            color: isSelected
+                              ? a.color
+                              : "rgba(255,255,255,0.30)",
                           }}
                         >
                           {a.name}

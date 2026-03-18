@@ -1,6 +1,13 @@
 "use client";
 
-import { useMemo, useState, useCallback, useRef, useEffect } from "react";
+import {
+  Fragment,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+} from "react";
 import { Pin, PinSolid, Refresh } from "iconoir-react";
 import SkillColorPicker from "@/app/components/SkillColorPicker";
 import {
@@ -75,7 +82,7 @@ function StatusTagDropdown({
       <span
         className="tag-neon text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold shrink-0 cursor-pointer"
         style={{
-          fontFamily: "Orbitron, sans-serif",
+          fontFamily: "var(--font-body)",
           ...statusTagStyle[quest.status],
         }}
       >
@@ -96,7 +103,7 @@ function StatusTagDropdown({
                   s === quest.status ? "bg-white/5" : ""
                 }`}
                 style={{
-                  fontFamily: "Orbitron, sans-serif",
+                  fontFamily: "var(--font-body)",
                   ...statusTagStyle[s],
                 }}
                 onClick={(e) => {
@@ -314,6 +321,9 @@ export default function SkillDetailPage({
       const filtered = payload.filter(
         (e) => selectedAspectId === null || e.dataKey === selectedAspectId
       );
+      const uniqueByAspect = Array.from(
+        new Map(filtered.map((entry) => [entry.dataKey, entry])).values()
+      );
       return (
         <div
           className="p-3 min-w-[140px] shadow-xl rounded-[7px]"
@@ -325,7 +335,7 @@ export default function SkillDetailPage({
           <p className="text-[10px] text-white/30 uppercase tracking-[0.08em] mb-2">
             {dayLabel}
           </p>
-          {filtered.map((entry) => {
+          {uniqueByAspect.map((entry) => {
             const aspect = aspects.find((a) => a.id === entry.dataKey);
             if (!aspect) return null;
             return (
@@ -353,6 +363,34 @@ export default function SkillDetailPage({
       );
     },
     [aspects, lang, selectedAspectId]
+  );
+
+  const getAspectGlowId = useCallback(
+    (aspectId: string) =>
+      `chart-neon-aspect-${aspectId.replace(/[^a-zA-Z0-9_-]/g, "-")}`,
+    []
+  );
+
+  const renderAspectDot = useCallback(
+    (color: string) =>
+      (props: { cx?: number; cy?: number }) => {
+        const { cx, cy } = props;
+        if (typeof cx !== "number" || typeof cy !== "number") return null;
+        return (
+          <circle
+            cx={cx}
+            cy={cy}
+            r={4.5}
+            fill={color}
+            stroke="rgba(10,10,10,0.9)"
+            strokeWidth={1}
+            style={{
+              filter: `drop-shadow(0 0 4px ${color}90)`,
+            }}
+          />
+        );
+      },
+    []
   );
 
   // Group subskills by aspect for the tree
@@ -438,24 +476,49 @@ export default function SkillDetailPage({
                 {skill.completionPercentage}%
               </span>
             </div>
-            <div
-              className="w-full h-1.5 rounded-full overflow-hidden relative"
-              style={{ background: "rgba(255,255,255,0.06)" }}
-            >
+            <div className="w-full h-[8px] rounded-full relative overflow-visible">
+              {/* Track */}
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  background:
+                    "linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03))",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}
+              />
+
+              {/* Fill ambient glow */}
+              <div
+                className="absolute left-0 top-1/2 -translate-y-1/2 h-4 rounded-full blur-[9px] transition-[width] duration-700"
+                style={{
+                  width: `${skill.completionPercentage}%`,
+                  background: `${skillColor}66`,
+                  opacity: 0.75,
+                }}
+              />
+
+              {/* Fill core */}
+              <div
+                className="relative h-full rounded-full transition-[width] duration-700 overflow-hidden"
+                style={{
+                  width: `${skill.completionPercentage}%`,
+                  background: `linear-gradient(90deg, ${skillColor}33 0%, ${skillColor}88 45%, ${skillColor} 100%)`,
+                  boxShadow: `0 0 10px ${skillColor}99, 0 0 18px ${skillColor}66`,
+                }}
+              >
+                <div
+                  className="absolute top-0 left-0 right-0 h-px"
+                  style={{ background: "rgba(255,255,255,0.5)" }}
+                />
+              </div>
+
               {/* Target marker */}
               <div
                 className="absolute top-0 bottom-0 w-px"
                 style={{
                   left: `${skill.targetPercentage}%`,
-                  background: "rgba(255,255,255,0.25)",
-                }}
-              />
-              {/* Fill */}
-              <div
-                className="h-full rounded-full transition-[width] duration-700"
-                style={{
-                  width: `${skill.completionPercentage}%`,
-                  background: `linear-gradient(90deg, ${skillColor}40, ${skillColor})`,
+                  background: "rgba(255,255,255,0.35)",
+                  boxShadow: "0 0 6px rgba(255,255,255,0.35)",
                 }}
               />
             </div>
@@ -492,24 +555,40 @@ export default function SkillDetailPage({
         }}
       >
         <h3 className="text-[10px] text-white/20 uppercase tracking-[0.08em] mb-4">
-          {t(lang, "skill_neural_map").toUpperCase()}
+          {t(lang, "skill_progress").toUpperCase()}
         </h3>
 
         <div className="grid grid-cols-3 gap-8 items-start">
           {/* ── Neural map (1 col) ── */}
-          <div className="flex flex-col items-center">
+          <div className="flex-1 flex items-center justify-center relative py-4">
             {radar ? (
               <svg
                 viewBox="0 0 100 100"
                 className="w-full max-w-[210px] overflow-visible"
               >
                 <defs>
+                  {aspects.map((a) => (
+                    <filter
+                      key={a.id}
+                      id={`neon-aspect-${a.id.replace(/\//g, "-")}`}
+                      x="-120%"
+                      y="-120%"
+                      width="340%"
+                      height="340%"
+                    >
+                      <feGaussianBlur stdDeviation="3" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
+                  ))}
                   <filter
-                    id="edgeGlow"
-                    x="-50%"
-                    y="-50%"
-                    width="200%"
-                    height="200%"
+                    id="edge-glow-skill"
+                    x="-80%"
+                    y="-80%"
+                    width="260%"
+                    height="260%"
                   >
                     <feGaussianBlur stdDeviation="2.2" result="blur" />
                     <feMerge>
@@ -579,16 +658,27 @@ export default function SkillDetailPage({
                   const isActive =
                     hoveredAspectId === a.id || selectedAspectId === a.id;
                   return (
-                    <polygon
+                    <g
                       key={`sector-${i}`}
-                      points={`50,50 ${p.x},${p.y} ${next.x},${next.y}`}
-                      fill={isActive ? `${a.color}38` : `${a.color}18`}
-                      stroke="none"
-                      opacity={isActive ? 1.0 : 0.8}
-                      style={{
-                        transition: "fill 0.2s ease, opacity 0.2s ease",
-                      }}
-                    />
+                      style={{ cursor: "pointer" }}
+                      onMouseEnter={() => setHoveredAspectId(a.id)}
+                      onMouseLeave={() => setHoveredAspectId(null)}
+                      onClick={() =>
+                        setSelectedAspectId((prev) =>
+                          prev === a.id ? null : a.id
+                        )
+                      }
+                    >
+                      <polygon
+                        points={`50,50 ${p.x},${p.y} ${next.x},${next.y}`}
+                        fill={isActive ? `${a.color}38` : `${a.color}18`}
+                        stroke={a.color}
+                        strokeWidth={isActive ? "0.8" : "0.5"}
+                        strokeLinejoin="round"
+                        opacity={isActive ? 1.0 : 0.8}
+                        style={{ transition: "all 0.2s ease" }}
+                      />
+                    </g>
                   );
                 })}
 
@@ -632,7 +722,7 @@ export default function SkillDetailPage({
                       stroke={a.color}
                       strokeWidth="1.0"
                       opacity="0.85"
-                      filter="url(#edgeGlow)"
+                      filter="url(#edge-glow-skill)"
                     />
                   );
                 })}
@@ -673,7 +763,7 @@ export default function SkillDetailPage({
                       }}
                     >
                       {/* invisible hit target */}
-                      <circle cx={p.x} cy={p.y} r="6" fill="transparent" />
+                      <circle cx={p.x} cy={p.y} r="7" fill="transparent" />
 
                       {/* Layer 1: Corona */}
                       <circle
@@ -700,39 +790,32 @@ export default function SkillDetailPage({
                         r={isActive ? 2.2 : 1.6}
                         fill={a.color}
                         style={{
-                          transition: "r 0.2s ease",
-                          filter: `drop-shadow(0 0 2px ${a.color})`,
+                          transition: "all 0.2s ease",
                         }}
+                        filter={`url(#neon-aspect-${a.id.replace(/\//g, "-")})`}
                       />
 
                       {/* label */}
                       <text
                         x={lx}
+                        y={ly}
                         textAnchor="middle"
-                        dominantBaseline="middle"
+                        letterSpacing="0.08em"
+                        fontFamily="var(--font-mono)"
                         style={{
-                          fontSize: "3.2px",
-                          letterSpacing: "0.06em",
+                          fontSize: "5.5",
                           fill: isActive ? a.color : "rgba(255,255,255,0.30)",
-                          fontFamily: "var(--font-body, monospace)",
-                          textTransform: "uppercase",
                           transition: "fill 0.2s ease",
+                          userSelect: "none",
                         }}
                       >
-                        {words.map((word, wi) => (
+                        {words.map((word, wi, arr) => (
                           <tspan
                             key={wi}
                             x={lx}
-                            dy={
-                              wi === 0
-                                ? words.length > 1
-                                  ? `${ly - (words.length - 1) * 2}`
-                                  : String(ly)
-                                : "4"
-                            }
-                            y={wi === 0 ? ly : undefined}
+                            dy={wi === 0 ? (arr.length > 1 ? "-2.3" : "0") : "5"}
                           >
-                            {word}
+                            {word.toUpperCase()}
                           </tspan>
                         ))}
                       </text>
@@ -765,11 +848,33 @@ export default function SkillDetailPage({
                       key={r}
                       type="button"
                       onClick={() => setChartRange(r)}
-                      className={`px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] rounded-[3px] border transition-colors ${
+                      className="px-2 py-0.5 text-[10px] uppercase tracking-[0.08em] rounded-[3px] border transition-colors"
+                      style={
                         chartRange === r
-                          ? "border-[#F3E600] text-[#F3E600] bg-[#F3E600]/5"
-                          : "border-white/6 text-white/30 hover:border-white/12 hover:text-white/55"
-                      }`}
+                          ? {
+                              borderColor: skillColor,
+                              color: skillColor,
+                              background: `${skillColor}14`,
+                            }
+                          : {
+                              borderColor: `${skillColor}33`,
+                              color: `${skillColor}AA`,
+                            }
+                      }
+                      onMouseEnter={(e) => {
+                        if (chartRange !== r) {
+                          e.currentTarget.style.borderColor = `${skillColor}80`;
+                          e.currentTarget.style.color = skillColor;
+                          e.currentTarget.style.background = `${skillColor}0D`;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (chartRange !== r) {
+                          e.currentTarget.style.borderColor = `${skillColor}33`;
+                          e.currentTarget.style.color = `${skillColor}AA`;
+                          e.currentTarget.style.background = "transparent";
+                        }
+                      }}
                     >
                       {label}
                     </button>
@@ -781,6 +886,24 @@ export default function SkillDetailPage({
                     data={visibleChartData}
                     margin={{ top: 4, right: 8, left: -16, bottom: 0 }}
                   >
+                    <defs>
+                      {aspects.map((a) => (
+                        <filter
+                          key={a.id}
+                          id={getAspectGlowId(a.id)}
+                          x="-120%"
+                          y="-120%"
+                          width="340%"
+                          height="340%"
+                        >
+                          <feGaussianBlur stdDeviation="2.4" result="blur" />
+                          <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
+                      ))}
+                    </defs>
                     <CartesianGrid
                       strokeDasharray="0"
                       stroke="rgba(255,255,255,0.05)"
@@ -812,23 +935,37 @@ export default function SkillDetailPage({
                       const isSelected = selectedAspectId === a.id;
                       const dimmed = selectedAspectId !== null && !isSelected;
                       return (
-                        <Line
-                          key={a.id}
-                          type="monotone"
-                          dataKey={a.id}
-                          stroke={a.color}
-                          strokeWidth={isSelected ? 2.5 : dimmed ? 1 : 1.8}
-                          strokeOpacity={dimmed ? 0.2 : 1}
-                          dot={false}
-                          activeDot={{
-                            r: 4,
-                            fill: a.color,
-                            strokeWidth: 0,
-                            style: {
-                              filter: `drop-shadow(0 0 4px ${a.color}90)`,
-                            },
-                          }}
-                        />
+                        <Fragment key={a.id}>
+                          <Line
+                            key={`${a.id}-glow`}
+                            type="monotone"
+                            dataKey={a.id}
+                            stroke={a.color}
+                            strokeWidth={isSelected ? 5.5 : dimmed ? 2.6 : 4.2}
+                            strokeOpacity={dimmed ? 0.08 : 0.2}
+                            dot={false}
+                            activeDot={false}
+                            style={{ filter: "blur(2px)" }}
+                          />
+                          <Line
+                            key={`${a.id}-edge`}
+                            type="monotone"
+                            dataKey={a.id}
+                            stroke={a.color}
+                            strokeWidth={isSelected ? 2.5 : dimmed ? 1 : 1.8}
+                            strokeOpacity={dimmed ? 0.24 : 0.95}
+                            dot={renderAspectDot(a.color)}
+                            style={{ filter: `url(#${getAspectGlowId(a.id)})` }}
+                            activeDot={{
+                              r: 4,
+                              fill: a.color,
+                              strokeWidth: 0,
+                              style: {
+                                filter: `drop-shadow(0 0 4px ${a.color}90)`,
+                              },
+                            }}
+                          />
+                        </Fragment>
                       );
                     })}
                   </LineChart>
@@ -962,7 +1099,7 @@ export default function SkillDetailPage({
                       <li className="h-9 rounded-[7px] border border-dashed border-[#F3E600]/40 bg-[#F3E600]/5 flex items-center justify-center">
                         <span
                           className="text-[8px] text-[#F3E600]/60 uppercase tracking-[0.2em]"
-                          style={{ fontFamily: "Orbitron, sans-serif" }}
+                          style={{ fontFamily: "var(--font-body)" }}
                         >
                           {t(lang, "drop_here")}
                         </span>
@@ -976,7 +1113,7 @@ export default function SkillDetailPage({
                           (s) => s.id === ss.id
                         );
                         return found
-                          ? { name: found.name, color: skill.color }
+                          ? { name: found.name, color: skillColor }
                           : { name: ss.id, color: "#666" };
                       });
                       return (
@@ -1014,7 +1151,7 @@ export default function SkillDetailPage({
                                 key={ss.name}
                                 className="tag-neon text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
                                 style={{
-                                  fontFamily: "Orbitron, sans-serif",
+                                  fontFamily: "var(--font-body)",
                                   background: "rgba(255,255,255,0.07)",
                                   color: "rgba(255,255,255,0.5)",
                                 }}
@@ -1026,9 +1163,9 @@ export default function SkillDetailPage({
                               <span
                                 className="tag-neon flex items-center gap-1 text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
                                 style={{
-                                  fontFamily: "Orbitron, sans-serif",
-                                  background: `${skill.color}20`,
-                                  color: skill.color,
+                                  fontFamily: "var(--font-body)",
+                                  background: `${skillColor}20`,
+                                  color: skillColor,
                                 }}
                               >
                                 <Refresh
@@ -1042,7 +1179,7 @@ export default function SkillDetailPage({
                               <span
                                 className="flex items-center gap-1 text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
                                 style={{
-                                  fontFamily: "Orbitron, sans-serif",
+                                  fontFamily: "var(--font-body)",
                                   background: "rgba(255,255,255,0.04)",
                                   color: "rgba(255,255,255,0.18)",
                                 }}
@@ -1091,7 +1228,7 @@ export default function SkillDetailPage({
                   style={{
                     background: "rgba(255,255,255,0.04)",
                     border: "1px solid rgba(255,255,255,0.09)",
-                    borderLeft: `4px solid ${skill.color}`,
+                    borderLeft: `4px solid ${skillColor}`,
                   }}
                 >
                   <span className="text-sm font-medium text-white uppercase tracking-wide">
@@ -1103,14 +1240,14 @@ export default function SkillDetailPage({
                         className="progress-fill h-full rounded-full"
                         style={{
                           width: `${aspect.completionPercentage}%`,
-                          background: `linear-gradient(90deg, ${skill.color}40, ${skill.color})`,
+                          background: `linear-gradient(90deg, ${skillColor}40, ${skillColor})`,
                         }}
                       />
                     </div>
                   </div>
                   <span
                     className="text-xs font-mono font-bold"
-                    style={{ color: skill.color }}
+                    style={{ color: skillColor }}
                   >
                     {aspect.completionPercentage}%
                   </span>
@@ -1169,7 +1306,7 @@ export default function SkillDetailPage({
                                 >
                                   <span
                                     className="w-1.5 h-1.5 rounded-full shrink-0"
-                                    style={{ backgroundColor: skill.color }}
+                                    style={{ backgroundColor: skillColor }}
                                   />
                                   <span className="flex-1 min-w-0 text-white/70">
                                     {q.name}
@@ -1237,7 +1374,7 @@ export default function SkillDetailPage({
                                     }
                                     style={{
                                       color: isPinned(q.id)
-                                        ? skill.color
+                                        ? skillColor
                                         : "#444",
                                     }}
                                   >

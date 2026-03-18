@@ -123,12 +123,10 @@ Accents — ONLY in tags, buttons, bars, charts:
 
 ```
 Body:          Geist (monospace stack) — everything
-Tags only:     Orbitron — 8px, weight 700, tracking 0.2em, uppercase
+Tags:          Geist — 8px, weight 700, tracking 0.2em, uppercase
 Metric values: Geist, 36–48px, weight 700, tracking -0.05em
 Section labels: Geist, uppercase, tracking 0.08em, rgba(255,255,255,0.2)
 ```
-
-**Orbitron is used ONLY on tags. Nowhere else.**
 
 ### Cards / Glass pattern
 
@@ -154,7 +152,7 @@ Every card also has:
 
 ### Tags
 
-No borders. Orbitron font. Top-edge gloss only. Neon-flicker animation on hover (single shot).
+No borders. Geist font. Top-edge gloss only. Neon-flicker animation on hover (single shot).
 
 ### Buttons
 
@@ -204,7 +202,7 @@ When given a UI task:
 6. Leave `// TODO: [DATA]` wherever real data would eventually come from
 
 **When in doubt about a design decision — go bolder.**
-This is a dark, high-contrast, premium personal OS. Glass surfaces, neon accents used sparingly, Orbitron only on tags. Think biometric dashboard, not wellness app.
+This is a dark, high-contrast, premium personal OS. Glass surfaces, neon accents used sparingly. Think biometric dashboard, not wellness app.
 
 ---
 

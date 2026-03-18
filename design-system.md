@@ -9,7 +9,7 @@
 
 Dark, high-contrast, premium. Black backgrounds, white text, color only in dynamic elements.
 Subtle cyberpunk twist — not gamer, not loud. Think Raycast × Arc with biometric data.
-Glass surfaces. Neon accents used sparingly. Orbitron only on tags.
+Glass surfaces. Neon accents used sparingly.
 
 **Consistency principle:** every value in a component must trace back to a token — never hardcoded.
 Follow the 3-tier hierarchy below. This is what makes the UI feel systematic and professional.
@@ -163,11 +163,9 @@ Navigation:   --nav-icon-idle, --nav-label-idle, --nav-label-active,
 
 ```
 --font-body:   'Geist', ui-monospace, 'SF Mono', monospace   ← everything
---font-accent: 'Orbitron', sans-serif                         ← ONLY tags
+--font-accent: var(--font-body)                               ← alias for tags
 --font-mono:   alias for --font-geist-mono (SVG text elements)
 ```
-
-**Orbitron is only used on tags.** Never on body text, headings, numbers, or labels.
 
 ### Type scale (Tier 1 primitives)
 
@@ -188,7 +186,7 @@ Navigation:   --nav-icon-idle, --nav-label-idle, --nav-label-active,
 Section labels:  --color-fg-subtle, uppercase, letter-spacing 0.08em
 Card headers:    same style as section labels, prefer --text-2xs (10px), uppercase, subtle gray
 Metric values:   --text-display, weight 700, letter-spacing -0.05em
-Tag text:        8px (Orbitron), weight 700, letter-spacing 0.2em, uppercase
+Tag text:        8px (Geist), weight 700, letter-spacing 0.2em, uppercase
 ```
 
 ---
@@ -215,7 +213,7 @@ Base unit: **8px** (--space-2). All spacing must use these named steps.
 ## Border Radius Scale (Tier 1)
 
 ```
---radius-2xs: 3px    ← scrollbar thumb, Orbitron tag chip
+--radius-2xs: 3px    ← scrollbar thumb, tiny tag chip
 --radius-xs:  5px    ← small chips, pill indicators
 --radius-sm:  7px    ← tags, buttons, nav items, list rows
 --radius-md:  9px    ← inputs, inner panels
@@ -346,10 +344,10 @@ opacity: 0.15;
 
 ## Tags (Tier 3: --tag-\*)
 
-**Orbitron only. No borders.**
+**Geist only. No borders.**
 
 ```css
-font-family: var(--tag-font-family); /* Orbitron */
+font-family: var(--tag-font-family); /* Geist */
 font-size: var(--tag-font-size); /* 10px */
 font-weight: 700;
 letter-spacing: var(--tag-letter-spacing); /* 0.2em */
@@ -627,7 +625,7 @@ General rules:
 | Secondary text  | `--color-fg-tertiary`                                 |
 | Labels/metadata | `--color-fg-subtle`                                   |
 | Section labels  | `--color-fg-subtle`, uppercase, letter-spacing 0.08em |
-| Tags            | `--tag-*` tokens, Orbitron, no border                 |
+| Tags            | `--tag-*` tokens, Geist, no border                    |
 | Metric numbers  | `--text-display`, weight 700, tracking -0.05em        |
 | Accent colors   | `--color-success/warning/data/danger/focus`           |
 | Icons           | Iconoir only, `strokeWidth={1.8}`                     |

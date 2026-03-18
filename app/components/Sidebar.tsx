@@ -172,6 +172,7 @@ type SidebarProps = {
   setActiveTab: Dispatch<SetStateAction<string>>;
   selectedSkillId?: string;
   setSelectedSkillId?: Dispatch<SetStateAction<string | undefined>>;
+  skillColors: Record<string, string>;
   collapsed: boolean;
   setCollapsed: Dispatch<SetStateAction<boolean>>;
 };
@@ -181,6 +182,7 @@ const Sidebar = ({
   setActiveTab,
   selectedSkillId,
   setSelectedSkillId,
+  skillColors,
   collapsed,
   setCollapsed,
 }: SidebarProps) => {
@@ -257,10 +259,14 @@ const Sidebar = ({
                             const isActive =
                               activeTab === TAB_SKILL_DETAIL &&
                               selectedSkillId === skill.id;
+                            const effectiveSkill = {
+                              ...skill,
+                              color: skillColors[skill.id] ?? skill.color,
+                            };
                             return (
                               <li key={skill.id}>
                                 <SkillRow
-                                  skill={skill}
+                                  skill={effectiveSkill}
                                   isActive={isActive}
                                   onClick={() => {
                                     setSelectedSkillId?.(skill.id);

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Orbitron } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { LanguageProvider } from "@/lib/language-context";
 
@@ -7,12 +7,6 @@ import { LanguageProvider } from "@/lib/language-context";
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
-});
-
-const orbitron = Orbitron({
-  subsets: ["latin"],
-  variable: "--font-accent",
-  weight: ["700"],
 });
 
 export const metadata: Metadata = {
@@ -26,10 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={`${geistMono.variable} ${orbitron.variable} dark`}
-    >
+    <html lang="en" className={`${geistMono.variable} dark`}>
       <body
         className="antialiased min-h-screen flex overflow-hidden selection:bg-[#00FF9F] selection:text-black"
         suppressHydrationWarning

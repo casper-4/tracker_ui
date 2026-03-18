@@ -13,12 +13,12 @@ What to migrate:
 - Colors, backgrounds, borders → design-system.md tokens
 - Text hierarchy → correct opacity scale
 - Cards → glass pattern (gradient bg, border-top highlight, shine line, mouse-follow light)
-- Tags → Orbitron, no borders, correct variant, neon-flicker on hover
+- Tags → Geist, no borders, correct variant, neon-flicker on hover
 - Buttons → correct variant + Iconoir icon on the left
 - Icons → replace with Iconoir equivalents (iconoir-react), strokeWidth 1.8
 - Progress bars → wrap in .progress-wrap, hover effects
 - Animations → scroll reveal via IntersectionObserver, no springs/bounces
-- Typography → Geist everywhere except tags (Orbitron)
+- Typography → Geist everywhere
 
 What to keep:
 

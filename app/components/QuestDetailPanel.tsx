@@ -174,7 +174,7 @@ export default function QuestDetailPanel({
       animate={{ width: PANEL_WIDTH, opacity: 1 }}
       exit={{ width: 0, opacity: 0 }}
       transition={{ duration: 0.28, ease: [0.25, 0, 0, 1] }}
-      className="h-full flex flex-col overflow-hidden shrink-0 py-3 pr-3 pl-2"
+      className="h-full flex flex-col overflow-hidden shrink-0 pt-6 pb-6 lg:pt-10 lg:pb-10 xl:pt-16 xl:pb-16 pr-10 pl-2"
       style={{ minWidth: 0 }}
       role="complementary"
       aria-label={t(lang, "quest_detail_title")}
@@ -225,7 +225,7 @@ export default function QuestDetailPanel({
         >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              {/* Skill name — Orbitron tag-style label */}
+              {/* Skill name — tag-style label */}
               <p
                 className="text-[8px] uppercase mb-2"
                 style={{
@@ -245,7 +245,7 @@ export default function QuestDetailPanel({
               </h2>
             </div>
             <div className="flex items-center gap-2 shrink-0 pt-0.5">
-              {/* Recurring toggle — Orbitron tag, no border */}
+              {/* Recurring toggle — tag style, no border */}
               <button
                 type="button"
                 onClick={handleToggleRecurring}

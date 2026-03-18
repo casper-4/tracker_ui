@@ -183,51 +183,102 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
     <div className="max-w-6xl mx-auto flex flex-col flex-1 min-h-0 overflow-hidden">
       {/* ── Header ── */}
       <header className="mb-4 shrink-0">
-        <div className="flex flex-wrap items-center gap-4">
-          {/* Span switcher */}
-          <div className="flex items-center gap-1 border border-[rgba(255,255,255,0.09)] rounded-[7px] overflow-hidden">
-            {([7, 14, 30] as MultiDaySpan[]).map((s) => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => handleSpanChange(s)}
-                className={`px-3 py-1.5 text-xs uppercase tracking-wider transition-colors ${
-                  span === s
-                    ? "bg-[#F3E600] text-black font-bold"
-                    : "bg-[#0a0a0a] text-[rgba(255,255,255,0.55)] hover:text-white hover:bg-[#141414]"
-                }`}
-              >
-                {spanLabels[s]}
-              </button>
-            ))}
-          </div>
+        <div
+          className="relative overflow-hidden rounded-[14px] border px-3 py-2 backdrop-blur-2xl"
+          style={{
+            background:
+              "linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 55%, rgba(0,0,0,0.18) 100%)",
+            borderColor: "rgba(255,255,255,0.08)",
+            borderTopColor: "rgba(255,255,255,0.14)",
+          }}
+        >
+          <div
+            className="pointer-events-none absolute inset-x-0 top-0 h-px"
+            style={{
+              background:
+                "linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.34) 50%, rgba(255,255,255,0) 100%)",
+            }}
+          />
+          <div
+            className="pointer-events-none absolute -left-10 top-1/2 h-20 w-20 -translate-y-1/2 rounded-full blur-3xl"
+            style={{ background: "var(--color-warning)", opacity: 0.08 }}
+          />
 
-          {/* Navigation */}
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={goPrev}
-              className="p-1.5 rounded-[7px] border border-[rgba(255,255,255,0.09)] text-[rgba(255,255,255,0.55)] hover:text-white hover:bg-[#141414] transition-colors active:scale-95"
-              aria-label="Previous"
+          <div className="relative z-10 flex flex-wrap items-center gap-2">
+            <div
+              className="flex items-center gap-1 rounded-[7px] p-1"
+              style={{
+                background: "rgba(255,255,255,0.02)",
+              }}
             >
-              <NavArrowLeft width={18} height={18} strokeWidth={2.0} />
-            </button>
-            <button
-              type="button"
-              onClick={goToday}
-              className="px-3 py-1.5 text-xs border border-[rgba(255,255,255,0.09)] rounded-[7px] text-[rgba(255,255,255,0.55)] hover:text-white hover:bg-[#141414] transition-colors active:scale-95"
+              {([7, 14, 30] as MultiDaySpan[]).map((s) => {
+                const isActive = span === s;
+                return (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => handleSpanChange(s)}
+                    className={`px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] transition-all duration-200 ${
+                      isActive
+                        ? "font-bold text-black"
+                        : "font-semibold text-[var(--color-fg-tertiary)] hover:text-[var(--color-fg-primary)]"
+                    }`}
+                    style={
+                      isActive
+                        ? {
+                            background: "rgba(243,230,0,0.14)",
+                            color: "var(--color-warning)",
+                            borderRadius: "var(--radius-sm)",
+                            boxShadow: "0 0 14px rgba(243,230,0,0.14)",
+                          }
+                        : {
+                            borderRadius: "var(--radius-sm)",
+                          }
+                    }
+                  >
+                    {spanLabels[s]}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div
+              className="flex items-center gap-1 rounded-[7px] p-1"
+              style={{
+                background: "rgba(255,255,255,0.02)",
+              }}
             >
-              {t(lang, "calendar_today")}
-            </button>
-            <button
-              type="button"
-              onClick={goNext}
-              className="p-1.5 rounded-[7px] border border-[rgba(255,255,255,0.09)] text-[rgba(255,255,255,0.55)] hover:text-white hover:bg-[#141414] transition-colors active:scale-95"
-              aria-label="Next"
+              <button
+                type="button"
+                onClick={goPrev}
+                className="h-8 w-8 rounded-[7px] text-[var(--color-fg-tertiary)] transition-all duration-200 hover:bg-[var(--state-hover-bg)] hover:text-[var(--color-fg-primary)] active:scale-[0.96]"
+                aria-label={t(lang, "calendar_prev")}
+              >
+                <NavArrowLeft width={16} height={16} strokeWidth={2.1} className="mx-auto" />
+              </button>
+              <button
+                type="button"
+                onClick={goToday}
+                className="h-8 rounded-[7px] px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--color-fg-secondary)] transition-all duration-200 hover:bg-[var(--state-hover-bg)] hover:text-[var(--color-fg-primary)] active:scale-[0.96]"
+              >
+                {t(lang, "calendar_today")}
+              </button>
+              <button
+                type="button"
+                onClick={goNext}
+                className="h-8 w-8 rounded-[7px] text-[var(--color-fg-tertiary)] transition-all duration-200 hover:bg-[var(--state-hover-bg)] hover:text-[var(--color-fg-primary)] active:scale-[0.96]"
+                aria-label={t(lang, "calendar_next")}
+              >
+                <NavArrowRight width={16} height={16} strokeWidth={2.1} className="mx-auto" />
+              </button>
+            </div>
+
+            <span
+              className="ml-auto rounded-[7px] px-3 py-1.5 text-[11px] font-semibold tracking-[0.08em] text-[var(--color-fg-secondary)]"
+              style={{
+                background: "rgba(255,255,255,0.02)",
+              }}
             >
-              <NavArrowRight width={18} height={18} strokeWidth={2.0} />
-            </button>
-            <span className="text-sm text-[rgba(255,255,255,0.55)] font-mono tracking-wider">
               {navLabel}
             </span>
           </div>

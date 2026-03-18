@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   LineChart,
   Line,
@@ -50,6 +50,8 @@ const COLORS: Record<QuestStatus, string> = {
   in_progress: "#55EAD4",
   completed: "#00FF9F",
 };
+
+const STATUS_ORDER: QuestStatus[] = ["planned", "in_progress", "completed"];
 
 // 60 days of smooth mock data — consecutive points differ by at most 1
 // [planned, in_progress, completed]
@@ -161,6 +163,8 @@ const CustomXTick = (
 
 const DROPDOWN_W = 256; // px — matches w-64
 const DROPDOWN_H = 220; // px — estimated max height
+
+const getQuestGlowId = (status: QuestStatus) => `quests-neon-${status}`;
 
 export default function QuestsChart({
   quests,
@@ -334,13 +338,10 @@ export default function QuestsChart({
       };
       const key = `${payload.date}-${status}`;
       const hasQuests = payload.questsBy[status].length > 0;
+      const color = COLORS[status];
       return (
-        <circle
+        <g
           key={key}
-          cx={cx}
-          cy={cy}
-          r={5}
-          fill={COLORS[status]}
           style={{ cursor: hasQuests ? "pointer" : "default", outline: "none" }}
           onMouseEnter={() =>
             hasQuests &&
@@ -366,7 +367,29 @@ export default function QuestsChart({
                 cy,
               );
           }}
-        />
+        >
+          <circle cx={cx} cy={cy} r={10} fill="transparent" />
+          <circle cx={cx} cy={cy} r={7} fill={color} opacity={0.12} />
+          <circle
+            cx={cx}
+            cy={cy}
+            r={5.5}
+            fill={color}
+            opacity={0.2}
+            style={{ filter: `blur(2px)` }}
+          />
+          <circle
+            cx={cx}
+            cy={cy}
+            r={3.5}
+            fill={color}
+            stroke="rgba(10,10,10,0.9)"
+            strokeWidth={1}
+            style={{
+              filter: `url(#${getQuestGlowId(status)}) drop-shadow(0 0 4px ${color}88)`,
+            }}
+          />
+        </g>
       );
     },
     [openTooltip, scheduleClose, togglePin],
@@ -449,6 +472,22 @@ export default function QuestsChart({
         ref={containerRef}
         className="relative w-full [&_*]:outline-none [&_*:focus]:outline-none [&_*:focus-visible]:outline-none"
       >
+        <div
+          className="pointer-events-none absolute -left-16 top-1/2 h-40 w-40 -translate-y-1/2 rounded-full"
+          style={{
+            background: "#55EAD4",
+            filter: "blur(70px)",
+            opacity: 0.08,
+          }}
+        />
+        <div
+          className="pointer-events-none absolute -right-12 top-1/3 h-44 w-44 rounded-full"
+          style={{
+            background: "#F3E600",
+            filter: "blur(80px)",
+            opacity: 0.07,
+          }}
+        />
         <ResponsiveContainer width="100%" height={chartHeight}>
           <LineChart
             data={chartData}
@@ -460,9 +499,28 @@ export default function QuestsChart({
             }}
             tabIndex={-1}
           >
+            <defs>
+              {STATUS_ORDER.map((status) => (
+                <filter
+                  key={status}
+                  id={getQuestGlowId(status)}
+                  x="-120%"
+                  y="-120%"
+                  width="340%"
+                  height="340%"
+                >
+                  <feGaussianBlur stdDeviation="2.4" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+              ))}
+            </defs>
             <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="rgba(255,255,255,0.06)"
+              strokeDasharray="0"
+              stroke="rgba(255,255,255,0.05)"
+              strokeWidth={0.5}
             />
             <XAxis
               dataKey="dayLabel"
@@ -496,30 +554,31 @@ export default function QuestsChart({
                 return labels[value] || value;
               }}
             />
-            <Line
-              type="monotone"
-              dataKey="planned"
-              stroke={COLORS.planned}
-              strokeWidth={2}
-              dot={makeDot("planned")}
-              activeDot={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="in_progress"
-              stroke={COLORS.in_progress}
-              strokeWidth={2}
-              dot={makeDot("in_progress")}
-              activeDot={false}
-            />
-            <Line
-              type="monotone"
-              dataKey="completed"
-              stroke={COLORS.completed}
-              strokeWidth={2}
-              dot={makeDot("completed")}
-              activeDot={false}
-            />
+            {STATUS_ORDER.map((status) => (
+              <Fragment key={status}>
+                <Line
+                  type="monotone"
+                  dataKey={status}
+                  stroke={COLORS[status]}
+                  strokeWidth={4.6}
+                  strokeOpacity={0.2}
+                  legendType="none"
+                  dot={false}
+                  activeDot={false}
+                  style={{ filter: "blur(2px)" }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey={status}
+                  stroke={COLORS[status]}
+                  strokeWidth={2.2}
+                  strokeOpacity={0.95}
+                  dot={makeDot(status)}
+                  activeDot={false}
+                  style={{ filter: `url(#${getQuestGlowId(status)})` }}
+                />
+              </Fragment>
+            ))}
           </LineChart>
         </ResponsiveContainer>
 

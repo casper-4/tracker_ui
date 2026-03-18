@@ -255,7 +255,7 @@ function QuestColumn({
             <li className="h-9 rounded-lg border border-dashed border-[#F3E600]/40 bg-[#F3E600]/5 flex items-center justify-center">
               <span
                 className="text-[10px] text-[#F3E600]/60 uppercase tracking-[0.2em]"
-                style={{ fontFamily: "Orbitron, sans-serif" }}
+                style={{ fontFamily: "var(--font-body)" }}
               >
                 {dropHereLabel}
               </span>
@@ -368,7 +368,7 @@ function QuestCard({
           <span
             className="tag-neon text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
             style={{
-              fontFamily: "Orbitron, sans-serif",
+              fontFamily: "var(--font-body)",
               background: `${firstColor}20`,
               color: firstColor,
             }}
@@ -380,7 +380,7 @@ function QuestCard({
               key={ss.name}
               className="tag-neon text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
               style={{
-                fontFamily: "Orbitron, sans-serif",
+                fontFamily: "var(--font-body)",
                 background: "rgba(255,255,255,0.07)",
                 color: "rgba(255,255,255,0.5)",
               }}
@@ -393,7 +393,7 @@ function QuestCard({
             <span
               className="tag-neon flex items-center gap-1 text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
               style={{
-                fontFamily: "Orbitron, sans-serif",
+                fontFamily: "var(--font-body)",
                 background: "rgba(85,234,212,0.12)",
                 color: "#55EAD4",
               }}

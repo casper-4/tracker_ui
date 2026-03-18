@@ -93,7 +93,7 @@ export default function MealDetailPanel({
       animate={{ width: PANEL_WIDTH, opacity: 1 }}
       exit={{ width: 0, opacity: 0 }}
       transition={{ duration: 0.28, ease: [0.25, 0, 0, 1] }}
-      className="h-full flex flex-col overflow-hidden shrink-0 py-3 pr-3 pl-2"
+      className="h-full flex flex-col overflow-hidden shrink-0 pt-6 pb-6 lg:pt-10 lg:pb-10 xl:pt-16 xl:pb-16 pr-10 pl-2"
       style={{ minWidth: 0 }}
       role="complementary"
       aria-label={meal.name}

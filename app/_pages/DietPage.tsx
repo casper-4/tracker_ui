@@ -364,7 +364,7 @@ function MealCard({
           <span
             className="tag-neon text-[8px] px-[10px] py-[5px] rounded-[7px] uppercase tracking-[0.2em] font-bold"
             style={{
-              fontFamily: "Orbitron, sans-serif",
+              fontFamily: "var(--font-body)",
               background: "rgba(85,234,212,0.12)",
               color: "var(--color-data)",
             }}

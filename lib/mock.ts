@@ -649,7 +649,7 @@ export type UserSettings = {
 };
 
 export const MOCK_USER_SETTINGS: UserSettings = {
-  language: "pl",
+  language: "en",
   theme: "dark",
   notificationsEnabled: true,
   autoAdvanceQuests: false,

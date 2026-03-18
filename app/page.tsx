@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import DashboardPage from "@/app/_pages/DashboardPage";
 import SkillsListPage from "@/app/_pages/SkillsListPage";
@@ -32,6 +32,9 @@ import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
 
 const MODULE_IN_BUILD: string[] = [];
+const SCROLLABLE_SELECTOR =
+  ".custom-scrollbar, .overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll, .overflow-y-scroll, .overflow-x-scroll";
+const SCROLLBAR_INTENT_ZONE_PX = 14;
 
 function ModuleInProgress() {
   const { lang } = useLang();
@@ -241,7 +244,95 @@ export default function TrackerUI() {
       return <ModuleInProgress key="in-build" />;
     }
     return <ModuleInProgress key="other" />;
-  }, [activeTab, selectedSkillId, questStatuses]);
+  }, [activeTab, selectedSkillId, questStatuses, skillColors]);
+
+  useEffect(() => {
+    let activeElement: HTMLElement | null = null;
+    let lockedElement: HTMLElement | null = null;
+
+    const setActiveElement = (next: HTMLElement | null) => {
+      if (activeElement === next) return;
+      activeElement?.classList.remove("scrollbar-intent-active");
+      next?.classList.add("scrollbar-intent-active");
+      activeElement = next;
+    };
+
+    const getScrollableAtPoint = (x: number, y: number): HTMLElement | null => {
+      const elements = document.elementsFromPoint(x, y);
+
+      for (const node of elements) {
+        if (!(node instanceof HTMLElement)) continue;
+        if (!node.matches(SCROLLABLE_SELECTOR)) continue;
+        if (node.classList.contains("scrollbar-none")) continue;
+
+        const hasVerticalScroll = node.scrollHeight > node.clientHeight;
+        const hasHorizontalScroll = node.scrollWidth > node.clientWidth;
+        if (!hasVerticalScroll && !hasHorizontalScroll) continue;
+
+        return node;
+      }
+
+      return null;
+    };
+
+    const isInsideRightIntentZone = (
+      element: HTMLElement,
+      clientX: number,
+      clientY: number,
+    ): boolean => {
+      const rect = element.getBoundingClientRect();
+      if (clientY < rect.top || clientY > rect.bottom) return false;
+      const deltaRight = rect.right - clientX;
+      return deltaRight >= 0 && deltaRight <= SCROLLBAR_INTENT_ZONE_PX;
+    };
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (lockedElement) {
+        setActiveElement(lockedElement);
+        return;
+      }
+
+      const candidate = getScrollableAtPoint(event.clientX, event.clientY);
+      if (candidate && isInsideRightIntentZone(candidate, event.clientX, event.clientY)) {
+        setActiveElement(candidate);
+        return;
+      }
+
+      setActiveElement(null);
+    };
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const candidate = getScrollableAtPoint(event.clientX, event.clientY);
+      if (candidate && isInsideRightIntentZone(candidate, event.clientX, event.clientY)) {
+        lockedElement = candidate;
+        setActiveElement(candidate);
+      }
+    };
+
+    const clearLock = () => {
+      lockedElement = null;
+    };
+
+    const clearActive = () => {
+      lockedElement = null;
+      setActiveElement(null);
+    };
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    window.addEventListener("pointerdown", handlePointerDown, { passive: true });
+    window.addEventListener("pointerup", clearLock, { passive: true });
+    window.addEventListener("pointercancel", clearLock, { passive: true });
+    window.addEventListener("blur", clearActive);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("pointerup", clearLock);
+      window.removeEventListener("pointercancel", clearLock);
+      window.removeEventListener("blur", clearActive);
+      activeElement?.classList.remove("scrollbar-intent-active");
+    };
+  }, []);
 
   return (
     <div className="flex w-full h-screen bg-black text-white font-mono overflow-hidden">
@@ -250,6 +341,7 @@ export default function TrackerUI() {
         setActiveTab={setActiveTab}
         selectedSkillId={selectedSkillId}
         setSelectedSkillId={setSelectedSkillId}
+        skillColors={skillColors}
         collapsed={sidebarCollapsed}
         setCollapsed={setSidebarCollapsed}
       />

@@ -363,20 +363,20 @@ export default function DashboardPage({
                       x={labelX}
                       y={labelY}
                       fill={isActive ? node.color : T.textSupporting}
-                      fontSize="3.2"
-                      fontFamily="var(--font-mono)"
-                      textAnchor="middle"
-                      letterSpacing="0.06em"
                       style={{
+                        fontSize: "5.5",
                         transition: "fill 0.2s ease",
                         userSelect: "none",
                       }}
+                      fontFamily="var(--font-mono)"
+                      textAnchor="middle"
+                      letterSpacing="0.08em"
                     >
                       {node.name.split(" ").map((word, wi, arr) => (
                         <tspan
                           key={wi}
                           x={labelX}
-                          dy={wi === 0 ? (arr.length > 1 ? "-1.8" : "0") : "4"}
+                          dy={wi === 0 ? (arr.length > 1 ? "-2.3" : "0") : "5"}
                         >
                           {word}
                         </tspan>
@@ -751,7 +751,7 @@ function PlanItem({
           {title}
         </span>
       </div>
-      {/* Tag — Orbitron font, no border, top-edge gloss, neon-flicker on hover
+        {/* Tag — accent label style, no border, top-edge gloss, neon-flicker on hover
           Clickable when linked to a skill → navigates to skill detail */}
       <span
         className="tag-neon relative overflow-hidden inline-block shrink-0"

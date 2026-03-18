@@ -293,7 +293,10 @@ export default function TrackerUI() {
       }
 
       const candidate = getScrollableAtPoint(event.clientX, event.clientY);
-      if (candidate && isInsideRightIntentZone(candidate, event.clientX, event.clientY)) {
+      if (
+        candidate &&
+        isInsideRightIntentZone(candidate, event.clientX, event.clientY)
+      ) {
         setActiveElement(candidate);
         return;
       }
@@ -303,7 +306,10 @@ export default function TrackerUI() {
 
     const handlePointerDown = (event: PointerEvent) => {
       const candidate = getScrollableAtPoint(event.clientX, event.clientY);
-      if (candidate && isInsideRightIntentZone(candidate, event.clientX, event.clientY)) {
+      if (
+        candidate &&
+        isInsideRightIntentZone(candidate, event.clientX, event.clientY)
+      ) {
         lockedElement = candidate;
         setActiveElement(candidate);
       }
@@ -318,8 +324,12 @@ export default function TrackerUI() {
       setActiveElement(null);
     };
 
-    window.addEventListener("pointermove", handlePointerMove, { passive: true });
-    window.addEventListener("pointerdown", handlePointerDown, { passive: true });
+    window.addEventListener("pointermove", handlePointerMove, {
+      passive: true,
+    });
+    window.addEventListener("pointerdown", handlePointerDown, {
+      passive: true,
+    });
     window.addEventListener("pointerup", clearLock, { passive: true });
     window.addEventListener("pointercancel", clearLock, { passive: true });
     window.addEventListener("blur", clearActive);

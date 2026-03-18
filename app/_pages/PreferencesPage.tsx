@@ -1,263 +1,137 @@
 "use client";
 
-import { useState } from "react";
-import { Bell, Calendar, CheckSquare, Clock, Globe, Zap } from "lucide-react";
-import { MOCK_USER, MOCK_USER_SETTINGS } from "@/lib/mock";
-import type { UserSettings } from "@/lib/mock";
+import { Globe } from "iconoir-react";
+import { MOCK_USER } from "@/lib/mock";
 import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
 
-// ─── Setting row (toggle) ────────────────────────────────────────────────────
-
-type SettingRowProps = {
-  icon: React.ReactNode;
-  label: string;
-  value: boolean;
-  onToggle: VoidFunction;
-};
-
-function SettingToggleRow({ icon, label, value, onToggle }: SettingRowProps) {
-  return (
-    <div className="flex items-center justify-between px-5 py-4">
-      <div className="flex items-center gap-3">
-        {icon}
-        <p className="text-sm text-[#e0e0e0]">{label}</p>
-      </div>
-      <button
-        onClick={onToggle}
-        className={`w-10 h-5 border transition-colors relative shrink-0 ${
-          value
-            ? "border-[#facc15] bg-[#facc15]/10"
-            : "border-[#1f1f1f] bg-transparent"
-        }`}
-      >
-        <span
-          className={`absolute top-0.5 w-3.5 h-3.5 transition-all ${
-            value
-              ? "left-[calc(100%-1.125rem)] bg-[#facc15]"
-              : "left-0.5 bg-[#444]"
-          }`}
-        />
-      </button>
-    </div>
-  );
-}
-
-// ─── Page ────────────────────────────────────────────────────────────────────
+const GLASS_BG =
+  "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)";
 
 export default function PreferencesPage() {
   const { lang, setLang } = useLang();
   const user = MOCK_USER;
-  // TODO: [DATA] persist settings changes to storage
-  const [settings, setSettings] = useState<UserSettings>(MOCK_USER_SETTINGS);
-
-  const toggle = (key: keyof UserSettings) => {
-    setSettings((prev) => ({
-      ...prev,
-      [key]: !prev[key as keyof typeof prev],
-    }));
-  };
 
   const joinedDate = new Date(user.joinedAt).toLocaleDateString(
     lang === "pl" ? "pl-PL" : "en-US",
     { year: "numeric", month: "short" },
   );
 
-  return (
-    <div className="max-w-3xl mx-auto space-y-8">
-      {/* ── User profile ────────────────────────────────────────────────── */}
-      <section>
-        <p className="text-[10px] uppercase tracking-widest text-[#666] mb-4">
-          // {t(lang, "prefs_profile")}
-        </p>
-        <div className="border border-[#1f1f1f] bg-[#0a0a0a] p-6 flex items-start gap-6">
-          {/* Avatar */}
-          <div className="w-16 h-16 rounded-full border border-[#facc15]/40 bg-[#facc15]/10 flex items-center justify-center shrink-0">
-            <span className="text-[#facc15] font-mono font-bold text-xl">
-              {user.avatarInitials}
-            </span>
-          </div>
+  const profileFields = [
+    { key: "prefs_name", value: user.name },
+    { key: "prefs_username", value: user.handle },
+    { key: "prefs_streak", value: String(user.streakDays) },
+    { key: "prefs_joined", value: joinedDate },
+  ] as const;
 
-          <div className="flex-1 min-w-0">
-            <div className="flex items-baseline gap-3 flex-wrap">
-              <h3 className="text-xl font-bold text-white tracking-tight">
-                {user.name}
-              </h3>
-              <span className="text-[10px] uppercase tracking-widest text-[#555]">
-                {user.handle}
+  return (
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-8">
+      <section>
+        <div
+          className="relative overflow-hidden rounded-[var(--card-radius)] border border-[color:var(--card-border)] p-6"
+          style={{
+            background: GLASS_BG,
+            backdropFilter: "var(--card-backdrop)",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-[-48px] top-[-54px] h-36 w-36 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, color-mix(in oklab, var(--color-warning) 38%, transparent) 0%, transparent 72%)",
+              filter: "blur(14px)",
+              opacity: 0.38,
+            }}
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 h-px"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, var(--color-border-strong) 20%, var(--color-border-strong) 80%, transparent 100%)",
+            }}
+          />
+
+          <div className="relative flex items-start gap-5">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-[color:var(--color-warning)]/45 bg-[color:var(--color-warning-subtle)]">
+              <span className="text-[var(--text-xl)] font-bold text-[color:var(--color-warning)]">
+                {user.avatarInitials}
               </span>
             </div>
-            <p className="text-sm text-[#888] mt-1">{user.bio}</p>
 
-            {/* Stats row */}
-            <div className="mt-5 grid grid-cols-4 gap-4 max-w-sm">
-              <div>
-                <p className="text-[10px] uppercase tracking-widest text-[#555] mb-1">
-                  LVL
-                </p>
-                <p className="text-lg font-mono font-bold text-[#facc15]">
-                  {user.level}
-                </p>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest text-[#555] mb-1">
-                  XP
-                </p>
-                <p className="text-lg font-mono font-bold text-white">
-                  {user.totalXP.toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest text-[#555] mb-1">
-                  {t(lang, "prefs_streak")}
-                </p>
-                <p className="text-lg font-mono font-bold text-white">
-                  {user.streakDays}d
-                </p>
-              </div>
-              <div>
-                <p className="text-[10px] uppercase tracking-widest text-[#555] mb-1">
-                  {t(lang, "prefs_joined")}
-                </p>
-                <p className="text-sm font-mono text-[#666]">{joinedDate}</p>
+            <div className="min-w-0 flex-1">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+                {profileFields.map((field) => (
+                  <div key={field.key}>
+                    <p className="mb-1 text-[var(--text-2xs)] uppercase tracking-[0.08em] text-[color:var(--color-fg-subtle)]">
+                      {t(lang, field.key)}
+                    </p>
+                    <p className="truncate text-[var(--text-md)] font-semibold text-[color:var(--color-fg-primary)]">
+                      {field.value}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Language ────────────────────────────────────────────────────── */}
       <section>
-        <p className="text-[10px] uppercase tracking-widest text-[#666] mb-4">
-          // {t(lang, "prefs_language")}
-        </p>
-        <div className="border border-[#1f1f1f] bg-[#0a0a0a] px-5 py-4 flex items-center justify-between">
+        <div
+          className="relative overflow-hidden rounded-[var(--card-radius)] border border-[color:var(--card-border)] px-5 py-4"
+          style={{
+            background: GLASS_BG,
+            backdropFilter: "var(--card-backdrop)",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-x-0 top-0 h-px"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, var(--color-border-strong) 22%, var(--color-border-strong) 78%, transparent 100%)",
+            }}
+          />
+
           <div className="flex items-center gap-3">
-            <Globe className="w-4 h-4 text-[#666]" />
+            <Globe
+              width={16}
+              height={16}
+              strokeWidth={1.9}
+              className="text-[color:var(--color-fg-subtle)]"
+            />
             <div>
-              <p className="text-sm text-[#e0e0e0]">
+              <p className="mb-1 text-[var(--text-2xs)] uppercase tracking-[0.08em] text-[color:var(--color-fg-subtle)]">
                 {t(lang, "prefs_language")}
               </p>
-              <p className="text-[10px] text-[#555] mt-0.5">
+              <p className="text-[var(--text-sm)] text-[color:var(--color-fg-primary)]">
                 {t(lang, "prefs_language_desc")}
               </p>
             </div>
           </div>
-          <div className="flex gap-1 shrink-0">
-            {(["pl", "en"] as const).map((l) => (
+
+          <div className="mt-4 flex gap-2 sm:mt-3 sm:justify-end">
+            {([
+              { id: "pl", labelKey: "prefs_language_pl" },
+              { id: "en", labelKey: "prefs_language_en" },
+            ] as const).map((option) => (
               <button
-                key={l}
-                onClick={() => setLang(l)}
-                className={`px-4 py-1.5 text-[10px] uppercase tracking-widest border transition-colors ${
-                  lang === l
-                    ? "border-[#facc15] text-[#facc15] bg-[#facc15]/5"
-                    : "border-[#1f1f1f] text-[#555] hover:text-[#888] hover:border-[#333]"
+                key={option.id}
+                onClick={() => setLang(option.id)}
+                className={`rounded-[var(--btn-radius)] border px-3 py-1.5 text-[var(--text-2xs)] font-semibold uppercase tracking-[0.18em] transition-[transform,background-color,color,border-color] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] active:scale-[var(--state-btn-press-scale)] ${
+                  lang === option.id
+                    ? "border-[color:var(--color-warning)] bg-[color:var(--color-warning-subtle)] text-[color:var(--color-warning)]"
+                    : "border-[color:var(--color-border-default)] text-[color:var(--color-fg-tertiary)] hover:border-[color:var(--color-border-strong)] hover:bg-[color:var(--state-hover-bg)] hover:text-[color:var(--color-fg-primary)]"
                 }`}
+                aria-pressed={lang === option.id}
               >
-                {l}
+                {t(lang, option.labelKey)}
               </button>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── App settings ────────────────────────────────────────────────── */}
-      <section>
-        <p className="text-[10px] uppercase tracking-widest text-[#666] mb-4">
-          // {t(lang, "prefs_settings")}
-        </p>
-        <div className="border border-[#1f1f1f] bg-[#0a0a0a] divide-y divide-[#1f1f1f]">
-          <SettingToggleRow
-            icon={<Bell className="w-4 h-4 text-[#666]" />}
-            label={t(lang, "prefs_notifications")}
-            value={settings.notificationsEnabled}
-            onToggle={() => toggle("notificationsEnabled")}
-          />
-
-          <SettingToggleRow
-            icon={<Zap className="w-4 h-4 text-[#666]" />}
-            label={t(lang, "prefs_auto_advance")}
-            value={settings.autoAdvanceQuests}
-            onToggle={() => toggle("autoAdvanceQuests")}
-          />
-
-          <SettingToggleRow
-            icon={<CheckSquare className="w-4 h-4 text-[#666]" />}
-            label={t(lang, "prefs_show_completed")}
-            value={settings.showCompletedQuests}
-            onToggle={() => toggle("showCompletedQuests")}
-          />
-
-          {/* Week starts on */}
-          <div className="flex items-center justify-between px-5 py-4">
-            <div className="flex items-center gap-3">
-              <Calendar className="w-4 h-4 text-[#666]" />
-              <p className="text-sm text-[#e0e0e0]">
-                {t(lang, "prefs_week_start")}
-              </p>
-            </div>
-            <div className="flex gap-1">
-              {(["monday", "sunday"] as const).map((d) => (
-                <button
-                  key={d}
-                  onClick={() =>
-                    setSettings((p) => ({ ...p, weekStartsOn: d }))
-                  }
-                  className={`px-3 py-1.5 text-[10px] uppercase tracking-widest border transition-colors ${
-                    settings.weekStartsOn === d
-                      ? "border-[#facc15] text-[#facc15] bg-[#facc15]/5"
-                      : "border-[#1f1f1f] text-[#555] hover:text-[#888] hover:border-[#333]"
-                  }`}
-                >
-                  {t(
-                    lang,
-                    d === "monday"
-                      ? "prefs_week_start_monday"
-                      : "prefs_week_start_sunday",
-                  )}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Daily goal hours */}
-          <div className="flex items-center justify-between px-5 py-4">
-            <div className="flex items-center gap-3">
-              <Clock className="w-4 h-4 text-[#666]" />
-              <p className="text-sm text-[#e0e0e0]">
-                {t(lang, "prefs_daily_goal")}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() =>
-                  setSettings((p) => ({
-                    ...p,
-                    dailyGoalHours: Math.max(1, p.dailyGoalHours - 1),
-                  }))
-                }
-                className="w-6 h-6 border border-[#1f1f1f] text-[#666] hover:text-white hover:border-[#333] flex items-center justify-center text-sm font-mono transition-colors"
-              >
-                −
-              </button>
-              <span className="text-sm font-mono text-[#facc15] w-5 text-center">
-                {settings.dailyGoalHours}
-              </span>
-              <button
-                onClick={() =>
-                  setSettings((p) => ({
-                    ...p,
-                    dailyGoalHours: Math.min(12, p.dailyGoalHours + 1),
-                  }))
-                }
-                className="w-6 h-6 border border-[#1f1f1f] text-[#666] hover:text-white hover:border-[#333] flex items-center justify-center text-sm font-mono transition-colors"
-              >
-                +
-              </button>
-              <span className="text-[10px] text-[#555] uppercase tracking-widest ml-1">
-                h
-              </span>
-            </div>
           </div>
         </div>
       </section>

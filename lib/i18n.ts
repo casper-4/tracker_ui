@@ -245,7 +245,11 @@ export const translations = {
 
     // Preferences
     prefs_profile: "Profil",
+    prefs_name: "Imię",
+    prefs_username: "Nazwa użytkownika",
     prefs_language: "Język",
+    prefs_language_pl: "Polski",
+    prefs_language_en: "Angielski",
     prefs_language_desc: "Język interfejsu aplikacji",
     prefs_settings: "Ustawienia",
     prefs_notifications: "Powiadomienia",
@@ -509,7 +513,11 @@ export const translations = {
 
     // Preferences
     prefs_profile: "Profile",
+    prefs_name: "Name",
+    prefs_username: "Username",
     prefs_language: "Language",
+    prefs_language_pl: "Polish",
+    prefs_language_en: "English",
     prefs_language_desc: "Interface language",
     prefs_settings: "Settings",
     prefs_notifications: "Notifications",

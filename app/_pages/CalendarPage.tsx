@@ -42,6 +42,14 @@ function addDays(d: Date, n: number): Date {
   return out;
 }
 
+function isScrolledToTop(el: HTMLElement): boolean {
+  return el.scrollTop <= 0;
+}
+
+function isScrolledToBottom(el: HTMLElement): boolean {
+  return el.scrollTop + el.clientHeight >= el.scrollHeight - 1;
+}
+
 function sameDay(a: Date, b: Date): boolean {
   return getStartOfDay(a).getTime() === getStartOfDay(b).getTime();
 }
@@ -68,11 +76,15 @@ type CalendarPageProps = {
 export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
   const { lang } = useLang();
   const today = useMemo(() => getStartOfDay(new Date()), []);
+  const wheelNavCooldownMs = 220;
 
   const [span, setSpan] = useState<MultiDaySpan>(7);
   // rangeStart = first day of the wide multi-day view
   const [rangeStart, setRangeStart] = useState<Date>(() =>
     getStartOfWeek(new Date()),
+  );
+  const [focusedDay, setFocusedDay] = useState<Date>(() =>
+    getStartOfDay(new Date()),
   );
   // TODO: [DATA] persistence will go here — simple useState for drag/pin state
   const [overrides, setOverrides] = useState<Record<string, QuestOverride>>({});
@@ -80,6 +92,8 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
   const [draggedQuestId, setDraggedQuestId] = useState<string | null>(null);
   const [dropTarget, setDropTarget] = useState<DropTarget>(null);
   const [pinnedDragOver, setPinnedDragOver] = useState(false);
+  const lastMainWheelNavAt = useRef(0);
+  const lastDayWheelNavAt = useRef(0);
 
   const handleChipDragEnd = useCallback(() => {
     setDraggedQuestId(null);
@@ -145,20 +159,73 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
   // Navigation: move range by span
   const goPrev = useCallback(() => {
     setRangeStart((d) => addDays(d, -span));
+    setFocusedDay((d) => addDays(d, -span));
   }, [span]);
 
   const goNext = useCallback(() => {
     setRangeStart((d) => addDays(d, span));
+    setFocusedDay((d) => addDays(d, span));
   }, [span]);
 
   const goToday = useCallback(() => {
     setRangeStart(getStartOfWeek(new Date()));
+    setFocusedDay(getStartOfDay(new Date()));
   }, []);
 
   const handleSpanChange = useCallback((newSpan: MultiDaySpan) => {
     setSpan(newSpan);
     setRangeStart(getStartOfWeek(new Date()));
+    setFocusedDay(getStartOfDay(new Date()));
   }, []);
+
+  const goPrevDay = useCallback(() => {
+    setFocusedDay((d) => addDays(d, -1));
+  }, []);
+
+  const goNextDay = useCallback(() => {
+    setFocusedDay((d) => addDays(d, 1));
+  }, []);
+
+  const handleMainWheel = useCallback(
+    (e: React.WheelEvent<HTMLElement>) => {
+      const container = e.currentTarget;
+      const nowTs = Date.now();
+      if (nowTs - lastMainWheelNavAt.current < wheelNavCooldownMs) return;
+
+      if (e.deltaY > 0 && isScrolledToBottom(container)) {
+        e.preventDefault();
+        lastMainWheelNavAt.current = nowTs;
+        setRangeStart((d) => addDays(d, span));
+        return;
+      }
+
+      if (e.deltaY < 0 && isScrolledToTop(container)) {
+        e.preventDefault();
+        lastMainWheelNavAt.current = nowTs;
+        setRangeStart((d) => addDays(d, -span));
+      }
+    },
+    [span],
+  );
+
+  const handleDayWheel = useCallback((e: React.WheelEvent<HTMLElement>) => {
+    const container = e.currentTarget;
+    const nowTs = Date.now();
+    if (nowTs - lastDayWheelNavAt.current < wheelNavCooldownMs) return;
+
+    if (e.deltaY > 0 && isScrolledToBottom(container)) {
+      e.preventDefault();
+      lastDayWheelNavAt.current = nowTs;
+      goNextDay();
+      return;
+    }
+
+    if (e.deltaY < 0 && isScrolledToTop(container)) {
+      e.preventDefault();
+      lastDayWheelNavAt.current = nowTs;
+      goPrevDay();
+    }
+  }, [goNextDay, goPrevDay]);
 
   const rangeEnd = useMemo(
     () => addDays(rangeStart, span - 1),
@@ -407,7 +474,7 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
             />
             <div>
               <p className="text-xs text-white font-mono mt-0.5">
-                {today
+                {focusedDay
                   .toLocaleDateString("pl-PL", {
                     weekday: "long",
                     day: "numeric",
@@ -417,9 +484,12 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
               </p>
             </div>
           </div>
-          <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <div
+            className="flex-1 overflow-y-auto custom-scrollbar"
+            onWheel={handleDayWheel}
+          >
             <NarrowDayView
-              date={today}
+              date={focusedDay}
               quests={questsWithPlanned}
               skillById={skillById}
               onDropSlot={handleDropOnSlot}
@@ -442,6 +512,7 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
             border: "1px solid rgba(255,255,255,0.09)",
             borderTop: "1px solid rgba(255,255,255,0.16)",
           }}
+          onWheel={handleMainWheel}
         >
           {span <= 14 ? (
             <MultiDayHourlyView

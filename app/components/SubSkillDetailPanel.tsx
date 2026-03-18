@@ -48,7 +48,10 @@ export default function SubSkillDetailPanel({
 
   const completion = useMemo(() => {
     if (!subSkill.quests.length) return 0;
-    const total = subSkill.quests.reduce((acc, quest) => acc + quest.percentage, 0);
+    const total = subSkill.quests.reduce(
+      (acc, quest) => acc + quest.percentage,
+      0,
+    );
     return Math.round(total / subSkill.quests.length);
   }, [subSkill.quests]);
 
@@ -172,14 +175,20 @@ export default function SubSkillDetailPanel({
               </div>
 
               <div>
-                <SectionLabel>{t(lang, "subskill_belongs_aspect")}</SectionLabel>
-                <p className="mt-2 text-[12px] text-white/65">{aspectName || "—"}</p>
+                <SectionLabel>
+                  {t(lang, "subskill_belongs_aspect")}
+                </SectionLabel>
+                <p className="mt-2 text-[12px] text-white/65">
+                  {aspectName || "—"}
+                </p>
               </div>
 
               <div>
                 <SectionLabel>{t(lang, "subskill_linked_quests")}</SectionLabel>
                 {linkedQuests.length === 0 ? (
-                  <p className="mt-2 text-[12px] text-white/35">{t(lang, "subskill_no_quests")}</p>
+                  <p className="mt-2 text-[12px] text-white/35">
+                    {t(lang, "subskill_no_quests")}
+                  </p>
                 ) : (
                   <div className="mt-2 space-y-1.5">
                     {linkedQuests.map((quest) => (
@@ -194,7 +203,9 @@ export default function SubSkillDetailPanel({
                         }}
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-[12px] text-white/80">{quest.name}</span>
+                          <span className="text-[12px] text-white/80">
+                            {quest.name}
+                          </span>
                           <span className="text-[10px] uppercase tracking-[0.1em] text-white/35">
                             {Math.round(quest.duration / 60)} min
                           </span>
@@ -231,8 +242,13 @@ function StatPill({
         borderTop: "1px solid rgba(255,255,255,0.10)",
       }}
     >
-      <p className="text-[9px] uppercase tracking-[0.1em] text-white/30">{label}</p>
-      <p className="text-[16px] font-mono font-bold mt-1" style={{ color: accent }}>
+      <p className="text-[9px] uppercase tracking-[0.1em] text-white/30">
+        {label}
+      </p>
+      <p
+        className="text-[16px] font-mono font-bold mt-1"
+        style={{ color: accent }}
+      >
         {value}
       </p>
     </div>

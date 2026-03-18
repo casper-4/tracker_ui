@@ -751,7 +751,7 @@ function PlanItem({
           {title}
         </span>
       </div>
-        {/* Tag — accent label style, no border, top-edge gloss, neon-flicker on hover
+      {/* Tag — accent label style, no border, top-edge gloss, neon-flicker on hover
           Clickable when linked to a skill → navigates to skill detail */}
       <span
         className="tag-neon relative overflow-hidden inline-block shrink-0"

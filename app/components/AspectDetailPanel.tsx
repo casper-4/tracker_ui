@@ -44,7 +44,10 @@ export default function AspectDetailPanel({
     return () => window.removeEventListener("keydown", handler);
   }, [onClose]);
 
-  const recentHistory = useMemo(() => aspect.history.slice(-30), [aspect.history]);
+  const recentHistory = useMemo(
+    () => aspect.history.slice(-30),
+    [aspect.history],
+  );
   const bars = useMemo(() => aspect.history.slice(-20), [aspect.history]);
   const avg30d = useMemo(() => {
     if (!recentHistory.length) return 0;
@@ -243,17 +246,31 @@ export default function AspectDetailPanel({
                     ))}
                   </div>
                   <div className="mt-3 grid grid-cols-3 gap-2">
-                    <StatPill label={t(lang, "aspect_avg_30d")} value={`${avg30d}%`} />
-                    <StatPill label={t(lang, "aspect_peak_30d")} value={`${peak30d}%`} />
-                    <StatPill label={t(lang, "aspect_low_30d")} value={`${low30d}%`} />
+                    <StatPill
+                      label={t(lang, "aspect_avg_30d")}
+                      value={`${avg30d}%`}
+                    />
+                    <StatPill
+                      label={t(lang, "aspect_peak_30d")}
+                      value={`${peak30d}%`}
+                    />
+                    <StatPill
+                      label={t(lang, "aspect_low_30d")}
+                      value={`${low30d}%`}
+                    />
                   </div>
                 </div>
               </div>
 
               <div>
-                <SectionLabel>{t(lang, "aspect_related_subskills")}</SectionLabel>
+                <SectionLabel>
+                  {t(lang, "aspect_related_subskills")}
+                </SectionLabel>
                 {subSkills.length === 0 ? (
-                  <p className="mt-2 text-[12px]" style={{ color: "rgba(255,255,255,0.35)" }}>
+                  <p
+                    className="mt-2 text-[12px]"
+                    style={{ color: "rgba(255,255,255,0.35)" }}
+                  >
                     {t(lang, "aspect_no_subskills")}
                   </p>
                 ) : (
@@ -270,12 +287,18 @@ export default function AspectDetailPanel({
                         }}
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-[12px] text-white/80">{subSkill.name}</span>
+                          <span className="text-[12px] text-white/80">
+                            {subSkill.name}
+                          </span>
                           <div className="flex items-center gap-1.5 text-white/35">
                             <span className="text-[10px] uppercase tracking-[0.12em]">
                               {t(lang, "subskill_level")} {subSkill.level}
                             </span>
-                            <NavArrowRight width={12} height={12} strokeWidth={1.8} />
+                            <NavArrowRight
+                              width={12}
+                              height={12}
+                              strokeWidth={1.8}
+                            />
                           </div>
                         </div>
                       </button>
@@ -300,8 +323,12 @@ function StatPill({ label, value }: { label: string; value: string }) {
         border: "1px solid rgba(255,255,255,0.06)",
       }}
     >
-      <p className="text-[9px] uppercase tracking-[0.1em] text-white/30">{label}</p>
-      <p className="text-[12px] font-mono font-bold text-white/70 mt-0.5">{value}</p>
+      <p className="text-[9px] uppercase tracking-[0.1em] text-white/30">
+        {label}
+      </p>
+      <p className="text-[12px] font-mono font-bold text-white/70 mt-0.5">
+        {value}
+      </p>
     </div>
   );
 }

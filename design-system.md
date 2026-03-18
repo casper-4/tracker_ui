@@ -285,37 +285,47 @@ pointer-events: none;
 ### Cards hover/press
 
 ```css
-/* hover  */ transform: translateY(var(--state-card-hover-y)); /* -2px */
-/* press  */ transform: scale(0.994);
+/* hover  */
+transform: translateY(var(--state-card-hover-y)); /* -2px */
+/* press  */
+transform: scale(0.994);
 ```
 
 ### Buttons press
 
 ```css
-/* press  */ transform: scale(var(--state-btn-press-scale)); /* 0.96 */
+/* press  */
+transform: scale(var(--state-btn-press-scale)); /* 0.96 */
 ```
 
 ---
 
-## Glass Cards (Tier 3: --card-*)
+## Glass Cards (Tier 3: --card-\*)
 
 Every card/widget uses this pattern via component tokens:
 
 ```css
-background:      var(--card-bg);
-border:          1px solid var(--card-border);
-border-top:      1px solid var(--card-border-top);
-border-radius:   var(--card-radius);
+background: var(--card-bg);
+border: 1px solid var(--card-border);
+border-top: 1px solid var(--card-border-top);
+border-radius: var(--card-radius);
 backdrop-filter: var(--card-backdrop);
-padding:         var(--card-padding);
+padding: var(--card-padding);
 ```
 
 Top-edge shine line (::after):
 
 ```css
-position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+position: absolute;
+top: 0;
+left: 10%;
+right: 10%;
+height: 1px;
 background: linear-gradient(
-  90deg, transparent, rgba(255,255,255,0.22) 50%, transparent
+  90deg,
+  transparent,
+  rgba(255, 255, 255, 0.22) 50%,
+  transparent
 );
 ```
 
@@ -325,33 +335,42 @@ opacity 0 → 1 on hover, follows `mousemove`.
 Colored glow blob (positioned behind content):
 
 ```css
-position: absolute; border-radius: 50%;
-filter: blur(70px); opacity: 0.15;
+position: absolute;
+border-radius: 50%;
+filter: blur(70px);
+opacity: 0.15;
 /* color = --color-success / --color-warning / etc. for this widget */
 ```
 
 ---
 
-## Tags (Tier 3: --tag-*)
+## Tags (Tier 3: --tag-\*)
 
 **Orbitron only. No borders.**
 
 ```css
-font-family:    var(--tag-font-family);    /* Orbitron */
-font-size:      var(--tag-font-size);      /* 10px */
-font-weight:    700;
+font-family: var(--tag-font-family); /* Orbitron */
+font-size: var(--tag-font-size); /* 10px */
+font-weight: 700;
 letter-spacing: var(--tag-letter-spacing); /* 0.2em */
 text-transform: uppercase;
-padding:        var(--tag-padding);        /* 5px 10px */
-border-radius:  var(--tag-radius);         /* 7px */
-border:         none;
+padding: var(--tag-padding); /* 5px 10px */
+border-radius: var(--tag-radius); /* 7px */
+border: none;
 ```
 
 Top-edge gloss (::before):
 
 ```css
-top: 0; left: 0; right: 0; height: 50%;
-background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+top: 0;
+left: 0;
+right: 0;
+height: 50%;
+background: linear-gradient(
+  180deg,
+  rgba(255, 255, 255, 0.08) 0%,
+  transparent 100%
+);
 ```
 
 Hover: `neon-flicker` animation (single-shot, not looping) + `filter: brightness(1.15)`.
@@ -372,43 +391,47 @@ tag-muted:   background var(--primitive-white-04);   color var(--color-fg-subtle
 
 ---
 
-## Buttons (Tier 3: --btn-*)
+## Buttons (Tier 3: --btn-\*)
 
 ```css
-padding:       var(--btn-padding);     /* 9px 18px */
-border-radius: var(--btn-radius);      /* 7px */
-font-size:     var(--btn-font-size);   /* 13px */
-font-weight:   var(--btn-font-weight); /* 600 */
-gap:           var(--btn-gap);         /* 8px */
+padding: var(--btn-padding); /* 9px 18px */
+border-radius: var(--btn-radius); /* 7px */
+font-size: var(--btn-font-size); /* 13px */
+font-weight: var(--btn-font-weight); /* 600 */
+gap: var(--btn-gap); /* 8px */
 ```
 
-| Variant      | Background              | Color                    | Use             |
-| ------------ | ----------------------- | ------------------------ | --------------- |
-| `btn-white`  | `--color-fg-primary`    | `--color-bg-base`        | primary CTA     |
-| `btn-green`  | `--color-success`       | `--color-bg-base`        | add / confirm   |
-| `btn-yellow` | `--color-warning`       | `--color-bg-base`        | log / update    |
-| `btn-red`    | `--color-danger`        | `--color-fg-primary`     | delete / danger |
-| `btn-ghost`  | transparent             | `--color-fg-subtle`      | secondary       |
+| Variant      | Background           | Color                | Use             |
+| ------------ | -------------------- | -------------------- | --------------- |
+| `btn-white`  | `--color-fg-primary` | `--color-bg-base`    | primary CTA     |
+| `btn-green`  | `--color-success`    | `--color-bg-base`    | add / confirm   |
+| `btn-yellow` | `--color-warning`    | `--color-bg-base`    | log / update    |
+| `btn-red`    | `--color-danger`     | `--color-fg-primary` | delete / danger |
+| `btn-ghost`  | transparent          | `--color-fg-subtle`  | secondary       |
 
 Colored buttons have a matching neon glow:
+
 ```css
 box-shadow: var(--shadow-success); /* or --shadow-warning, etc. */
 ```
 
 All buttons:
+
 - `::after` overlay `rgba(255,255,255,0)` → `0.06` on hover
 - `scale(var(--state-btn-press-scale))` on click
 - Always include an Iconoir icon on the left, `strokeWidth={2.0}`
 
 ---
 
-## Progress Bars (Tier 3: --progress-*)
+## Progress Bars (Tier 3: --progress-\*)
 
 Wrap every progress bar in `.progress-wrap`. CSS in globals.css handles the rest.
 
 ```css
-/* track */  height: var(--progress-track-height);       /* 3px, → 5px on hover */
-/* dot */    width/height: var(--progress-dot-size);     /* 6px, → 9px on hover */
+/* track */
+height: var(--progress-track-height); /* 3px, → 5px on hover */
+/* dot */
+width/height: var(--progress-dot-size); /* 6px, → 9px on hover */
 ```
 
 Fill: gradient from `{color}28` → `{color}`.
@@ -424,7 +447,7 @@ or any other icon library.
 
 ```tsx
 import { Dumbbell, HeartRate } from "iconoir-react";
-<Dumbbell width={16} height={16} strokeWidth={1.8} />
+<Dumbbell width={16} height={16} strokeWidth={1.8} />;
 ```
 
 Default `strokeWidth: 1.8`. On buttons: `2.0–2.2`.
@@ -450,15 +473,15 @@ Active: dot glows, icon colored, row has `--state-hover-bg` background.
 Dropdown: `backdrop-filter: blur(24px)`, `border: 1px solid var(--color-border-default)`,
 slides in with `opacity + translateY(-6px)`.
 
-### Sidebar icon states (Tier 3: --nav-*)
+### Sidebar icon states (Tier 3: --nav-\*)
 
-| State          | Icon color              | Label color              | Notes                       |
-| -------------- | ----------------------- | ------------------------ | --------------------------- |
-| Default (idle) | `--nav-icon-idle`       | `--nav-label-idle`       | 0.35 opacity, recedes       |
-| Hover          | item's `accentColor`    | `--nav-label-idle`       | lights up immediately       |
-| Active (page)  | item's `accentColor`    | `--nav-label-active`     | stays lit, label goes white |
-| Leave → active | item's `accentColor`    | `--nav-label-active`     | color kept — page is open   |
-| Leave → idle   | `--nav-icon-idle`       | `--nav-label-idle`       | dims back down              |
+| State          | Icon color           | Label color          | Notes                       |
+| -------------- | -------------------- | -------------------- | --------------------------- |
+| Default (idle) | `--nav-icon-idle`    | `--nav-label-idle`   | 0.35 opacity, recedes       |
+| Hover          | item's `accentColor` | `--nav-label-idle`   | lights up immediately       |
+| Active (page)  | item's `accentColor` | `--nav-label-active` | stays lit, label goes white |
+| Leave → active | item's `accentColor` | `--nav-label-active` | color kept — page is open   |
+| Leave → idle   | `--nav-icon-idle`    | `--nav-label-idle`   | dims back down              |
 
 Transition: `var(--nav-transition)` (150ms), CSS `transition: color`. No glow/shadow on the
 icon itself — color change only.
@@ -481,8 +504,11 @@ const iconColor = active || hovered ? accentColor : "var(--nav-icon-idle)";
   onMouseEnter={() => setHovered(true)}
   onMouseLeave={() => setHovered(false)}
 >
-  <Icon style={{ color: iconColor }} className="transition-colors duration-150" />
-</button>
+  <Icon
+    style={{ color: iconColor }}
+    className="transition-colors duration-150"
+  />
+</button>;
 ```
 
 ---
@@ -490,10 +516,10 @@ const iconColor = active || hovered ? accentColor : "var(--nav-icon-idle)";
 ## Input
 
 ```css
-background:    var(--input-bg);      /* rgba(255,255,255,0.04) */
-border:        1px solid var(--input-border);
-border-radius: var(--input-radius);  /* 9px */
-padding:       var(--input-padding); /* 10px 14px 10px 36px */
+background: var(--input-bg); /* rgba(255,255,255,0.04) */
+border: 1px solid var(--input-border);
+border-radius: var(--input-radius); /* 9px */
+padding: var(--input-padding); /* 10px 14px 10px 36px */
 ```
 
 State transitions:
@@ -510,16 +536,19 @@ Always include a `Search` icon (Iconoir) on the left at `--color-fg-subtle` colo
 ## Charts & Data Viz
 
 Mini bar charts:
+
 - Bars: `--primitive-white-04` default, last bar = accent color with neon glow
 - No axes, no grid lines, no labels unless essential
 - Hover: `filter: brightness(1.7)` + subtle `scaleY`
 
 Rings (SVG):
+
 - Track: `--primitive-white-04`
 - Fill: accent color with `drop-shadow(0 0 6px {color}90)`
 - `strokeLinecap: round`
 
 Habit grid:
+
 - Cell default: `--primitive-white-03` fill + `--color-border-subtle` border
 - Done: `--color-success` + glow
 - Partial: `--color-warning` at 25% opacity
@@ -529,16 +558,19 @@ Habit grid:
 N-polygon SVG with per-axis colors.
 
 **Grid (rings + spokes):**
+
 - Rings: `--color-border-subtle` stroke, `0.4px`
 - Spokes: per-axis accent color, `opacity: 0.20`, `0.4px`
 
 **Sectors (wedge per axis):**
+
 - Fill at rest: `{color}18` (~10% opacity)
 - Fill on hover: `{color}38` (~22% opacity)
 - Stroke: axis color, `0.5px` rest → `0.8px` hover
 - `opacity` 0.8 rest → 1.0 hover, `transition: 0.2s ease`
 
 **Radar shape:**
+
 - Soft outer glow: `strokeWidth 4`, `opacity 0.14`, `filter: blur(3px)`, color = originating node's accent
 - Inner fill: `--primitive-white-03` polygon, no stroke
 - Sharp edge: `strokeWidth 1.0`, `opacity 0.85`, SVG `feGaussianBlur stdDeviation 2.2`
@@ -554,6 +586,7 @@ N-polygon SVG with per-axis colors.
 All circles use axis color, `transition: 0.2s ease`.
 
 **Labels:**
+
 - Font: `var(--font-mono)`, `3.2px`, `letterSpacing: 0.06em`
 - Color: `--color-fg-subtle` at rest → axis color on hover
 - Multi-word: one `<tspan>` per word, `dy="4"` for each line, centered on x
@@ -574,6 +607,7 @@ Card mouse-light: radial-gradient spotlight, opacity 0→1 on hover, follows cur
 ```
 
 General rules:
+
 - Cards: `translateY(var(--state-card-hover-y))` on hover, `scale(0.994)` on click
 - List rows: `background: var(--state-hover-bg)` on hover
 - Nav items: color + dot transition `var(--nav-transition)`
@@ -584,23 +618,23 @@ General rules:
 
 ## What goes where
 
-| Element          | Token to use                                           |
-| ---------------- | ------------------------------------------------------ |
-| Page bg          | `--color-bg-base`                                      |
-| Card bg          | `--card-bg` (glass gradient)                           |
-| Body text        | `--color-fg-secondary`                                 |
-| Emphasis text    | `--color-fg-primary`                                   |
-| Secondary text   | `--color-fg-tertiary`                                  |
-| Labels/metadata  | `--color-fg-subtle`                                    |
-| Section labels   | `--color-fg-subtle`, uppercase, letter-spacing 0.08em  |
-| Tags             | `--tag-*` tokens, Orbitron, no border                  |
-| Metric numbers   | `--text-display`, weight 700, tracking -0.05em         |
-| Accent colors    | `--color-success/warning/data/danger/focus`            |
-| Icons            | Iconoir only, `strokeWidth={1.8}`                      |
-| Spacing          | `--space-*` scale                                      |
-| Border radius    | `--radius-*` scale                                     |
-| Depth shadows    | `--shadow-xs/sm/md`                                    |
-| Neon glows       | `--shadow-success/warning/data/danger/focus`           |
+| Element         | Token to use                                          |
+| --------------- | ----------------------------------------------------- |
+| Page bg         | `--color-bg-base`                                     |
+| Card bg         | `--card-bg` (glass gradient)                          |
+| Body text       | `--color-fg-secondary`                                |
+| Emphasis text   | `--color-fg-primary`                                  |
+| Secondary text  | `--color-fg-tertiary`                                 |
+| Labels/metadata | `--color-fg-subtle`                                   |
+| Section labels  | `--color-fg-subtle`, uppercase, letter-spacing 0.08em |
+| Tags            | `--tag-*` tokens, Orbitron, no border                 |
+| Metric numbers  | `--text-display`, weight 700, tracking -0.05em        |
+| Accent colors   | `--color-success/warning/data/danger/focus`           |
+| Icons           | Iconoir only, `strokeWidth={1.8}`                     |
+| Spacing         | `--space-*` scale                                     |
+| Border radius   | `--radius-*` scale                                    |
+| Depth shadows   | `--shadow-xs/sm/md`                                   |
+| Neon glows      | `--shadow-success/warning/data/danger/focus`          |
 
 ---
 

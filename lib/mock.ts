@@ -66,7 +66,7 @@ export type Aspect = {
   name: string;
   description: string;
   completionPercentage: number;
-  color: string;     // unique color for neural map dot & chart line
+  color: string; // unique color for neural map dot & chart line
   history: number[]; // 14-day completion % history: index 0 = 13 days ago, last index = today
 };
 
@@ -116,11 +116,46 @@ export const MOCK_SKILLS: Skill[] = [
     nextQuest: "Hammer-on practice — 15 min",
     description: "Technika, rytmika, teoria",
     aspects: [
-      { id: "asp/git/1", name: "Technika",    description: "", completionPercentage: 70, color: "#a78bfa", history: _aspectHistory(70,  0) },
-      { id: "asp/git/2", name: "Rytmika",     description: "", completionPercentage: 55, color: "#34d399", history: _aspectHistory(55,  1) },
-      { id: "asp/git/3", name: "Teoria",      description: "", completionPercentage: 60, color: "#60a5fa", history: _aspectHistory(60,  2) },
-      { id: "asp/git/4", name: "Słuch",       description: "", completionPercentage: 65, color: "#f87171", history: _aspectHistory(65,  3) },
-      { id: "asp/git/5", name: "Artykulacja", description: "", completionPercentage: 58, color: "#fbbf24", history: _aspectHistory(58,  4) },
+      {
+        id: "asp/git/1",
+        name: "Technika",
+        description: "",
+        completionPercentage: 70,
+        color: "#a78bfa",
+        history: _aspectHistory(70, 0),
+      },
+      {
+        id: "asp/git/2",
+        name: "Rytmika",
+        description: "",
+        completionPercentage: 55,
+        color: "#34d399",
+        history: _aspectHistory(55, 1),
+      },
+      {
+        id: "asp/git/3",
+        name: "Teoria",
+        description: "",
+        completionPercentage: 60,
+        color: "#60a5fa",
+        history: _aspectHistory(60, 2),
+      },
+      {
+        id: "asp/git/4",
+        name: "Słuch",
+        description: "",
+        completionPercentage: 65,
+        color: "#f87171",
+        history: _aspectHistory(65, 3),
+      },
+      {
+        id: "asp/git/5",
+        name: "Artykulacja",
+        description: "",
+        completionPercentage: 58,
+        color: "#fbbf24",
+        history: _aspectHistory(58, 4),
+      },
     ],
     subSkills: [
       {
@@ -162,11 +197,46 @@ export const MOCK_SKILLS: Skill[] = [
     nextQuest: "Belting — 20 min warm-up",
     description: "Emisja, intonacja, scream",
     aspects: [
-      { id: "asp/voc/1", name: "Emisja",      description: "", completionPercentage: 50, color: "#a78bfa", history: _aspectHistory(50,  5) },
-      { id: "asp/voc/2", name: "Intonacja",   description: "", completionPercentage: 40, color: "#34d399", history: _aspectHistory(40,  6) },
-      { id: "asp/voc/3", name: "Oddech",      description: "", completionPercentage: 55, color: "#60a5fa", history: _aspectHistory(55,  7) },
-      { id: "asp/voc/4", name: "Artykulacja", description: "", completionPercentage: 35, color: "#f87171", history: _aspectHistory(35,  8) },
-      { id: "asp/voc/5", name: "Scream",      description: "", completionPercentage: 30, color: "#fbbf24", history: _aspectHistory(30,  9) },
+      {
+        id: "asp/voc/1",
+        name: "Emisja",
+        description: "",
+        completionPercentage: 50,
+        color: "#a78bfa",
+        history: _aspectHistory(50, 5),
+      },
+      {
+        id: "asp/voc/2",
+        name: "Intonacja",
+        description: "",
+        completionPercentage: 40,
+        color: "#34d399",
+        history: _aspectHistory(40, 6),
+      },
+      {
+        id: "asp/voc/3",
+        name: "Oddech",
+        description: "",
+        completionPercentage: 55,
+        color: "#60a5fa",
+        history: _aspectHistory(55, 7),
+      },
+      {
+        id: "asp/voc/4",
+        name: "Artykulacja",
+        description: "",
+        completionPercentage: 35,
+        color: "#f87171",
+        history: _aspectHistory(35, 8),
+      },
+      {
+        id: "asp/voc/5",
+        name: "Scream",
+        description: "",
+        completionPercentage: 30,
+        color: "#fbbf24",
+        history: _aspectHistory(30, 9),
+      },
     ],
     subSkills: [
       {
@@ -199,11 +269,46 @@ export const MOCK_SKILLS: Skill[] = [
     nextQuest: "EQ session — Ableton",
     description: "DAW, miks, mastering",
     aspects: [
-      { id: "asp/pro/1", name: "DAW",         description: "", completionPercentage: 80, color: "#a78bfa", history: _aspectHistory(80, 10) },
-      { id: "asp/pro/2", name: "Miks",        description: "", completionPercentage: 70, color: "#34d399", history: _aspectHistory(70, 11) },
-      { id: "asp/pro/3", name: "Master",      description: "", completionPercentage: 60, color: "#60a5fa", history: _aspectHistory(60, 12) },
-      { id: "asp/pro/4", name: "Sound Design",description: "", completionPercentage: 75, color: "#f87171", history: _aspectHistory(75, 13) },
-      { id: "asp/pro/5", name: "Teoria",      description: "", completionPercentage: 65, color: "#fbbf24", history: _aspectHistory(65, 14) },
+      {
+        id: "asp/pro/1",
+        name: "DAW",
+        description: "",
+        completionPercentage: 80,
+        color: "#a78bfa",
+        history: _aspectHistory(80, 10),
+      },
+      {
+        id: "asp/pro/2",
+        name: "Miks",
+        description: "",
+        completionPercentage: 70,
+        color: "#34d399",
+        history: _aspectHistory(70, 11),
+      },
+      {
+        id: "asp/pro/3",
+        name: "Master",
+        description: "",
+        completionPercentage: 60,
+        color: "#60a5fa",
+        history: _aspectHistory(60, 12),
+      },
+      {
+        id: "asp/pro/4",
+        name: "Sound Design",
+        description: "",
+        completionPercentage: 75,
+        color: "#f87171",
+        history: _aspectHistory(75, 13),
+      },
+      {
+        id: "asp/pro/5",
+        name: "Teoria",
+        description: "",
+        completionPercentage: 65,
+        color: "#fbbf24",
+        history: _aspectHistory(65, 14),
+      },
     ],
     subSkills: [],
   },
@@ -217,11 +322,46 @@ export const MOCK_SKILLS: Skill[] = [
     nextQuest: "Hook writing — 30 min",
     description: "Teksty, flow, melodia",
     aspects: [
-      { id: "asp/son/1", name: "Teksty",       description: "", completionPercentage: 45, color: "#a78bfa", history: _aspectHistory(45, 15) },
-      { id: "asp/son/2", name: "Storytelling", description: "", completionPercentage: 35, color: "#34d399", history: _aspectHistory(35, 16) },
-      { id: "asp/son/3", name: "Flow",         description: "", completionPercentage: 40, color: "#60a5fa", history: _aspectHistory(40, 17) },
-      { id: "asp/son/4", name: "Struktura",    description: "", completionPercentage: 30, color: "#f87171", history: _aspectHistory(30, 18) },
-      { id: "asp/son/5", name: "Melodia",      description: "", completionPercentage: 38, color: "#fbbf24", history: _aspectHistory(38, 19) },
+      {
+        id: "asp/son/1",
+        name: "Teksty",
+        description: "",
+        completionPercentage: 45,
+        color: "#a78bfa",
+        history: _aspectHistory(45, 15),
+      },
+      {
+        id: "asp/son/2",
+        name: "Storytelling",
+        description: "",
+        completionPercentage: 35,
+        color: "#34d399",
+        history: _aspectHistory(35, 16),
+      },
+      {
+        id: "asp/son/3",
+        name: "Flow",
+        description: "",
+        completionPercentage: 40,
+        color: "#60a5fa",
+        history: _aspectHistory(40, 17),
+      },
+      {
+        id: "asp/son/4",
+        name: "Struktura",
+        description: "",
+        completionPercentage: 30,
+        color: "#f87171",
+        history: _aspectHistory(30, 18),
+      },
+      {
+        id: "asp/son/5",
+        name: "Melodia",
+        description: "",
+        completionPercentage: 38,
+        color: "#fbbf24",
+        history: _aspectHistory(38, 19),
+      },
     ],
     subSkills: [],
   },
@@ -235,11 +375,46 @@ export const MOCK_SKILLS: Skill[] = [
     nextQuest: "Aim training — 1000 fragów",
     description: "Aim, movement, utility",
     aspects: [
-      { id: "asp/cs/1", name: "Aim",         description: "", completionPercentage: 60, color: "#a78bfa", history: _aspectHistory(60, 20) },
-      { id: "asp/cs/2", name: "Movement",    description: "", completionPercentage: 70, color: "#34d399", history: _aspectHistory(70, 21) },
-      { id: "asp/cs/3", name: "Utility",     description: "", completionPercentage: 50, color: "#60a5fa", history: _aspectHistory(50, 22) },
-      { id: "asp/cs/4", name: "Gamesense",   description: "", completionPercentage: 65, color: "#f87171", history: _aspectHistory(65, 23) },
-      { id: "asp/cs/5", name: "Komunikacja", description: "", completionPercentage: 75, color: "#fbbf24", history: _aspectHistory(75, 24) },
+      {
+        id: "asp/cs/1",
+        name: "Aim",
+        description: "",
+        completionPercentage: 60,
+        color: "#a78bfa",
+        history: _aspectHistory(60, 20),
+      },
+      {
+        id: "asp/cs/2",
+        name: "Movement",
+        description: "",
+        completionPercentage: 70,
+        color: "#34d399",
+        history: _aspectHistory(70, 21),
+      },
+      {
+        id: "asp/cs/3",
+        name: "Utility",
+        description: "",
+        completionPercentage: 50,
+        color: "#60a5fa",
+        history: _aspectHistory(50, 22),
+      },
+      {
+        id: "asp/cs/4",
+        name: "Gamesense",
+        description: "",
+        completionPercentage: 65,
+        color: "#f87171",
+        history: _aspectHistory(65, 23),
+      },
+      {
+        id: "asp/cs/5",
+        name: "Komunikacja",
+        description: "",
+        completionPercentage: 75,
+        color: "#fbbf24",
+        history: _aspectHistory(75, 24),
+      },
     ],
     subSkills: [],
   },
@@ -406,22 +581,49 @@ export type PlanEntry = {
 
 // TODO: [DATA] Daily plan should be dynamically generated from quests and training
 export const MOCK_DAILY_PLAN: PlanEntry[] = [
-  { id: "plan/1", time: "07:00", title: "Śniadanie",           category: "diet"                                                             },
-  { id: "plan/2", time: "09:00", title: "Hammer-on practice",  category: "music",    skillId: "skill/guitar",   questId: "q/git/1"       },
-  { id: "plan/3", time: "10:30", title: "Belting warm-up",     category: "music",    skillId: "skill/vocals",   questId: "q/voc/1"       },
-  { id: "plan/4", time: "12:30", title: "Lunch",               category: "diet"                                                             },
-  { id: "plan/5", time: "16:00", title: "Siłownia — Pull B",   category: "training"                                                         },
-  { id: "plan/6", time: "20:00", title: "Aim training — aimbotz", category: "gaming", skillId: "skill/cs2",    questId: "q/cs/1", active: true },
-  { id: "plan/7", time: "22:00", title: "Kolacja",             category: "diet"                                                             },
+  { id: "plan/1", time: "07:00", title: "Śniadanie", category: "diet" },
+  {
+    id: "plan/2",
+    time: "09:00",
+    title: "Hammer-on practice",
+    category: "music",
+    skillId: "skill/guitar",
+    questId: "q/git/1",
+  },
+  {
+    id: "plan/3",
+    time: "10:30",
+    title: "Belting warm-up",
+    category: "music",
+    skillId: "skill/vocals",
+    questId: "q/voc/1",
+  },
+  { id: "plan/4", time: "12:30", title: "Lunch", category: "diet" },
+  {
+    id: "plan/5",
+    time: "16:00",
+    title: "Siłownia — Pull B",
+    category: "training",
+  },
+  {
+    id: "plan/6",
+    time: "20:00",
+    title: "Aim training — aimbotz",
+    category: "gaming",
+    skillId: "skill/cs2",
+    questId: "q/cs/1",
+    active: true,
+  },
+  { id: "plan/7", time: "22:00", title: "Kolacja", category: "diet" },
 ];
 
 // Progress value (0-100) used on the neural map for non-skill plan categories
 // TODO: [DATA] derive from actual daily completion tracking
 export const MOCK_CATEGORY_PROGRESS: Record<PlanCategory, number> = {
-  diet:     78,
+  diet: 78,
   training: 62,
-  music:     0, // covered via skill nodes
-  gaming:    0, // covered via skill nodes
+  music: 0, // covered via skill nodes
+  gaming: 0, // covered via skill nodes
 };
 
 export const MOCK_USER = {
@@ -1243,6 +1445,7 @@ export type NamedMeal = {
   name: string;
   description: string;
   emoji: string;
+  isFavorite: boolean;
   suitableFor: MealSlotId[];
   ingredients: MealIngredient[];
 };
@@ -1472,6 +1675,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Creamy oats loaded with Greek yogurt, fresh blueberries, and banana for a high-protein start to the day.",
     emoji: "🥣",
+    isFavorite: true,
     suitableFor: ["breakfast"],
     ingredients: [
       { foodId: "food/oats", grams: 90 },
@@ -1486,6 +1690,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Thick oats blended with whey protein and blueberries — clean fuel designed for training days.",
     emoji: "💪",
+    isFavorite: false,
     suitableFor: ["breakfast"],
     ingredients: [
       { foodId: "food/oats", grams: 80 },
@@ -1499,6 +1704,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Scrambled eggs with whole milk and a banana — a classic balanced morning plate with steady-release energy.",
     emoji: "🍳",
+    isFavorite: false,
     suitableFor: ["breakfast"],
     ingredients: [
       { foodId: "food/eggs", grams: 150 },
@@ -1512,6 +1718,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Fluffy eggs with whole milk, fresh blueberries, and creamy avocado — rich in healthy fats and antioxidants.",
     emoji: "🥑",
+    isFavorite: true,
     suitableFor: ["breakfast"],
     ingredients: [
       { foodId: "food/eggs", grams: 200 },
@@ -1526,6 +1733,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Quick liquid breakfast — whey protein blended with banana and whole milk for fast-digesting macros.",
     emoji: "🥛",
+    isFavorite: false,
     suitableFor: ["breakfast"],
     ingredients: [
       { foodId: "food/whey", grams: 40 },
@@ -1541,6 +1749,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "The classic bodybuilder plate — grilled chicken breast, brown rice, steamed broccoli with olive oil.",
     emoji: "🍗",
+    isFavorite: true,
     suitableFor: ["lunch"],
     ingredients: [
       { foodId: "food/chicken_breast", grams: 200 },
@@ -1555,6 +1764,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Al dente pasta with grilled chicken, steamed broccoli, and a drizzle of olive oil.",
     emoji: "🍝",
+    isFavorite: false,
     suitableFor: ["lunch"],
     ingredients: [
       { foodId: "food/chicken_breast", grams: 190 },
@@ -1569,6 +1779,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Brown rice topped with tuna, steamed broccoli, and creamy avocado slices for healthy omega-3 fats.",
     emoji: "🍱",
+    isFavorite: false,
     suitableFor: ["lunch"],
     ingredients: [
       { foodId: "food/tuna", grams: 180 },
@@ -1583,6 +1794,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Al dente pasta tossed with tuna, wilted spinach, and a generous pour of olive oil.",
     emoji: "🐟",
+    isFavorite: false,
     suitableFor: ["lunch"],
     ingredients: [
       { foodId: "food/pasta", grams: 150 },
@@ -1597,6 +1809,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Lean grilled chicken over a bed of brown rice with plenty of fresh spinach and olive oil.",
     emoji: "🥬",
+    isFavorite: false,
     suitableFor: ["lunch"],
     ingredients: [
       { foodId: "food/chicken_breast", grams: 200 },
@@ -1613,6 +1826,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Simple and satiating — a handful of raw almonds paired with a crisp, fresh apple.",
     emoji: "🍎",
+    isFavorite: true,
     suitableFor: ["snack"],
     ingredients: [
       { foodId: "food/almonds", grams: 30 },
@@ -1625,6 +1839,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Creamy Greek yogurt with a ripe banana — a quick protein hit between main meals.",
     emoji: "🍌",
+    isFavorite: false,
     suitableFor: ["snack"],
     ingredients: [
       { foodId: "food/greek_yogurt", grams: 200 },
@@ -1637,6 +1852,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Low-fat cottage cheese topped with fresh blueberries — high protein, light on carbs.",
     emoji: "🫐",
+    isFavorite: true,
     suitableFor: ["snack"],
     ingredients: [
       { foodId: "food/cottage_cheese", grams: 200 },
@@ -1649,6 +1865,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Cottage cheese with crunchy almonds and apple slices — high protein, high fiber afternoon snack.",
     emoji: "🧀",
+    isFavorite: false,
     suitableFor: ["snack"],
     ingredients: [
       { foodId: "food/almonds", grams: 30 },
@@ -1662,6 +1879,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Smooth cottage cheese paired with a ripe banana — easy casein protein before rest.",
     emoji: "🍌",
+    isFavorite: false,
     suitableFor: ["snack"],
     ingredients: [
       { foodId: "food/cottage_cheese", grams: 200 },
@@ -1676,6 +1894,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Oven-baked salmon fillet with roasted sweet potato and fresh spinach — omega-3 rich evening meal.",
     emoji: "🍣",
+    isFavorite: true,
     suitableFor: ["dinner"],
     ingredients: [
       { foodId: "food/salmon", grams: 210 },
@@ -1689,6 +1908,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Tuna with sweet potato and spinach, finished with creamy avocado slices for healthy fats.",
     emoji: "🐟",
+    isFavorite: false,
     suitableFor: ["dinner"],
     ingredients: [
       { foodId: "food/tuna", grams: 180 },
@@ -1703,6 +1923,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Seasoned chicken breast paired with roasted sweet potato and wilted spinach — light and satisfying.",
     emoji: "🥘",
+    isFavorite: false,
     suitableFor: ["dinner"],
     ingredients: [
       { foodId: "food/chicken_breast", grams: 200 },
@@ -1716,6 +1937,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Pan-seared salmon with pasta, wilted spinach, and a light olive oil sauce — comfort without the guilt.",
     emoji: "🍜",
+    isFavorite: true,
     suitableFor: ["dinner"],
     ingredients: [
       { foodId: "food/salmon", grams: 195 },
@@ -1730,6 +1952,7 @@ export const MOCK_NAMED_MEALS: NamedMeal[] = [
     description:
       "Grilled salmon with fluffy brown rice and steamed broccoli — clean, high-protein dinner with complex carbs.",
     emoji: "🍣",
+    isFavorite: false,
     suitableFor: ["dinner"],
     ingredients: [
       { foodId: "food/salmon", grams: 220 },

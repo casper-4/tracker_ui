@@ -180,7 +180,7 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+    <div className="max-w-6xl mx-auto flex flex-col flex-1 min-h-0 overflow-hidden">
       {/* ── Header ── */}
       <header className="mb-4 shrink-0">
         <div className="flex flex-wrap items-center gap-4">

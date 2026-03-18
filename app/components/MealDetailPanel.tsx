@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { Xmark, Heart, HeartSolid } from "iconoir-react";
 import { MOCK_FOOD_DB, type NamedMeal, type MealSlotId } from "@/lib/mock";
 import { useLang } from "@/lib/language-context";
 import { t } from "@/lib/i18n";
 
-const PANEL_WIDTH = 400;
+const PANEL_WIDTH = 380;
 
 const FOOD_MAP = Object.fromEntries(MOCK_FOOD_DB.map((f) => [f.id, f]));
 
@@ -20,19 +20,19 @@ type FoodCategory =
   | "other";
 
 const CAT_COLORS: Record<FoodCategory, string> = {
-  protein: "#ec4899",
-  carbs: "#f59e0b",
-  veggies: "#22c55e",
-  dairy: "#38bdf8",
-  fats: "#a855f7",
-  other: "#888",
+  protein: "rgba(236,72,153,1)",
+  carbs: "rgba(245,158,11,1)",
+  veggies: "rgba(34,197,94,1)",
+  dairy: "rgba(56,189,248,1)",
+  fats: "rgba(168,85,247,1)",
+  other: "rgba(136,136,136,1)",
 };
 
 const SLOT_COLORS: Record<MealSlotId, string> = {
-  breakfast: "#f59e0b",
-  lunch: "#22c55e",
-  snack: "#38bdf8",
-  dinner: "#a855f7",
+  breakfast: "rgba(245,158,11,1)",
+  lunch: "rgba(34,197,94,1)",
+  snack: "rgba(56,189,248,1)",
+  dinner: "rgba(168,85,247,1)",
 };
 
 function computeMacros(ingredients: { foodId: string; grams: number }[]) {
@@ -56,10 +56,19 @@ type Props = {
   meal: NamedMeal;
   slot: MealSlotId;
   time: string;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
   onClose: () => void;
 };
 
-export default function MealDetailPanel({ meal, slot, time, onClose }: Props) {
+export default function MealDetailPanel({
+  meal,
+  slot,
+  time,
+  isFavorite = meal.isFavorite,
+  onToggleFavorite = () => undefined,
+  onClose,
+}: Props) {
   const { lang } = useLang();
   const slotColor = SLOT_COLORS[slot];
   const macros = computeMacros(meal.ingredients);
@@ -83,45 +92,132 @@ export default function MealDetailPanel({ meal, slot, time, onClose }: Props) {
       initial={{ width: 0, opacity: 0 }}
       animate={{ width: PANEL_WIDTH, opacity: 1 }}
       exit={{ width: 0, opacity: 0 }}
-      transition={{ duration: 0.26, ease: [0.25, 0, 0, 1] }}
-      className="h-full bg-[#0a0a0a] flex flex-col overflow-hidden shrink-0"
-      style={{
-        borderLeftWidth: 4,
-        borderLeftStyle: "solid",
-        borderLeftColor: slotColor,
-        minWidth: 0,
-      }}
+      transition={{ duration: 0.28, ease: [0.25, 0, 0, 1] }}
+      className="h-full flex flex-col overflow-hidden shrink-0 py-3 pr-3 pl-2"
+      style={{ minWidth: 0 }}
       role="complementary"
       aria-label={meal.name}
     >
-      <div className="flex flex-col h-full" style={{ width: PANEL_WIDTH }}>
+      <div
+        className="flex flex-col h-full w-full relative overflow-hidden rounded-[14px]"
+        style={{
+          background:
+            "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
+          border: "1px solid rgba(255,255,255,0.09)",
+          borderTop: "1px solid rgba(255,255,255,0.16)",
+          borderLeft: `2px solid ${slotColor}`,
+          backdropFilter: "blur(24px)",
+          transition: "border-color 0.2s ease",
+        }}
+      >
+        {/* Colored glow blob */}
+        <div
+          className="absolute pointer-events-none"
+          style={{
+            top: -60,
+            right: -60,
+            width: 220,
+            height: 220,
+            borderRadius: "50%",
+            background: slotColor,
+            filter: "blur(70px)",
+            opacity: 0.12,
+            transition: "background 0.3s ease",
+          }}
+        />
+        {/* Top-edge shine */}
+        <div
+          className="absolute pointer-events-none z-10"
+          style={{
+            top: 0,
+            left: "10%",
+            right: "10%",
+            height: 1,
+            background:
+              "linear-gradient(90deg, transparent, rgba(255,255,255,0.22) 50%, transparent)",
+          }}
+        />
         {/* ── Header ── */}
-        <div className="px-5 pt-4 pb-3 border-b border-[#1f1f1f] shrink-0">
+        <div
+          className="px-5 pt-5 pb-4 shrink-0"
+          style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+        >
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
+              {/* Meal slot label */}
               <p
-                className="text-[10px] uppercase tracking-widest font-mono mb-1 flex items-center gap-2"
-                style={{ color: slotColor }}
+                className="text-[8px] uppercase mb-2"
+                style={{
+                  fontFamily: "var(--font-accent)",
+                  fontWeight: 700,
+                  letterSpacing: "0.2em",
+                  color: slotColor,
+                }}
               >
                 {t(lang, slotLabelKey)}
-                <span className="text-[#333]">·</span>
-                <span className="text-[#444]">{time}</span>
               </p>
               <div className="flex items-center gap-3">
-                <span className="text-2xl leading-none">{meal.emoji}</span>
-                <h2 className="text-sm font-bold text-white leading-snug">
-                  {meal.name}
-                </h2>
+                <span className="text-xl leading-none">{meal.emoji}</span>
+                <div>
+                  <h2
+                    className="text-[13px] font-bold leading-snug text-white"
+                    style={{ letterSpacing: "-0.01em" }}
+                  >
+                    {meal.name}
+                  </h2>
+                  <p
+                    className="text-[10px] font-mono mt-0.5"
+                    style={{ color: "rgba(255,255,255,0.35)" }}
+                  >
+                    {time}
+                  </p>
+                </div>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-1.5 rounded hover:bg-[#1f1f1f] text-[#666] hover:text-white transition-colors shrink-0 mt-0.5"
-              aria-label={t(lang, "diet_close_panel")}
-            >
-              <X size={16} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={onToggleFavorite}
+                className="p-0.5 transition-all shrink-0"
+                aria-label={
+                  isFavorite
+                    ? t(lang, "diet_favorite_remove")
+                    : t(lang, "diet_favorite_add")
+                }
+              >
+                {isFavorite ? (
+                  <HeartSolid
+                    width={15}
+                    height={15}
+                    className="transition-all text-[var(--color-danger)]"
+                  />
+                ) : (
+                  <Heart
+                    width={15}
+                    height={15}
+                    strokeWidth={2.0}
+                    className="transition-all text-[var(--color-fg-subtle)] hover:text-[var(--color-danger)] [filter:drop-shadow(0_0_0_rgba(255,32,96,0.0))] hover:[filter:drop-shadow(0_0_4px_rgba(255,32,96,0.42))]"
+                  />
+                )}
+              </button>
+
+              {/* Close button */}
+              <button
+                type="button"
+                onClick={onClose}
+                className="p-1.5 rounded-md transition-colors shrink-0 pt-0.5"
+                style={{ color: "rgba(255,255,255,0.30)" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = "rgba(255,255,255,0.70)")
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = "rgba(255,255,255,0.30)")
+                }
+                aria-label={t(lang, "diet_close_panel")}
+              >
+                <Xmark width={16} height={16} strokeWidth={2.0} />
+              </button>
+            </div>
           </div>
         </div>
 
@@ -135,165 +231,240 @@ export default function MealDetailPanel({ meal, slot, time, onClose }: Props) {
             transition={{ duration: 0.12 }}
             className="flex-1 overflow-y-auto custom-scrollbar"
           >
-            <div className="px-5 py-4 space-y-5">
+            <div className="px-5 py-5 space-y-6">
               {/* Description */}
-              <p className="text-sm text-[#888] leading-relaxed">
-                {meal.description}
-              </p>
+              <div>
+                <SectionLabel>{t(lang, "diet_description")}</SectionLabel>
+                <p
+                  className="mt-2 text-[13px] leading-relaxed"
+                  style={{ color: "rgba(255,255,255,0.55)" }}
+                >
+                  {meal.description || "—"}
+                </p>
+              </div>
 
               {/* Macro summary */}
-              <div className="border border-[#1f1f1f] rounded-sm overflow-hidden">
-                <div className="grid grid-cols-2 divide-x divide-[#1a1a1a]">
-                  <div className="flex flex-col items-center justify-center py-4 gap-0.5">
-                    <span className="text-2xl font-bold font-mono tabular-nums text-[#facc15]">
-                      {Math.round(macros.kcal)}
-                    </span>
-                    <span className="text-[9px] uppercase tracking-widest text-[#444] font-mono">
-                      kcal
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center justify-center py-4 gap-0.5">
-                    <span className="text-2xl font-bold font-mono tabular-nums text-[#ec4899]">
-                      {Math.round(macros.protein)}g
-                    </span>
-                    <span className="text-[9px] uppercase tracking-widest text-[#444] font-mono">
-                      {t(lang, "diet_protein")}
-                    </span>
-                  </div>
-                </div>
-                <div className="border-t border-[#1a1a1a] px-4 py-3 space-y-2">
-                  {[
-                    {
-                      label: t(lang, "diet_carbs"),
-                      value: macros.carbs,
-                      color: "#f59e0b",
-                    },
-                    {
-                      label: t(lang, "diet_fat"),
-                      value: macros.fat,
-                      color: "#a855f7",
-                    },
-                  ].map(({ label, value, color }) => (
-                    <div
-                      key={label}
-                      className="flex items-center justify-between py-1 border-b border-[#111] last:border-0"
-                    >
-                      <span className="text-[10px] uppercase tracking-widest text-[#555] font-mono">
-                        {label}
+              <div>
+                <SectionLabel>{t(lang, "diet_macros")}</SectionLabel>
+                <div
+                  className="mt-2 rounded-[10px] overflow-hidden"
+                  style={{
+                    background:
+                      "linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.20) 100%)",
+                    border: "1px solid rgba(255,255,255,0.06)",
+                    borderTop: "1px solid rgba(255,255,255,0.10)",
+                  }}
+                >
+                  <div className="grid grid-cols-2 divide-x divide-[rgba(255,255,255,0.05)]">
+                    <div className="flex flex-col items-center justify-center py-4 gap-0.5">
+                      <span
+                        className="text-[13px] font-bold font-mono tabular-nums"
+                        style={{ color: "rgba(243,230,0,1)" }}
+                      >
+                        {Math.round(macros.kcal)}
                       </span>
                       <span
-                        className="font-mono text-sm font-bold"
-                        style={{ color }}
+                        className="text-[10px] uppercase tracking-widest font-mono"
+                        style={{ color: "rgba(255,255,255,0.30)" }}
                       >
-                        {Math.round(value)}
-                        <span className="text-[10px] text-[#444] ml-0.5">
-                          g
-                        </span>
+                        kcal
                       </span>
                     </div>
-                  ))}
+                    <div className="flex flex-col items-center justify-center py-4 gap-0.5">
+                      <span
+                        className="text-[13px] font-bold font-mono tabular-nums"
+                        style={{ color: "rgba(236,72,153,1)" }}
+                      >
+                        {Math.round(macros.protein)}g
+                      </span>
+                      <span
+                        className="text-[10px] uppercase tracking-widest font-mono"
+                        style={{ color: "rgba(255,255,255,0.30)" }}
+                      >
+                        {t(lang, "diet_protein")}
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    className="px-4 py-3 space-y-2"
+                    style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+                  >
+                    {[
+                      {
+                        label: t(lang, "diet_carbs"),
+                        value: macros.carbs,
+                        color: "rgba(245,158,11,1)",
+                      },
+                      {
+                        label: t(lang, "diet_fat"),
+                        value: macros.fat,
+                        color: "rgba(168,85,247,1)",
+                      },
+                    ].map(({ label, value, color }) => (
+                      <div
+                        key={label}
+                        className="flex items-center justify-between py-1"
+                        style={{
+                          borderBottom: "1px solid rgba(255,255,255,0.03)",
+                        }}
+                      >
+                        <span
+                          className="text-[10px] uppercase tracking-widest font-mono"
+                          style={{ color: "rgba(255,255,255,0.35)" }}
+                        >
+                          {label}
+                        </span>
+                        <span
+                          className="font-mono text-[13px] font-bold"
+                          style={{ color }}
+                        >
+                          {Math.round(value)}
+                          <span
+                            className="text-[10px] ml-0.5"
+                            style={{ color: "rgba(255,255,255,0.30)" }}
+                          >
+                            g
+                          </span>
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 
               {/* Macro % bar */}
               {macros.kcal > 0 && (
-                <div className="space-y-1.5">
-                  <div className="h-2 bg-[#111] rounded-full overflow-hidden flex">
+                <div>
+                  <SectionLabel>{t(lang, "diet_distribution")}</SectionLabel>
+                  <div className="mt-2 space-y-2">
                     <div
-                      style={{
-                        width: `${((macros.protein * 4) / macros.kcal) * 100}%`,
-                        background: "#ec4899",
-                      }}
-                      className="h-full"
-                    />
-                    <div
-                      style={{
-                        width: `${((macros.carbs * 4) / macros.kcal) * 100}%`,
-                        background: "#f59e0b",
-                      }}
-                      className="h-full"
-                    />
-                    <div
-                      style={{
-                        width: `${((macros.fat * 9) / macros.kcal) * 100}%`,
-                        background: "#a855f7",
-                      }}
-                      className="h-full"
-                    />
-                  </div>
-                  <div className="flex gap-3">
-                    {[
-                      {
-                        label: t(lang, "diet_protein"),
-                        pct: (macros.protein * 4) / macros.kcal,
-                        color: "#ec4899",
-                      },
-                      {
-                        label: t(lang, "diet_carbs"),
-                        pct: (macros.carbs * 4) / macros.kcal,
-                        color: "#f59e0b",
-                      },
-                      {
-                        label: t(lang, "diet_fat"),
-                        pct: (macros.fat * 9) / macros.kcal,
-                        color: "#a855f7",
-                      },
-                    ].map(({ label, pct, color }) => (
-                      <span
-                        key={label}
-                        className="text-[9px] font-mono uppercase tracking-widest"
-                        style={{ color }}
-                      >
-                        {Math.round(pct * 100)}%
-                      </span>
-                    ))}
+                      className="h-3 rounded-full overflow-hidden flex"
+                      style={{ background: "rgba(255,255,255,0.04)" }}
+                    >
+                      <div
+                        style={{
+                          width: `${((macros.protein * 4) / macros.kcal) * 100}%`,
+                          background: "rgba(236,72,153,1)",
+                        }}
+                        className="h-full"
+                      />
+                      <div
+                        style={{
+                          width: `${((macros.carbs * 4) / macros.kcal) * 100}%`,
+                          background: "rgba(245,158,11,1)",
+                        }}
+                        className="h-full"
+                      />
+                      <div
+                        style={{
+                          width: `${((macros.fat * 9) / macros.kcal) * 100}%`,
+                          background: "rgba(168,85,247,1)",
+                        }}
+                        className="h-full"
+                      />
+                    </div>
+                    <div className="flex gap-3">
+                      {[
+                        {
+                          label: t(lang, "diet_protein"),
+                          pct: (macros.protein * 4) / macros.kcal,
+                          color: "rgba(236,72,153,1)",
+                        },
+                        {
+                          label: t(lang, "diet_carbs"),
+                          pct: (macros.carbs * 4) / macros.kcal,
+                          color: "rgba(245,158,11,1)",
+                        },
+                        {
+                          label: t(lang, "diet_fat"),
+                          pct: (macros.fat * 9) / macros.kcal,
+                          color: "rgba(168,85,247,1)",
+                        },
+                      ].map(({ label, pct, color }) => (
+                        <span
+                          key={label}
+                          className="text-[10px] font-mono uppercase tracking-widest"
+                          style={{ color }}
+                        >
+                          {Math.round(pct * 100)}%
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
 
               {/* Ingredients */}
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-[#555] font-mono mb-2">
-                  {t(lang, "diet_meal_ingredients")}
-                </p>
-                <div className="border border-[#1a1a1a] rounded-sm overflow-hidden">
+                <SectionLabel>{t(lang, "diet_meal_ingredients")}</SectionLabel>
+                <div
+                  className="mt-2 rounded-[10px] overflow-hidden"
+                  style={{
+                    background:
+                      "linear-gradient(160deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.15) 100%)",
+                    border: "1px solid rgba(255,255,255,0.04)",
+                  }}
+                >
                   {meal.ingredients.map((ing, i) => {
                     const food = FOOD_MAP[ing.foodId];
                     if (!food) return null;
                     const kcal = (food.kcalPer100g * ing.grams) / 100;
                     const protein = (food.proteinPer100g * ing.grams) / 100;
-                    const catColor =
-                      CAT_COLORS[food.category as FoodCategory] ?? "#888";
+                    const catColor = CAT_COLORS[food.category as FoodCategory];
                     return (
                       <div
                         key={i}
-                        className="flex items-center gap-3 px-3 py-2.5 border-b border-[#111] last:border-0 hover:bg-[#0d0d0d] transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 transition-all"
+                        style={{
+                          borderBottom:
+                            i < meal.ingredients.length - 1
+                              ? "1px solid rgba(255,255,255,0.03)"
+                              : "none",
+                          background:
+                            i % 2 === 0
+                              ? "rgba(255,255,255,0.01)"
+                              : "transparent",
+                        }}
                       >
                         <span
-                          className="w-1.5 h-1.5 rounded-full shrink-0"
+                          className="w-2 h-2 rounded-full shrink-0"
                           style={{ background: catColor }}
                         />
-                        <span className="text-xs text-[#ccc] flex-1 truncate">
+                        <span
+                          className="text-[13px] flex-1 truncate"
+                          style={{ color: "rgba(255,255,255,0.70)" }}
+                        >
                           {food.name}
                         </span>
                         <span
-                          className="text-[9px] px-1.5 py-0.5 rounded border uppercase tracking-wider font-mono shrink-0"
+                          className="text-[8px] px-2 py-0.5 rounded-[5px] font-mono uppercase tracking-wider shrink-0"
                           style={{
+                            fontFamily: "var(--font-accent)",
+                            fontWeight: 700,
                             color: catColor,
-                            borderColor: catColor + "44",
-                            background: catColor + "11",
+                            background: catColor + "12",
+                            border: `0.5px solid ${catColor}44`,
                           }}
                         >
                           {food.category}
                         </span>
-                        <span className="text-[10px] font-mono text-[#555] w-10 text-right shrink-0">
+                        <span
+                          className="text-[10px] font-mono w-10 text-right shrink-0"
+                          style={{ color: "rgba(255,255,255,0.35)" }}
+                        >
                           {ing.grams}g
                         </span>
                         <div className="text-right shrink-0 w-20">
-                          <span className="text-[10px] font-mono text-[#888] block">
+                          <span
+                            className="text-[10px] font-mono block"
+                            style={{ color: "rgba(255,255,255,0.45)" }}
+                          >
                             {Math.round(kcal)} kcal
                           </span>
-                          <span className="text-[9px] font-mono text-[#ec4899]">
+                          <span
+                            className="text-[10px] font-mono"
+                            style={{ color: "rgba(236,72,153,0.80)" }}
+                          >
                             {Math.round(protein)}g P
                           </span>
                         </div>
@@ -307,9 +478,13 @@ export default function MealDetailPanel({ meal, slot, time, onClose }: Props) {
         </AnimatePresence>
 
         {/* ── Footer ── */}
-        <div className="px-5 py-3 border-t border-[#151515] shrink-0">
+        <div
+          className="px-5 py-3 shrink-0"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+        >
           <p
-            className="text-[10px] font-mono text-[#2a2a2a] truncate"
+            className="text-[10px] font-mono truncate"
+            style={{ color: "rgba(255,255,255,0.18)" }}
             title={meal.id}
           >
             {meal.id}
@@ -317,5 +492,18 @@ export default function MealDetailPanel({ meal, slot, time, onClose }: Props) {
         </div>
       </div>
     </motion.div>
+  );
+}
+
+// ── Internal helpers ──────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      className="text-[10px] font-mono uppercase tracking-[0.14em] font-semibold leading-none"
+      style={{ color: "rgba(255,255,255,0.30)" }}
+    >
+      {children}
+    </p>
   );
 }

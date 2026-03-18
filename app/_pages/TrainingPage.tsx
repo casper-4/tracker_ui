@@ -142,7 +142,7 @@ export default function TrainingPage() {
   ];
 
   return (
-    <div className="max-w-[1400px] mx-auto flex flex-col gap-4">
+    <div className="max-w-6xl mx-auto flex flex-col gap-4">
       {/* ── Page header ─────────────────────────────────────────────── */}
       <div className="flex items-center justify-between">
         <p className="text-[#facc15] text-[10px] uppercase tracking-widest font-mono">

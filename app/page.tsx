@@ -205,7 +205,7 @@ export default function TrackerUI() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}
-          className="flex-1 min-h-0 flex flex-col"
+          className="max-w-6xl mx-auto w-full flex-1 min-h-0 flex flex-col"
         >
           <DietPage onMealSelect={setSelectedMealForPanel} />
         </motion.div>

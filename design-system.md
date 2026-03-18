@@ -172,7 +172,7 @@ Navigation:   --nav-icon-idle, --nav-label-idle, --nav-label-active,
 ### Type scale (Tier 1 primitives)
 
 ```
---text-2xs:     10px   → Orbitron tags only
+--text-2xs:     10px   → tiny labels, metadata, section/card headers
 --text-xs:      11px   → metadata, legend, chart labels
 --text-sm:      13px   → body, nav items
 --text-md:      14px   → list item titles, progress labels
@@ -186,8 +186,9 @@ Navigation:   --nav-icon-idle, --nav-label-idle, --nav-label-active,
 
 ```
 Section labels:  --color-fg-subtle, uppercase, letter-spacing 0.08em
+Card headers:    same style as section labels, prefer --text-2xs (10px), uppercase, subtle gray
 Metric values:   --text-display, weight 700, letter-spacing -0.05em
-Tag text:        --text-2xs (Orbitron), weight 700, letter-spacing 0.2em, uppercase
+Tag text:        8px (Orbitron), weight 700, letter-spacing 0.2em, uppercase
 ```
 
 ---

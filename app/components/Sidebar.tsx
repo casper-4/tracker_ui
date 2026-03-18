@@ -196,7 +196,7 @@ const Sidebar = ({
     <motion.aside
       animate={{ width: collapsed ? 60 : 240 }}
       transition={{ duration: 0.22, ease: "easeInOut" }}
-      className="fixed left-10 top-6 lg:top-10 xl:top-16 max-h-[calc(100vh-3rem)] lg:max-h-[calc(100vh-5rem)] xl:max-h-[calc(100vh-8rem)] z-50 flex flex-col overflow-hidden rounded-2xl"
+      className="fixed left-10 top-6 bottom-6 lg:top-10 lg:bottom-10 xl:top-16 xl:bottom-16 z-50 flex flex-col overflow-hidden rounded-2xl"
       style={{
         background:
           "linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.3) 100%)",
@@ -293,7 +293,7 @@ const Sidebar = ({
 
       {/* Footer */}
       <div
-        className={`border-t border-white/[0.07] flex items-center ${
+        className={`mt-auto border-t border-white/[0.07] flex items-center ${
           collapsed ? "justify-center p-4" : "justify-between p-6"
         }`}
       >

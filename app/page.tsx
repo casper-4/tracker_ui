@@ -128,8 +128,9 @@ export default function TrackerUI() {
   const selectedSubSkill = useMemo<SubSkill | null>(() => {
     if (!selectedSkill || !selectedSubSkillId) return null;
     return (
-      selectedSkill.subSkills.find((subSkill) => subSkill.id === selectedSubSkillId) ??
-      null
+      selectedSkill.subSkills.find(
+        (subSkill) => subSkill.id === selectedSubSkillId,
+      ) ?? null
     );
   }, [selectedSkill, selectedSubSkillId]);
 
@@ -479,16 +480,18 @@ export default function TrackerUI() {
             )}
           </AnimatePresence>
           <AnimatePresence>
-            {activeTab === TAB_SKILL_DETAIL && selectedAspect && selectedSkill && (
-              <AspectDetailPanel
-                aspect={selectedAspect}
-                skillName={selectedSkill.name}
-                skillColor={getSkillColor(selectedSkill.id)}
-                subSkills={selectedAspectSubSkills}
-                onSubSkillSelect={handleSubSkillSelect}
-                onClose={() => setSelectedAspectId(null)}
-              />
-            )}
+            {activeTab === TAB_SKILL_DETAIL &&
+              selectedAspect &&
+              selectedSkill && (
+                <AspectDetailPanel
+                  aspect={selectedAspect}
+                  skillName={selectedSkill.name}
+                  skillColor={getSkillColor(selectedSkill.id)}
+                  subSkills={selectedAspectSubSkills}
+                  onSubSkillSelect={handleSubSkillSelect}
+                  onClose={() => setSelectedAspectId(null)}
+                />
+              )}
           </AnimatePresence>
           <AnimatePresence>
             {activeTab === TAB_SKILL_DETAIL &&

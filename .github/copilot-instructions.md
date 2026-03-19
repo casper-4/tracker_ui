@@ -215,6 +215,7 @@ This is a dark, high-contrast, premium personal OS. Glass surfaces, neon accents
 | SkillDetailPage | ✅     | radar, quest columns, tree       |
 | QuestsPage      | ✅     | kanban by status                 |
 | CalendarPage    | ✅     | day/week/month, drag-drop        |
+| HealthPage      | 🔲     | aliases Training page (stub)     |
 | TrainingPage    | 🔲     | stub — needs full design         |
-| DietPage        | 🔲     | stub — needs full design         |
-| PreferencesPage | 🔲     | stub — needs full design         |
+| DietPage        | ✅     | planner, drag-drop, meal details |
+| PreferencesPage | ✅     | profile card + language controls |

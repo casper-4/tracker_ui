@@ -208,24 +208,27 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
     [span],
   );
 
-  const handleDayWheel = useCallback((e: React.WheelEvent<HTMLElement>) => {
-    const container = e.currentTarget;
-    const nowTs = Date.now();
-    if (nowTs - lastDayWheelNavAt.current < wheelNavCooldownMs) return;
+  const handleDayWheel = useCallback(
+    (e: React.WheelEvent<HTMLElement>) => {
+      const container = e.currentTarget;
+      const nowTs = Date.now();
+      if (nowTs - lastDayWheelNavAt.current < wheelNavCooldownMs) return;
 
-    if (e.deltaY > 0 && isScrolledToBottom(container)) {
-      e.preventDefault();
-      lastDayWheelNavAt.current = nowTs;
-      goNextDay();
-      return;
-    }
+      if (e.deltaY > 0 && isScrolledToBottom(container)) {
+        e.preventDefault();
+        lastDayWheelNavAt.current = nowTs;
+        goNextDay();
+        return;
+      }
 
-    if (e.deltaY < 0 && isScrolledToTop(container)) {
-      e.preventDefault();
-      lastDayWheelNavAt.current = nowTs;
-      goPrevDay();
-    }
-  }, [goNextDay, goPrevDay]);
+      if (e.deltaY < 0 && isScrolledToTop(container)) {
+        e.preventDefault();
+        lastDayWheelNavAt.current = nowTs;
+        goPrevDay();
+      }
+    },
+    [goNextDay, goPrevDay],
+  );
 
   const rangeEnd = useMemo(
     () => addDays(rangeStart, span - 1),
@@ -321,7 +324,12 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
                 className="h-8 w-8 rounded-[7px] text-[var(--color-fg-tertiary)] transition-all duration-200 hover:bg-[var(--state-hover-bg)] hover:text-[var(--color-fg-primary)] active:scale-[0.96]"
                 aria-label={t(lang, "calendar_prev")}
               >
-                <NavArrowLeft width={16} height={16} strokeWidth={2.1} className="mx-auto" />
+                <NavArrowLeft
+                  width={16}
+                  height={16}
+                  strokeWidth={2.1}
+                  className="mx-auto"
+                />
               </button>
               <button
                 type="button"
@@ -336,7 +344,12 @@ export default function CalendarPage({ onQuestSelect }: CalendarPageProps) {
                 className="h-8 w-8 rounded-[7px] text-[var(--color-fg-tertiary)] transition-all duration-200 hover:bg-[var(--state-hover-bg)] hover:text-[var(--color-fg-primary)] active:scale-[0.96]"
                 aria-label={t(lang, "calendar_next")}
               >
-                <NavArrowRight width={16} height={16} strokeWidth={2.1} className="mx-auto" />
+                <NavArrowRight
+                  width={16}
+                  height={16}
+                  strokeWidth={2.1}
+                  className="mx-auto"
+                />
               </button>
             </div>
 

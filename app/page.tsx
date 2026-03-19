@@ -7,7 +7,7 @@ import SkillsListPage from "@/app/_pages/SkillsListPage";
 import QuestsPage from "@/app/_pages/QuestsPage";
 import SkillDetailPage from "@/app/_pages/SkillDetailPage";
 import CalendarPage from "@/app/_pages/CalendarPage";
-import TrainingPage from "@/app/_pages/TrainingPage";
+import TrainingPage from "./_pages/TrainingPage";
 import DietPage from "@/app/_pages/DietPage";
 import HealthPage from "@/app/_pages/HealthPage";
 import PreferencesPage from "@/app/_pages/PreferencesPage";
@@ -15,8 +15,17 @@ import Sidebar from "@/app/components/Sidebar";
 // import TopBar from "@/app/components/TopBar";
 import QuestDetailPanel from "@/app/components/QuestDetailPanel";
 import { MOCK_QUESTS, MOCK_SKILLS } from "@/lib/mock";
-import type { Quest, QuestStatus, NamedMeal, MealSlotId } from "@/lib/mock";
+import type {
+  Quest,
+  QuestStatus,
+  NamedMeal,
+  MealSlotId,
+  Aspect,
+  SubSkill,
+} from "@/lib/mock";
 import MealDetailPanel from "@/app/components/MealDetailPanel";
+import AspectDetailPanel from "@/app/components/AspectDetailPanel";
+import SubSkillDetailPanel from "@/app/components/SubSkillDetailPanel";
 import {
   TAB_DASHBOARD,
   TAB_SKILLS,
@@ -59,6 +68,10 @@ export default function TrackerUI() {
     undefined,
   );
   const [selectedQuestId, setSelectedQuestId] = useState<string | null>(null);
+  const [selectedAspectId, setSelectedAspectId] = useState<string | null>(null);
+  const [selectedSubSkillId, setSelectedSubSkillId] = useState<string | null>(
+    null,
+  );
   const [questStatuses, setQuestStatuses] = useState<
     Record<string, QuestStatus>
   >({});
@@ -98,6 +111,67 @@ export default function TrackerUI() {
     if (!q) return null;
     return { ...q, status: questStatuses[q.id] ?? q.status };
   }, [selectedQuestId, questStatuses]);
+
+  const selectedSkill = useMemo(() => {
+    if (!selectedSkillId) return null;
+    return MOCK_SKILLS.find((skill) => skill.id === selectedSkillId) ?? null;
+  }, [selectedSkillId]);
+
+  const selectedAspect = useMemo<Aspect | null>(() => {
+    if (!selectedSkill || !selectedAspectId) return null;
+    return (
+      selectedSkill.aspects.find((aspect) => aspect.id === selectedAspectId) ??
+      null
+    );
+  }, [selectedSkill, selectedAspectId]);
+
+  const selectedSubSkill = useMemo<SubSkill | null>(() => {
+    if (!selectedSkill || !selectedSubSkillId) return null;
+    return (
+      selectedSkill.subSkills.find((subSkill) => subSkill.id === selectedSubSkillId) ??
+      null
+    );
+  }, [selectedSkill, selectedSubSkillId]);
+
+  const selectedAspectSubSkills = useMemo(() => {
+    if (!selectedSkill || !selectedAspect) return [];
+    return selectedSkill.subSkills.filter(
+      (subSkill) => subSkill.aspect === selectedAspect.id,
+    );
+  }, [selectedSkill, selectedAspect]);
+
+  const selectedSubSkillQuests = useMemo(() => {
+    if (!selectedSubSkill) return [];
+    return selectedSubSkill.quests
+      .map((subSkillQuest) =>
+        MOCK_QUESTS.find((quest) => quest.id === subSkillQuest.id),
+      )
+      .filter((quest): quest is Quest => quest != null);
+  }, [selectedSubSkill]);
+
+  const selectedSubSkillAspectName = useMemo(() => {
+    if (!selectedSkill || !selectedSubSkill) return undefined;
+    return selectedSkill.aspects.find((a) => a.id === selectedSubSkill.aspect)
+      ?.name;
+  }, [selectedSkill, selectedSubSkill]);
+
+  const handleQuestSelect = (questId: string) => {
+    setSelectedAspectId(null);
+    setSelectedSubSkillId(null);
+    setSelectedQuestId(questId);
+  };
+
+  const handleAspectSelect = (aspectId: string) => {
+    setSelectedQuestId(null);
+    setSelectedSubSkillId(null);
+    setSelectedAspectId(aspectId);
+  };
+
+  const handleSubSkillSelect = (subSkillId: string) => {
+    setSelectedQuestId(null);
+    setSelectedAspectId(null);
+    setSelectedSubSkillId(subSkillId);
+  };
 
   const handleQuestChange = (updated: Quest) => {
     setQuestStatuses((prev) => ({ ...prev, [updated.id]: updated.status }));
@@ -147,7 +221,7 @@ export default function TrackerUI() {
         >
           <QuestsPage
             questStatuses={questStatuses}
-            onQuestSelect={setSelectedQuestId}
+            onQuestSelect={handleQuestSelect}
             onQuestStatusChange={(id, status) =>
               setQuestStatuses((prev) => ({ ...prev, [id]: status }))
             }
@@ -170,7 +244,9 @@ export default function TrackerUI() {
             onSkillColorChange={(c) =>
               selectedSkillId && setSkillColor(selectedSkillId, c)
             }
-            onQuestSelect={setSelectedQuestId}
+            onQuestSelect={handleQuestSelect}
+            onAspectSelect={handleAspectSelect}
+            onSubSkillSelect={handleSubSkillSelect}
           />
         </motion.div>
       );
@@ -184,7 +260,7 @@ export default function TrackerUI() {
           exit={{ opacity: 0, y: -10 }}
           className="flex-1 min-h-0 flex flex-col"
         >
-          <CalendarPage onQuestSelect={setSelectedQuestId} />
+          <CalendarPage onQuestSelect={handleQuestSelect} />
         </motion.div>
       );
     }
@@ -245,6 +321,20 @@ export default function TrackerUI() {
     }
     return <ModuleInProgress key="other" />;
   }, [activeTab, selectedSkillId, questStatuses, skillColors]);
+
+  useEffect(() => {
+    if (activeTab !== TAB_SKILL_DETAIL) {
+      setSelectedAspectId(null);
+      setSelectedSubSkillId(null);
+      return;
+    }
+    setSelectedQuestId(null);
+  }, [activeTab]);
+
+  useEffect(() => {
+    setSelectedAspectId(null);
+    setSelectedSubSkillId(null);
+  }, [selectedSkillId]);
 
   useEffect(() => {
     let activeElement: HTMLElement | null = null;
@@ -387,6 +477,33 @@ export default function TrackerUI() {
                 onQuestChange={handleQuestChange}
               />
             )}
+          </AnimatePresence>
+          <AnimatePresence>
+            {activeTab === TAB_SKILL_DETAIL && selectedAspect && selectedSkill && (
+              <AspectDetailPanel
+                aspect={selectedAspect}
+                skillName={selectedSkill.name}
+                skillColor={getSkillColor(selectedSkill.id)}
+                subSkills={selectedAspectSubSkills}
+                onSubSkillSelect={handleSubSkillSelect}
+                onClose={() => setSelectedAspectId(null)}
+              />
+            )}
+          </AnimatePresence>
+          <AnimatePresence>
+            {activeTab === TAB_SKILL_DETAIL &&
+              selectedSubSkill &&
+              selectedSkill && (
+                <SubSkillDetailPanel
+                  subSkill={selectedSubSkill}
+                  skillName={selectedSkill.name}
+                  skillColor={getSkillColor(selectedSkill.id)}
+                  aspectName={selectedSubSkillAspectName}
+                  linkedQuests={selectedSubSkillQuests}
+                  onQuestSelect={handleQuestSelect}
+                  onClose={() => setSelectedSubSkillId(null)}
+                />
+              )}
           </AnimatePresence>
           <AnimatePresence>
             {activeTab === TAB_DIET && selectedMealForPanel && (

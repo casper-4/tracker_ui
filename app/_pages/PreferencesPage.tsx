@@ -12,6 +12,27 @@ export default function PreferencesPage() {
   const { lang, setLang } = useLang();
   const user = MOCK_USER;
 
+  const languageOptions = [
+    {
+      id: "pl",
+      labelKey: "prefs_language_pl",
+      activeStyle: {
+        backgroundImage:
+          "linear-gradient(to bottom, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.95) 50%, rgba(220,20,60,0.92) 50%, rgba(220,20,60,0.92) 100%)",
+        borderColor: "rgba(220,20,60,0.9)",
+      },
+    },
+    {
+      id: "en",
+      labelKey: "prefs_language_en",
+      activeStyle: {
+        backgroundImage:
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 36'%3E%3Crect width='60' height='36' fill='%23012169'/%3E%3Cpolygon points='0,0 24,14 18,14 0,3' fill='white'/%3E%3Cpolygon points='60,0 36,14 42,14 60,3' fill='white'/%3E%3Cpolygon points='0,36 24,22 18,22 0,33' fill='white'/%3E%3Cpolygon points='60,36 36,22 42,22 60,33' fill='white'/%3E%3Cpolygon points='0,0 22,13 19,13 0,2' fill='%23C8102E'/%3E%3Cpolygon points='60,0 38,13 41,13 60,2' fill='%23C8102E'/%3E%3Cpolygon points='0,36 22,23 19,23 0,34' fill='%23C8102E'/%3E%3Cpolygon points='60,36 38,23 41,23 60,34' fill='%23C8102E'/%3E%3Crect y='14' width='60' height='8' fill='white'/%3E%3Crect x='26' width='8' height='36' fill='white'/%3E%3Crect y='15.5' width='60' height='5' fill='%23C8102E'/%3E%3Crect x='27.5' width='5' height='36' fill='%23C8102E'/%3E%3C/svg%3E\")",
+        borderColor: "rgba(198,39,56,0.9)",
+      },
+    },
+  ] as const;
+
   const joinedDate = new Date(user.joinedAt).toLocaleDateString(
     lang === "pl" ? "pl-PL" : "en-US",
     { year: "numeric", month: "short" },
@@ -65,7 +86,10 @@ export default function PreferencesPage() {
               <div className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
                 {profileFields.map((field) => (
                   <div key={field.key}>
-                    <p className="mb-1 text-[var(--text-2xs)] uppercase tracking-[0.08em] text-[color:var(--color-fg-subtle)]">
+                    <p
+                      className="mb-1 text-[10px] font-mono uppercase leading-none tracking-[0.14em]"
+                      style={{ color: "rgba(255, 255, 255, 0.3)" }}
+                    >
                       {t(lang, field.key)}
                     </p>
                     <p className="truncate text-[var(--text-md)] font-semibold text-[color:var(--color-fg-primary)]">
@@ -105,28 +129,26 @@ export default function PreferencesPage() {
               className="text-[color:var(--color-fg-subtle)]"
             />
             <div>
-              <p className="mb-1 text-[var(--text-2xs)] uppercase tracking-[0.08em] text-[color:var(--color-fg-subtle)]">
+              <p
+                className="mb-1 text-[10px] font-mono uppercase leading-none tracking-[0.14em]"
+                style={{ color: "rgba(255, 255, 255, 0.3)" }}
+              >
                 {t(lang, "prefs_language")}
-              </p>
-              <p className="text-[var(--text-sm)] text-[color:var(--color-fg-primary)]">
-                {t(lang, "prefs_language_desc")}
               </p>
             </div>
           </div>
 
           <div className="mt-4 flex gap-2 sm:mt-3 sm:justify-end">
-            {([
-              { id: "pl", labelKey: "prefs_language_pl" },
-              { id: "en", labelKey: "prefs_language_en" },
-            ] as const).map((option) => (
+            {languageOptions.map((option) => (
               <button
                 key={option.id}
                 onClick={() => setLang(option.id)}
                 className={`rounded-[var(--btn-radius)] border px-3 py-1.5 text-[var(--text-2xs)] font-semibold uppercase tracking-[0.18em] transition-[transform,background-color,color,border-color] duration-200 ease-[cubic-bezier(0.4,0,0.2,1)] active:scale-[var(--state-btn-press-scale)] ${
                   lang === option.id
-                    ? "border-[color:var(--color-warning)] bg-[color:var(--color-warning-subtle)] text-[color:var(--color-warning)]"
+                    ? "bg-cover bg-center text-[color:var(--color-fg-primary)]"
                     : "border-[color:var(--color-border-default)] text-[color:var(--color-fg-tertiary)] hover:border-[color:var(--color-border-strong)] hover:bg-[color:var(--state-hover-bg)] hover:text-[color:var(--color-fg-primary)]"
                 }`}
+                style={lang === option.id ? option.activeStyle : undefined}
                 aria-pressed={lang === option.id}
               >
                 {t(lang, option.labelKey)}
